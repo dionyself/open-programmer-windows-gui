@@ -1,0 +1,39 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: OpenProg - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP189.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/OpenProg.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Documents and Settings\Alberto\Documenti\Progetti C++\OpenProg\OpenProgDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP189.tmp" 
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP18A.tmp" with contents
+[
+/nologo /subsystem:windows /incremental:no /pdb:"Release/OpenProg.pdb" /machine:I386 /out:"Release/OpenProg.exe" 
+".\Release\DatiPage.obj"
+".\Release\DispositivoPage.obj"
+".\Release\I2CSPIPage.obj"
+".\Release\OpenProg.obj"
+".\Release\OpenProgDlg.obj"
+".\Release\OpzioniPage.obj"
+".\Release\StdAfx.obj"
+".\Release\OpenProg.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP18A.tmp"
+<h3>Output Window</h3>
+Compiling...
+OpenProgDlg.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+OpenProg.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
