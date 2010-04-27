@@ -278,22 +278,26 @@ void COpenProgDlg::Read18Fx(int dim,int dim2){
 		PrintMessage(str);
 	}
 	PrintMessage(strings[S_CodeMem]);	//"\r\nMemoria programma:\r\n"
-	CString s,t,aux;
+	CString aux;
+	char s[256],t[256];
+	s[0]=0;
+	int valid=0,empty=1;
 	for(i=0;i<dim;i+=COL*2){
-		int valid=0;
+		valid=0;
 		for(j=i;j<i+COL*2&&j<dim;j++){
-			t.Format("%02X ",memCODE[j]&0xff);
-			s+=t;
+			sprintf(t,"%02X ",memCODE[j]);
+			strcat(s,t);
 			if(memCODE[j]<0xff) valid=1;
 		}
 		if(valid){
-			t.Format("%04X: %s\r\n",i,s);
+			sprintf(t,"%04X: %s\r\n",i,s);
 			aux+=t;
+			empty=0;
 		}
-		s.Empty();
+		s[0]=0;
 	}
-	if(aux.GetLength()) PrintMessage(aux);
-	else PrintMessage(strings[S_Empty]);	//empty
+	PrintMessage(aux);
+	if(empty) PrintMessage(strings[S_Empty]);	//empty
 	if(dim2){
 		DisplayEE();
 	}
@@ -311,7 +315,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 // vdd before vpp
 {
 	int k=0,k2=0,z=0,i,j;
-	int programID=0,max_errori,errori=0,devID=0;
+	int programID=0,max_err,err=0,devID=0;
 	int saveLog;
 	CString str;
 	DWORD BytesWritten=0;
@@ -333,7 +337,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if (ReadHandle == INVALID_HANDLE_VALUE){
 		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
 		return;
@@ -580,7 +584,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 //****************** write and verify EEPROM ********************
 	if(dim2){
 		PrintMessage(strings[S_EEAreaW]);	//"Scrittura EEPROM ... "
-		int erroriEE=0;
+		int errEE=0;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x9E;			//EEPGD=0
 		bufferU[j++]=0xA6;
@@ -590,7 +594,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x84;			//WREN=1
 		bufferU[j++]=0xA6;
-		for(i=0;i<dim2&&errori<=max_errori;i++){
+		for(i=0;i<dim2&&err<=max_err;i++){
 			if(memEE[i]!=0xFF){
 				bufferU[j++]=CORE_INS;
 				bufferU[j++]=0x0E;
@@ -658,17 +662,17 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 				StatusBar.SetWindowText(str);
 				j=1;
 				for(z=DIMBUF-1;z&&bufferI[z]!=SHIFT_TABLAT;z--);
-				if(z&&memEE[i]!=bufferI[z+1]) erroriEE++;
+				if(z&&memEE[i]!=bufferI[z+1]) errEE++;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,erroriEE);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,errEE);	//"i=%d, k=%d, errori=%d\n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		str.Format(strings[S_ComplErr],erroriEE);	//"terminata: %d errori \r\n"
+		str.Format(strings[S_ComplErr],errEE);	//"terminata: %d errori \r\n"
 		PrintMessage(str);
-		errori+=erroriEE;
+		err+=errEE;
 	}
 //****************** verify code ********************
 	PrintMessage(strings[S_CodeV]);	//"Verifica codice ... "
@@ -702,14 +706,14 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		bufferU[j++]=FLUSH;
 		for(;j<DIMBUF;j++) bufferU[j]=0x0;
 		write();
-		msDelay(1);
+		msDelay(2);
 		read();
 		if(bufferI[1]==TBLR_INC_N){
 			for(z=0;z<bufferI[2]&&z<DIMBUF;z++){
 				if(memCODE[i+z]!=bufferI[z+3]){
 					str.Format(strings[S_CodeVError],i+z,i+z,memCODE[i+z],bufferI[z+3]);	//"Errore in verifica, indirizzo %04X (%d), scritto %02X, letto %02X\r\n"
 					PrintMessage(str);
-					errori++;
+					err++;
 				}
 				k++;
 			}
@@ -718,26 +722,26 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		StatusBar.SetWindowText(str);
 		j=1;
 		if(saveLog){
-			str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+			str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d\n"
 			WriteLog(str);
 			WriteLogIO();
 		}
-		if(errori>=max_errori) break;
+		if(err>=max_err) break;
 	}
 	if(k<dimx){
 		str.Format(strings[S_CodeVError2],dimx,k);	//"Errore in verifica area programma, richiesti %d byte, letti %d\r\n"
 		PrintMessage(str);
 	}
-	str.Format(strings[S_ComplErr],errori);	//"terminata: %d errori\r\n"
+	str.Format(strings[S_ComplErr],err);	//"terminata: %d errori\r\n"
 	PrintMessage(str);
-	if(errori>=max_errori){
-		str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+	if(err>=max_err){
+		str.Format(strings[S_MaxErr],err);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
 		PrintMessage(str);
 	}
 //****************** verify ID ********************
-	if(memID.GetSize()>=8&&errori<max_errori){
+	if(memID.GetSize()>=8&&err<max_err){
 		PrintMessage(strings[S_IDV]);	//"Verifica ID ... "
-		int erroriID=0;
+		int errID=0;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x0E;			//TBLPTRU	ID 0x200000
 		bufferU[j++]=0x20;			//TBLPTRU	ID 0x200000
@@ -758,23 +762,23 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		msDelay(2);
 		read();
 		for(z=0;bufferI[z]!=TBLR_INC_N&&z<DIMBUF;z++);
-		for(i=0;i<8;i++) if(memID[i]!=0xFF&&memID[i]!=bufferI[z+i+2]) erroriID++;
-		str.Format(strings[S_ComplErr],erroriID);	//"terminata: %d errori\r\n"
+		for(i=0;i<8;i++) if(memID[i]!=0xFF&&memID[i]!=bufferI[z+i+2]) errID++;
+		str.Format(strings[S_ComplErr],errID);	//"terminata: %d errori\r\n"
 		PrintMessage(str);
-		errori+=erroriID;
-		if(errori>=max_errori){
-			str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+		err+=errID;
+		if(err>=max_err){
+			str.Format(strings[S_MaxErr],err);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
 			PrintMessage(str);
 		}
 		j=1;
 		if(saveLog){
-			str.Format(strings[S_Log8],i,i,0,0,errori);	//"i=%d, k=%d, errori=%d\n"
+			str.Format(strings[S_Log8],i,i,0,0,err);	//"i=%d, k=%d, errori=%d\n"
 			WriteLog(str);
 			WriteLogIO();
 		}
 	}
 //****************** write CONFIG ********************
-	if(memCONFIG.GetSize()&&errori<max_errori){
+	if(memCONFIG.GetSize()&&err<max_err){
 		PrintMessage(strings[S_ConfigW]);	//"Programmazione CONFIG ..."
 		for(i=memCONFIG.GetSize();i<14;i++) memCONFIG[i]=0xFF;
 		bufferU[j++]=CORE_INS;
@@ -829,7 +833,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		PrintMessage(strings[S_Compl]);	//"terminata\r\n"
 //****************** verify CONFIG ********************
 		PrintMessage(strings[S_ConfigV]);	//"Verifica CONFIG ... "
-		int erroriC=0;
+		int errC=0;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x0E;			//TBLPTRU	CONFIG 0x300000
 		bufferU[j++]=0x30;			//TBLPTRU	CONFIG 0x300000
@@ -851,18 +855,18 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 		read();
 		for(z=1;bufferI[z]!=TBLR_INC_N&&z<DIMBUF-16;z++);
 		if(z<DIMBUF-16){
-			for(i=0;i<14;i++) if(!memCONFIG[i]&bufferI[z+i+2]) erroriC++;	//error if written 0 and read 1 (!W&R)
+			for(i=0;i<14;i++) if(!memCONFIG[i]&bufferI[z+i+2]) errC++;	//error if written 0 and read 1 (!W&R)
 		}
-		str.Format(strings[S_ComplErr],erroriC);	//"terminata: %d errori\r\n"
+		str.Format(strings[S_ComplErr],errC);	//"terminata: %d errori\r\n"
 		PrintMessage(str);
-		errori+=erroriC;
-		if(errori>=max_errori){
-			str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+		err+=errC;
+		if(err>=max_err){
+			str.Format(strings[S_MaxErr],err);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
 			PrintMessage(str);
 		}
 		j=1;
 		if(saveLog){
-			str.Format(strings[S_Log8],i,i,0,0,errori);	//"i=%d, k=%d, errori=%d\n"
+			str.Format(strings[S_Log8],i,i,0,0,err);	//"i=%d, k=%d, errori=%d\n"
 			WriteLog(str);
 			WriteLogIO();
 		}
@@ -881,7 +885,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0xFFFF,int 
 	read();
 	unsigned int stop=GetTickCount();
 	StatusBar.SetWindowText("");
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog) CloseLogFile();
 }

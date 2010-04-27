@@ -40,6 +40,10 @@ void COpenProgDlg::Read24Fx(int dim,int dim2,int options,int appIDaddr,int execu
 		return;
 	}
 	if(MyDeviceDetected==FALSE) return;
+	if(!CheckV33Regulator()){ 
+		PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expnsion board
+		return;
+	}
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
 	if (ReadHandle == INVALID_HANDLE_VALUE){
@@ -586,8 +590,8 @@ void COpenProgDlg::Read24Fx(int dim,int dim2,int options,int appIDaddr,int execu
 				}
 			}
 		}
-		if(k2!=dim2){
-			str.Format(strings[S_ReadEEErr],dim2,k2);	//"Errore in lettura area EEPROM, richiesti %d byte, letti %d\r\n"
+		if(k2!=dim2*2){
+			str.Format(strings[S_ReadEEErr],dim2*2,k2);	//"Errore in lettura area EEPROM, richiesti %d byte, letti %d\r\n"
 			PrintMessage(str);
 		}
 		else PrintMessage(strings[S_Compl]);
@@ -846,6 +850,10 @@ void COpenProgDlg::Write24Fx(int dim,int dim2,int options,int appIDaddr,int rowS
 		return;
 	}
 	if(MyDeviceDetected==FALSE) return;
+	if(!CheckV33Regulator()){ 
+		PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expnsion board
+		return;
+	}
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
 	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);

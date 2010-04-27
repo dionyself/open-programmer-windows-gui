@@ -1,5 +1,5 @@
 OpenProg: control program for open programmer, 
-an USB programmer for PIC and ATMEL micros, I2C and MicroWire memories, and other I2C/SPI devices.
+an USB programmer for PIC and ATMEL micros, I2C/SPI/MicroWire memories, and other I2C/SPI devices.
 Website: http://openprog.altervista.org
 These sources are given free of charge under the GNU General Public License version 2 
 
@@ -17,3 +17,5 @@ V 0.6.2	october 2009:	corrected algorithms for 16F628 16F87/88 and 81X; bin file
 V 0.7.0	january 2010:	added support for I2C EEPROMs and some PIC24F micros
 V 0.7.1	february 2010:	added support for some PIC18 and Atmel micros
 V 0.7.2	march 2010:		added some uW memories, corrected 16F7xx algo, various bugfixes
+V 0.7.3	april 2010:		added 16F1xxx, some code polishing, 
+						separated fileIO.cpp and made similar to command-line version

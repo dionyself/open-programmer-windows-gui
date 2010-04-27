@@ -101,6 +101,11 @@ SOURCE=.\DispositivoPage.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fileIO.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\I2CSPIPage.cpp
 # End Source File
 # Begin Source File

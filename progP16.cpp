@@ -43,22 +43,22 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 		ee2200=1;
 	}
 	if(dim>0x2000||dim<0){
-		PrintMessage(strings[S_CodeLim]);	//"Dimensione programma oltre i limiti\r\n"
+		PrintMessage(strings[S_CodeLim]);	//"Code size exceeds limits\r\n"
 		return;
 	}
 	if(dim2>0x400||dim2<0){		//Max 1K
-		PrintMessage(strings[S_EELim]);	//"Dimensione eeprom oltre i limiti\r\n"
+		PrintMessage(strings[S_EELim]);	//"EEPROM size exceeds limits\r\n"
 		return;
 	}
 	if(dim3>0x100||dim3<0){
-		PrintMessage(strings[S_ConfigLim]);	//"Dimensione area config oltre i limiti\r\n"
+		PrintMessage(strings[S_ConfigLim]);	//"Config area size exceeds limits\r\n"
 		return;
 	}
 	if(dim3<8)dim3=8;
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	if(saveLog){
@@ -120,11 +120,11 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 	read();
 	if(saveLog)WriteLogIO();
 //****************** read code ********************
-	PrintMessage(strings[S_CodeReading1]);		//lettura codice ...
+	PrintMessage(strings[S_CodeReading1]);		//read code ...
 	for(i=0,j=1;i<dim;i++){
 		bufferU[j++]=READ_DATA_PROG;
 		bufferU[j++]=INC_ADDR;
-		if(j>DIMBUF*2/4-2||i==dim-1){		//2 istruzioni -> 4 risposte
+		if(j>DIMBUF*2/4-2||i==dim-1){		//2B cmd -> 4B data
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
 			write();
@@ -136,7 +136,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 					z+=2;
 				}
 			}
-			str.Format(strings[S_CodeReading],i*100/(dim+dim2+dim3),i);	//"Lettura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeReading],i*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
 			StatusBar.SetWindowText(str);
 			j=1;
 			if(saveLog){
@@ -160,7 +160,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 	for(i=0x2000;i<0x2000+dim3;i++){		//Config
 		bufferU[j++]=READ_DATA_PROG;
 		bufferU[j++]=INC_ADDR;
-		if(j>DIMBUF*2/4-2||i==0x2000+dim3-1){		//2 istruzioni -> 4 risposte
+		if(j>DIMBUF*2/4-2||i==0x2000+dim3-1){		//2B cmd -> 4B data
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
 			write();
@@ -172,7 +172,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 					z+=2;
 				}
 			}
-			str.Format(strings[S_CodeReading],(i-0x2000+dim)*100/(dim+dim2+dim3),i);	//"Lettura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeReading],(i-0x2000+dim)*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
 			StatusBar.SetWindowText(str);
 			j=1;
 			if(saveLog){
@@ -201,7 +201,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 		for(k2=0,i=0x2100;i<0x2100+dim2;i++){
 			bufferU[j++]=READ_DATA_DATA;
 			bufferU[j++]=INC_ADDR;
-			if(j>DIMBUF*2/4-2||i==0x2100+dim2-1){		//2 istruzioni -> 4 risposte
+			if(j>DIMBUF*2/4-2||i==0x2100+dim2-1){		//2B cmd -> 4B data
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
 				write();
@@ -213,7 +213,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 						z++;
 					}
 				}
-				str.Format(strings[S_CodeReading],(i-0x2100+dim)*100/(dim+dim2+dim3),i);	//"Lettura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeReading],(i-0x2100+dim)*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
 				StatusBar.SetWindowText(str);
 				j=1;
 				if(saveLog){
@@ -277,7 +277,7 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 		}
 		s.Empty();
 	}
-	if(aux.GetLength()) PrintMessage(aux);
+	if(!aux.IsEmpty()) PrintMessage(aux);
 	else PrintMessage(strings[S_Empty]);	//empty
 	aux.Empty();
 	if(dim3>8){
@@ -295,9 +295,9 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 			}
 			s.Empty();
 		}
+		if(aux.GetLength()) PrintMessage(aux);
+		else PrintMessage(strings[S_Empty]);	//empty
 	}
-	if(aux.GetLength()) PrintMessage(aux);
-	else PrintMessage(strings[S_Empty]);	//empty
 	aux.Empty();
 	if(dim2){
 		str.Empty();
@@ -327,6 +327,295 @@ void COpenProgDlg::Read16Fxxx(int dim,int dim2,int dim3,int vdd){
 	if(saveLog) CloseLogFile();
 }
 
+void COpenProgDlg::Read16F1xxx(int dim,int dim2,int dim3,int options){
+// read 14 bit enhanced PIC
+// dim=program size 	dim2=eeprom size   dim3=config size
+// options:
+//		bit0=0 -> vpp before vdd
+//		bit0=1 -> vdd before vpp
+//		bit1=1 -> LVP programming
+// DevID@0x8006
+// Config1@0x8007
+// Config2@0x8008
+// Calib1@0x8009
+// Calib2@0x800A
+// eeprom@0x0
+	int k=0,k2=0,z=0,i,j;
+	int saveLog;
+	CString str;
+	CString s,t;
+	DWORD BytesWritten=0;
+	ULONG Result;
+	if(MyDeviceDetected==FALSE) return;
+	if(!CheckV33Regulator()){ 
+		PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expnsion board
+		return;
+	}
+	if(dim>0x8000||dim<0){
+		PrintMessage(strings[S_CodeLim]);	//"Code size exceeds limits\r\n"
+		return;
+	}
+	if(dim2>0x400||dim2<0){		//Max 1K
+		PrintMessage(strings[S_EELim]);	//"EEPROM size exceeds limits\r\n"
+		return;
+	}
+	if(dim3>0x200||dim3<0){
+		PrintMessage(strings[S_ConfigLim]);	//"Config area size exceeds limits\r\n"
+		return;
+	}
+	if(dim3<11)dim3=11;		//at least config1-2 + calib1-2
+	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
+	saveLog=b->GetCheck();
+	if (ReadHandle == INVALID_HANDLE_VALUE){
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
+		return;
+	}
+	if(saveLog){
+		OpenLogFile(strings[S_LogFile]);	//"Log.txt"
+		str.Format("Read16F1xxx(%d,%d,%d,%d)\n",dim,dim2,dim3,options);
+		WriteLog(str);
+	}
+	if((options&2)==0){				//HV entry
+		if(!StartHVReg(8.5)){
+			PrintMessage(strings[S_HVregErr]); //"HV regulator error\r\n"
+			return;
+		}
+	}
+	else StartHVReg(-1);			//LVP mode, turn off HV
+	dati_hex.RemoveAll();
+	dati_hex.SetSize(0x8000+dim3);
+	memEE.SetSize(dim2);
+	for(i=0;i<memEE.GetSize();i++) memEE[i]=0xFF;
+	unsigned int start=GetTickCount();
+	bufferU[0]=0;
+	j=1;
+	bufferU[j++]=SET_PARAMETER;
+	bufferU[j++]=SET_T1T2;
+	bufferU[j++]=1;						//T1=1u
+	bufferU[j++]=100;					//T2=100u
+	bufferU[j++]=SET_PARAMETER;
+	bufferU[j++]=SET_T3;
+	bufferU[j++]=2000>>8;
+	bufferU[j++]=2000&0xff;
+	bufferU[j++]=EN_VPP_VCC;		//enter program mode
+	bufferU[j++]=0x0;
+	bufferU[j++]=SET_CK_D;
+	bufferU[j++]=0x0;
+	if((options&2)==0){				//HV entry
+		if((options&1)==0){				//VPP before VDD
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=4;				//VPP
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=0x5;			//VDD+VPP
+		}
+		else{							//VDD before VPP without delay
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=1;				//VDD
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=0x5;			//VDD+VPP
+		}
+	}
+	else{			//Low voltage programming
+		bufferU[j++]=EN_VPP_VCC;
+		bufferU[j++]=4;				//VPP
+		bufferU[j++]=WAIT_T3;
+		bufferU[j++]=TX16;			//0000 1010 0001 0010 1100 0010 1011 0010 = 0A12C2B2
+		bufferU[j++]=2;
+		bufferU[j++]=0x0A;
+		bufferU[j++]=0x12;
+		bufferU[j++]=0xC2;
+		bufferU[j++]=0xB2;
+		bufferU[j++]=SET_CK_D;		//Clock pulse
+		bufferU[j++]=0x4;
+		bufferU[j++]=SET_CK_D;
+		bufferU[j++]=0x0;
+	}
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(2);
+	read();
+	if(saveLog)WriteLogIO();
+//****************** read code ********************
+	PrintMessage(strings[S_CodeReading1]);		//read code ...
+	for(i=0,j=1;i<dim;i++){
+		bufferU[j++]=READ_DATA_PROG;
+		bufferU[j++]=INC_ADDR;
+		if(j>DIMBUF*2/4-2||i==dim-1){		//2B cmd -> 4B data
+			bufferU[j++]=FLUSH;
+			for(;j<DIMBUF;j++) bufferU[j]=0x0;
+			write();
+			msDelay(5);
+			read();
+			for(z=1;z<DIMBUF-2;z++){
+				if(bufferI[z]==READ_DATA_PROG){
+					dati_hex[k++]=(bufferI[z+1]<<8)+bufferI[z+2];
+					z+=2;
+				}
+			}
+			str.Format(strings[S_CodeReading],i*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
+			StatusBar.SetWindowText(str);
+			j=1;
+			if(saveLog){
+				str.Format(strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
+				WriteLog(str);
+				WriteLogIO();
+			}
+		}
+	}
+	if(k!=dim){
+		str.Format(strings[S_ReadCodeErr],dim,k);	//"Errore in lettura area programma, richieste %d word, lette %d\r\n"
+		PrintMessage(str);
+	}
+	else PrintMessage(strings[S_Compl]);
+	for(i=k;i<0x8000;i++) dati_hex[i]=0x3fff;
+//****************** read config area ********************
+	PrintMessage(strings[S_Read_CONFIG_A]);		//lettura config ...
+	bufferU[j++]=LOAD_CONF;			//counter at 0x8000
+	bufferU[j++]=0xFF;
+	bufferU[j++]=0xFF;
+	for(i=0x8000;i<0x8000+dim3;i++){		//Config
+		bufferU[j++]=READ_DATA_PROG;
+		bufferU[j++]=INC_ADDR;
+		if(j>DIMBUF*2/4-2||i==0x8000+dim3-1){		//2B cmd -> 4B data
+			bufferU[j++]=FLUSH;
+			for(;j<DIMBUF;j++) bufferU[j]=0x0;
+			write();
+			msDelay(5);
+			read();
+			for(z=1;z<DIMBUF-2;z++){
+				if(bufferI[z]==READ_DATA_PROG){
+					dati_hex[0x8000+k2++]=(bufferI[z+1]<<8)+bufferI[z+2];
+					z+=2;
+				}
+			}
+			str.Format(strings[S_CodeReading],(i-0x8000+dim)*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
+			StatusBar.SetWindowText(str);
+			j=1;
+			if(saveLog){
+				str.Format(strings[S_Log7],i,i,k2,k2);	//"i=%d(0x%X), k=%d(0x%X)\n"
+				WriteLog(str);
+				WriteLogIO();
+			}
+		}
+	}
+	if(k2!=dim3){
+		str.Format(strings[S_ConfigErr],dim3,k2);	//"Errore in lettura area configurazione, richieste %d word, lette %d\r\n"
+		PrintMessage(str);
+	}
+	else PrintMessage(strings[S_Compl]);
+	for(i=0x8000+k2;i<0x8000+dim3;i++) dati_hex[i]=0x3fff;
+//****************** read eeprom ********************
+	if(dim2){
+		PrintMessage(strings[S_ReadEE]);		//lettura EE ...
+		bufferU[j++]=CUST_CMD;
+		bufferU[j++]=0x16;		//Reset address
+		for(i=k=0;i<dim2;i++){
+			bufferU[j++]=READ_DATA_DATA;
+			bufferU[j++]=INC_ADDR;
+			if(j>DIMBUF*2/4-2||i==dim2-1){		//2B cmd -> 4B data
+				bufferU[j++]=FLUSH;
+				for(;j<DIMBUF;j++) bufferU[j]=0x0;
+				write();
+				msDelay(5);
+				read();
+				for(z=1;z<DIMBUF-1;z++){
+					if(bufferI[z]==READ_DATA_DATA){
+						memEE[k++]=bufferI[z+1];
+						z++;
+					}
+				}
+				str.Format(strings[S_CodeReading],i*100/(dim+dim2+dim3),i);	//"Read: %d%%, ind. %03X"
+				StatusBar.SetWindowText(str);
+				j=1;
+				if(saveLog){
+					str.Format(strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
+					WriteLog(str);
+					WriteLogIO();
+				}
+			}
+		}
+		if(i!=dim2){
+			str.Format(strings[S_ReadEEErr],dim2,i);	//"Errore in lettura area EE, ..."
+			PrintMessage(str);
+			for(;i<dim2;i++) memEE[i]=0xff;
+		}
+		else PrintMessage(strings[S_Compl]);
+	}
+	bufferU[j++]=NOP;				//exit program mode
+	bufferU[j++]=EN_VPP_VCC;
+	bufferU[j++]=1;					//VDD
+	bufferU[j++]=EN_VPP_VCC;
+	bufferU[j++]=0x0;
+	bufferU[j++]=SET_CK_D;
+	bufferU[j++]=0x0;
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(1);
+	read();
+	unsigned int stop=GetTickCount();
+	StatusBar.SetWindowText("");
+//****************** visualize ********************
+	for(i=0;i<4;i+=2){
+		str.Format("ID%d: 0x%04X\tID%d: 0x%04X\r\n",i, dati_hex[0x8000+i],i+1, dati_hex[0x8000+i+1]);
+		PrintMessage(str);
+	}
+	str.Format(strings[S_DevID],dati_hex[0x8006]);	//"DevID: 0x%04X\r\n"
+	PrintMessage(str);
+	PIC_ID(dati_hex[0x8006]);
+	str.Format(strings[S_ConfigWordX],1,dati_hex[0x8007]);	//"Configuration word %d: 0x%04X\r\n"
+	PrintMessage(str);
+	str.Format(strings[S_ConfigWordX],2,dati_hex[0x8008]);	//"Configuration word %d: 0x%04X\r\n"
+	PrintMessage(str);
+	str.Format(strings[S_CalibWordX],1,dati_hex[0x8009]);	//"Calibration word %d: 0x%04X\r\n"
+	PrintMessage(str);
+	str.Format(strings[S_CalibWordX],2,dati_hex[0x800A]);	//"Calibration word %d: 0x%04X\r\n"
+	PrintMessage(str);
+	PrintMessage(strings[S_CodeMem2]);	//"\r\nMemoria programma:\r\n"
+	CString aux;
+	for(i=0;i<dim;i+=COL){
+		int valid=0;
+		for(j=i;j<i+COL&&j<dim;j++){
+			t.Format("%04X ",dati_hex[j]);
+			s+=t;
+			if(dati_hex[j]<0x3fff) valid=1;
+		}
+		if(valid){
+			t.Format("%04X: %s\r\n",i,s);
+			aux+=t;
+		}
+		s.Empty();
+	}
+	if(aux.GetLength()) PrintMessage(aux);
+	else PrintMessage(strings[S_Empty]);	//empty
+	aux.Empty();
+	if(dim3>11){
+		PrintMessage(strings[S_ConfigResMem]);	//"\r\nMemoria configurazione e riservata:\r\n"
+		for(i=0x8000;i<0x8000+dim3;i+=COL){
+			int valid=0;
+			for(j=i;j<i+COL&&j<0x8000+dim3;j++){
+				t.Format("%04X ",dati_hex[j]);
+				s+=t;
+				if(dati_hex[j]<0x3fff) valid=1;
+			}
+			if(valid){
+				t.Format("%04X: %s\r\n",i,s);
+				aux+=t;
+			}
+			s.Empty();
+		}
+		if(aux.GetLength()) PrintMessage(aux);
+		else PrintMessage(strings[S_Empty]);	//empty
+		aux.Empty();
+	}
+	if(dim2) DisplayEE();	//visualize
+	str.Format(strings[S_End],(stop-start)/1000.0);	//"\r\nFine (%.2f s)\r\n"
+	PrintMessage(str);
+	StatusBar.SetWindowText("");
+	if(saveLog) CloseLogFile();
+}
+
 void COpenProgDlg::Write12F6xx(int dim,int dim2)
 // write 14 bit PIC
 // dim=program size 	dim2=eeprom size
@@ -342,7 +631,7 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 //			LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 8ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID=0x3fff,calib1=0x3fff,calib2=0x3fff;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -361,20 +650,20 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 	if(b->GetCheck()){
 		if(dati_hex.GetSize()>0x2009) load_calibword=2;
 		else if(dati_hex.GetSize()>0x2008) load_calibword=1;
-		else PrintMessage(strings[S_NoCalibW]);	//"Impossibile trovare i dati di calibrazione\r\n"
+		else PrintMessage(strings[S_NoCalibW]);	//"Can't find calibration data\r\n"
 	}
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -509,7 +798,7 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-12||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -521,11 +810,11 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -538,18 +827,18 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=SET_PARAMETER;
 		bufferU[j++]=SET_T3;
@@ -574,7 +863,7 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-12||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -586,11 +875,11 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
-							errori++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							err++;
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -603,18 +892,18 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		errori+=i-k;
-		str.Format(strings[S_ComplErr],i-k);	//"completata, %d errori\r\n"
+		err+=i-k;
+		str.Format(strings[S_ComplErr],i-k);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=EN_VPP_VCC;
 	bufferU[j++]=0x1;
@@ -683,15 +972,15 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
@@ -711,11 +1000,11 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 			}
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d \n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
@@ -738,7 +1027,7 @@ void COpenProgDlg::Write12F6xx(int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -770,7 +1059,7 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 // write eeprom: LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 20ms o 8ms(16F84A)
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID,config;
 	int k=0,k2=0,z=0,i,j,w,r;
 	int saveLog;
@@ -787,16 +1076,16 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -982,7 +1271,7 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-10||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -994,11 +1283,11 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -1011,17 +1300,17 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -1059,29 +1348,29 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=INC_ADDR_N;
 		bufferU[j++]=0x2100-0x2008;		//azzera il contatore EEPROM
@@ -1096,7 +1385,7 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -1108,11 +1397,11 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
-							errori++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							err++;
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -1125,14 +1414,14 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		errori+=i-k;
-		str.Format(strings[S_ComplErr],i-k);	//"completata, %d errori\r\n"
+		err+=i-k;
+		str.Format(strings[S_ComplErr],i-k);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -1154,7 +1443,7 @@ void COpenProgDlg::Write16F8x (int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog){
 		WriteLog(str);
 		CloseLogFile();
@@ -1182,7 +1471,7 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 // eeprom: LOAD_DATA_DATA (0011) + BEGIN_PROG2 (11000) + 8ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID,config;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -1199,16 +1488,16 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -1349,7 +1638,7 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-10||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -1361,11 +1650,11 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -1378,17 +1667,17 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -1427,29 +1716,29 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d\n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=INC_ADDR_N;
 		bufferU[j++]=0x2102-0x2008;		//azzera il contatore EEPROM
@@ -1466,7 +1755,7 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -1478,11 +1767,11 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
-							errori++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							err++;
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -1495,14 +1784,14 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		errori+=i-k;
-		str.Format(strings[S_ComplErr],i-k);	//"completata, %d errori\r\n"
+		err+=i-k;
+		str.Format(strings[S_ComplErr],i-k);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -1524,7 +1813,7 @@ void COpenProgDlg::Write16F62x (int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -1547,7 +1836,7 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 // LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 6ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0,load_osccal;
+	int programID=0,max_err,err=0,load_calibword=0,load_osccal;
 	WORD devID,config,osccal;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -1568,16 +1857,16 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 	load_calibword=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -1703,7 +1992,7 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-10||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -1715,11 +2004,11 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -1732,17 +2021,17 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -1779,29 +2068,29 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=SET_PARAMETER;
 		bufferU[j++]=SET_T3;
@@ -1823,7 +2112,7 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -1835,11 +2124,11 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
-							errori++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							err++;
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -1852,14 +2141,14 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		errori+=i-k;
-		str.Format(strings[S_ComplErr],i-k);	//"completata, %d errori\r\n"
+		err+=i-k;
+		str.Format(strings[S_ComplErr],i-k);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -1880,7 +2169,7 @@ void COpenProgDlg::Write12F62x(int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -1910,7 +2199,7 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 // write eeprom: LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 8ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID,config;
 	int k=0,k2=0,z=0,i,j,w,ee2200=0;
 	int saveLog;
@@ -1931,16 +2220,16 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -2092,7 +2381,7 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-10||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2104,11 +2393,11 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -2121,17 +2410,17 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=SET_PARAMETER;
 	bufferU[j++]=SET_T3;
@@ -2172,30 +2461,30 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
 		int err_e=0;
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		if(ee2200){		//eeprom a 0x2200
 			bufferU[j++]=INC_ADDR_N;
@@ -2216,7 +2505,7 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2228,11 +2517,11 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
 							err_e++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -2245,15 +2534,15 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
 		err_e+=i-k;
-		errori+=err_e;
-		str.Format(strings[S_ComplErr],err_e);	//"completata, %d errori\r\n"
+		err+=err_e;
+		str.Format(strings[S_ComplErr],err_e);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -2274,7 +2563,7 @@ void COpenProgDlg::Write16F87x (int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog){
 		WriteLog(str);
 		CloseLogFile();
@@ -2298,7 +2587,7 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 // write eeprom: LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 8ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0;
+	int programID=0,max_err,err=0;
 	WORD devID,config;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -2315,16 +2604,16 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -2448,7 +2737,7 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-11||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2460,11 +2749,11 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+4]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+5]<<8)+bufferI[z+6]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -2477,17 +2766,17 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -2550,38 +2839,38 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=7;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	if(dati_hex[0x2008]!=0x3fff){
 		for(z+=7;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-		if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+		if(!dati_hex[0x2008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
 		int err_e=0;
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 		bufferU[j++]=0xFF;				//config fasulla
@@ -2600,7 +2889,7 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2612,11 +2901,11 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
 							err_e++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -2629,15 +2918,15 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
 		err_e+=i-k;
-		errori+=err_e;
-		str.Format(strings[S_ComplErr],err_e);	//"completata, %d errori\r\n"
+		err+=err_e;
+		str.Format(strings[S_ComplErr],err_e);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -2658,7 +2947,7 @@ void COpenProgDlg::Write16F87xA (int dim,int dim2,int seq)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog){
 		WriteLog(str);
 		CloseLogFile();
@@ -2683,7 +2972,7 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 // write eeprom: LOAD_DATA_DATA (0011) + BEGIN_PROG2 (11000) + 1.5ms + END_PROGX (10111)
 // verify during write
 {
-	int programID=0,max_errori,errori=0;
+	int programID=0,max_err,err=0;
 	WORD devID,config;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -2700,16 +2989,16 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -2837,7 +3126,7 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-11||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2849,11 +3138,11 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+4]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+5]<<8)+bufferI[z+6]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -2866,19 +3155,19 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write eeprom ********************
 	if(dim2){
 		int err_e=0;
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=EN_VPP_VCC;
 		bufferU[j++]=0x1;
@@ -2918,7 +3207,7 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-10||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -2930,11 +3219,11 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+4]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+5]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+5]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+5]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
 							err_e++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -2947,19 +3236,19 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
 		err_e+=i-k;
-		errori+=err_e;
-		str.Format(strings[S_ComplErr],err_e);	//"completata, %d errori\r\n"
+		err+=err_e;
+		str.Format(strings[S_ComplErr],err_e);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -3010,31 +3299,31 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=7;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	if(dati_hex[0x2008]!=0x3fff){
 		for(z+=7;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-		if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+		if(!dati_hex[0x2008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d\n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
@@ -3056,7 +3345,7 @@ void COpenProgDlg::Write16F81x (int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog){
 		WriteLog(str);
 		CloseLogFile();
@@ -3076,7 +3365,7 @@ void COpenProgDlg::Write12F61x(int dim)
 // write: LOAD_DATA_PROG (0010) + BEGIN_PROG2 (11000) + 4ms + END_PROG (1010)
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID=0x3fff,calib1=0x3fff;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -3094,13 +3383,13 @@ void COpenProgDlg::Write12F61x(int dim)
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_CALIB_LOAD);
 	if(b->GetCheck()){
 		if(dati_hex.GetSize()>0x2008) load_calibword=1;
-		else PrintMessage(strings[S_NoCalibW]);	//"Impossibile trovare i dati di calibrazione\r\n"
+		else PrintMessage(strings[S_NoCalibW]);	//"Can't find calibration data\r\n"
 	}
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	if(saveLog){
@@ -3227,7 +3516,7 @@ void COpenProgDlg::Write12F61x(int dim)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-12||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -3239,11 +3528,11 @@ void COpenProgDlg::Write12F61x(int dim)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+5]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+6]<<8)+bufferI[z+7]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -3256,17 +3545,17 @@ void COpenProgDlg::Write12F61x(int dim)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -3317,31 +3606,31 @@ void COpenProgDlg::Write12F61x(int dim)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=8;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	if(load_calibword){
 		for(z+=8;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-		if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
+		if(dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
 			str.Format(strings[S_Calib1Err],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura Calib1: scritto %04X, letto %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d \n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
@@ -3364,7 +3653,7 @@ void COpenProgDlg::Write12F61x(int dim)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -3388,7 +3677,7 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 //			LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 6ms
 // verify during write
 {
-	int programID=0,max_errori,errori=0,load_calibword=0;
+	int programID=0,max_err,err=0,load_calibword=0;
 	WORD devID=0x3fff,calib1=0x3fff;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -3406,20 +3695,20 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_CALIB_LOAD);
 	if(b->GetCheck()){
 		if(dati_hex.GetSize()>0x200A) load_calibword=1;
-		else PrintMessage(strings[S_NoCalibW]);	//"Impossibile trovare i dati di calibrazione\r\n"
+		else PrintMessage(strings[S_NoCalibW]);	//"Can't find calibration data\r\n"
 	}
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(dim2){
 		if(dati_hex.GetSize()<0x2100){
 			dim2=0;
-			PrintMessage(strings[S_NoEEMem]);	//"Impossibile trovare i dati EEPROM\r\n"
+			PrintMessage(strings[S_NoEEMem]);	//"Can't find EEPROM data\r\n"
 		}
 		else if(dim2>dati_hex.GetSize()-0x2100) dim2=dati_hex.GetSize()-0x2100;
 	}
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -3542,7 +3831,7 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-12||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -3554,11 +3843,11 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+3]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+4]<<8)+bufferI[z+5]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+4]<<8)+bufferI[z+5]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -3571,17 +3860,17 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -3633,21 +3922,21 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	for(z+=6;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
@@ -3659,17 +3948,17 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d \n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
 		j=1;
 		bufferU[j++]=SET_PARAMETER;
 		bufferU[j++]=SET_T3;
@@ -3690,7 +3979,7 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 			}
 			bufferU[j++]=INC_ADDR;
 			if(j>DIMBUF-12||i==0x2100+dim2-1){
-				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Scrittura: %d%%, ind. %03X"
+				str.Format(strings[S_CodeWriting],(i-0x2100+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
 				StatusBar.SetWindowText(str);
 				bufferU[j++]=FLUSH;
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -3702,11 +3991,11 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 					if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0xff) k++;
 					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
 						if (dati_hex[k]!=bufferI[z+4]){
-							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Errore in scrittura all'indirizzo %4X: scritto %02X, letto %02X\r\n"
+							str.Format(strings[S_CodeWError3],k,dati_hex[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
 							PrintMessage(str);
-							errori++;
-							if(max_errori&&errori>max_errori){
-								str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+							err++;
+							if(max_err&&err>max_err){
+								str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 								PrintMessage(str);
 								PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 								i=0x2200;
@@ -3719,14 +4008,14 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 				}
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+					str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d \n"
 					WriteLog(str);
 					WriteLogIO();
 				}
 			}
 		}
-		errori+=i-k;
-		str.Format(strings[S_ComplErr],i-k);	//"completata, %d errori\r\n"
+		err+=i-k;
+		str.Format(strings[S_ComplErr],i-k);	//"completed, %d errors\r\n"
 		PrintMessage(str);
 	}
 //****************** exit ********************
@@ -3745,7 +4034,7 @@ void COpenProgDlg::Write16F88x(int dim,int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -3766,7 +4055,7 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 // write:LOAD_DATA_PROG (0010) + BEGIN_PROG (1000) + 1ms + END_PROG2(1110)
 // verify during write
 {
-	int programID=0,max_errori,errori=0;
+	int programID=0,max_err,err=0;
 	WORD devID=0x3fff;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -3783,9 +4072,9 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -3894,7 +4183,7 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-10||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -3906,11 +4195,11 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+4]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+5]<<8)+bufferI[z+6]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+5]<<8)+bufferI[z+6]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -3923,17 +4212,17 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -3981,31 +4270,31 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	if(dati_hex[0x2008]<0x3fff){
 		for(z+=6;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-		if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+		if(!dati_hex[0x2008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d \n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
@@ -4028,7 +4317,7 @@ void COpenProgDlg::Write16F7x(int dim,int vdd)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -4048,7 +4337,7 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 // write:LOAD_DATA_PROG (0010) + BEGIN_PROG2 (11000) + 2ms + END_PROG2(1110)
 // verify during write
 {
-	int programID=0,max_errori,errori=0;
+	int programID=0,max_err,err=0;
 	WORD devID=0x3fff;
 	int k=0,k2=0,z=0,i,j,w;
 	int saveLog;
@@ -4065,9 +4354,9 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 	programID=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
@@ -4199,7 +4488,7 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 		}
 		bufferU[j++]=INC_ADDR;
 		if(j>DIMBUF-11||i==dim-1){
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, add. %03X"
 			StatusBar.SetWindowText(str);
 			bufferU[j++]=FLUSH;
 			for(;j<DIMBUF;j++) bufferU[j]=0x0;
@@ -4211,11 +4500,11 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 				if(bufferI[z]==INC_ADDR&&dati_hex[k]>=0x3fff) k++;
 				else if(bufferI[z]==LOAD_DATA_PROG&&bufferI[z+5]==READ_DATA_PROG){
 					if (dati_hex[k]!=(bufferI[z+6]<<8)+bufferI[z+7]){
-						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+6]<<8)+bufferI[z+7]);	//"Errore in scrittura all'indirizzo %3X: scritto %04X, letto %04X\r\n"
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+6]<<8)+bufferI[z+7]);	//"Error writing address %3X: written %04X, read %04X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim;
@@ -4228,17 +4517,17 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 			}
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 //****************** write ID, CONFIG, CALIB ********************
-	PrintMessage(strings[S_ConfigAreaW]);	//"Scrittura area CONFIG ... "
+	PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
 	int err_c=0;
 	bufferU[j++]=LOAD_CONF;			//contatore a 0x2000
 	bufferU[j++]=0xFF;				//config fasulla
@@ -4289,31 +4578,31 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 	for(i=0,z=0;programID&&i<4;i++){
 		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
 		if (dati_hex[0x2000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura ID%d: scritto %04X, letto %04X\r\n"
+			str.Format(strings[S_IDErr],i,dati_hex[0x2000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 		z+=6;
 	}
 	for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (dati_hex[0x2007]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+	if(!dati_hex[0x2007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+		str.Format(strings[S_ConfigWErr3],dati_hex[0x2007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
 	if(dati_hex[0x2008]<0x3fff){
 		for(z+=6;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-		if (dati_hex[0x2008]!=(bufferI[z+1]<<8)+bufferI[z+2]){
-			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config: scritto %04X, letto %04X\r\n"
+		if(!dati_hex[0x2008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x2008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
 			PrintMessage(str);
 			err_c++;
 		}
 	}
-	errori+=err_c;
-	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
+	err+=err_c;
+	str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
 	PrintMessage(str);
 	if(saveLog){
-		str.Format(strings[S_Log9],errori);	//"Area config. 	errori=%d \n"
+		str.Format(strings[S_Log9],err);	//"Area config. 	errors=%d \n"
 		WriteLog(str);
 		WriteLogIO();
 	}
@@ -4336,7 +4625,7 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	if(saveLog){
 		WriteLog(str);
@@ -4344,3 +4633,465 @@ void COpenProgDlg::Write16F71x(int dim,int vdd)
 	}
 	StatusBar.SetWindowText("");
 }
+
+void COpenProgDlg::Write16F1xxx(int dim,int dim2,int options)
+// write 14 bit enhanced PIC
+// dim=program size 	dim2=eeprom size   dim3=config size
+// options:
+//		bit0=0 -> vpp before vdd
+//		bit0=1 -> vdd before vpp
+//		bit1=1 -> LVP programming
+// DevID@0x8006
+// Config1@0x8007
+// Config2@0x8008
+// Calib1@0x8009
+// Calib2@0x800A
+// eeprom@0x0
+// erase: BULK_ERASE_PROG (1001) +5ms
+// write:LOAD_DATA_PROG (0010) + BEGIN_PROG (1000) + 2.5ms (8 word algorithm)
+// eeprom:	BULK_ERASE_DATA (1011) + 5ms
+//			LOAD_DATA_DATA (0011) + BEGIN_PROG (1000) + 2.5ms
+// verify after write
+{
+	int programID=0,max_err,err=0,load_calibword=0;
+	WORD devID=0x3fff,calib1=0x3fff,calib2=0x3fff;
+	int k=0,k2=0,z=0,i,j,w;
+	int saveLog;
+	CString str;
+	CString s,t;
+	DWORD BytesWritten=0;
+	ULONG Result;
+	if(MyDeviceDetected==FALSE) return;
+	if(!CheckV33Regulator()){ 
+		PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expnsion board
+		return;
+	}
+	if(dati_hex.GetSize()<0x8009){
+		PrintMessage(strings[S_NoConfigW4]);	//"Impossibile trovare la locazione CONFIG (0x2007-0x2008)\r\n"
+		PrintMessage(strings[S_End]);
+		return;
+	}
+	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_IDPROG);
+	programID=b->GetCheck();
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_CALIB_LOAD);
+	if(b->GetCheck()){
+		if(dati_hex.GetSize()>0x800A) load_calibword=1;
+		else PrintMessage(strings[S_NoCalibW]);	//"Can't find calibration data\r\n"
+	}
+	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
+	saveLog=b->GetCheck();
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	if (ReadHandle == INVALID_HANDLE_VALUE){
+		PrintMessage(strings[S_InvHandle]);	//"Invalid handle\r\n"
+		return;
+	}
+	CancelIo(ReadHandle);
+	if(saveLog){
+		OpenLogFile(strings[S_LogFile]);	//"Log.txt"
+		str.Format("Write16F1xxx(%d,%d,%d)\n",dim,dim2,options);
+		WriteLog(str);
+	}
+	if(dim2>memEE.GetSize()) dim2=memEE.GetSize();
+	if((options&2)==0){				//HV entry
+		if(!StartHVReg(8.5)){
+			PrintMessage(strings[S_HVregErr]); //"HV regulator error\r\n"
+			return;
+		}
+	}
+	else StartHVReg(-1);			//LVP mode, turn off HV
+	for(i=0;i<0x800B&&i<dati_hex.GetSize();i++) dati_hex[i]&=0x3FFF;
+	unsigned int start=GetTickCount();
+	bufferU[0]=0;
+	j=1;
+	bufferU[j++]=SET_PARAMETER;
+	bufferU[j++]=SET_T1T2;
+	bufferU[j++]=1;						//T1=1u
+	bufferU[j++]=100;					//T2=100u
+	bufferU[j++]=EN_VPP_VCC;		//enter program mode
+	bufferU[j++]=0x0;
+	bufferU[j++]=SET_CK_D;
+	bufferU[j++]=0x0;
+	if((options&2)==0){				//HV entry
+		if((options&1)==0){				//VPP before VDD
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=4;				//VPP
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=0x5;			//VDD+VPP
+		}
+		else{							//VDD before VPP without delay
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=1;				//VDD
+			bufferU[j++]=EN_VPP_VCC;
+			bufferU[j++]=0x5;			//VDD+VPP
+		}
+	}
+	else{			//Low voltage programming
+		bufferU[j++]=EN_VPP_VCC;
+		bufferU[j++]=4;				//VPP
+		bufferU[j++]=WAIT_T3;
+		bufferU[j++]=TX16;			//0000 1010 0001 0010 1100 0010 1011 0010 = 0A12C2B2
+		bufferU[j++]=2;
+		bufferU[j++]=0x0A;
+		bufferU[j++]=0x12;
+		bufferU[j++]=0xC2;
+		bufferU[j++]=0xB2;
+		bufferU[j++]=SET_CK_D;		//Clock pulse
+		bufferU[j++]=0x4;
+		bufferU[j++]=SET_CK_D;
+		bufferU[j++]=0x0;
+	}
+	bufferU[j++]=WAIT_T2;
+	bufferU[j++]=WAIT_T2;
+	bufferU[j++]=WAIT_T2;
+	bufferU[j++]=LOAD_CONF;			//counter at 0x2000
+	bufferU[j++]=0xFF;
+	bufferU[j++]=0xFF;
+	bufferU[j++]=INC_ADDR_N;
+	bufferU[j++]=0x06;
+	bufferU[j++]=READ_DATA_PROG;	//DevID
+	bufferU[j++]=INC_ADDR;
+	bufferU[j++]=INC_ADDR;
+	bufferU[j++]=INC_ADDR;
+	bufferU[j++]=READ_DATA_PROG;	//Calib1
+	bufferU[j++]=INC_ADDR;
+	bufferU[j++]=READ_DATA_PROG;	//Calib2
+	bufferU[j++]=CUST_CMD;
+	bufferU[j++]=0x16;		//Reset address
+	bufferU[j++]=SET_PARAMETER;
+	bufferU[j++]=SET_T3;
+	bufferU[j++]=2500>>8;
+	bufferU[j++]=2500&0xff;
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(3);
+	read();
+	if(saveLog)WriteLogIO();
+	for(z=0;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+	devID=(bufferI[z+1]<<8)+bufferI[z+2];
+	str.Format(strings[S_DevID],devID);	//"DevID: 0x%04X\r\n"
+	PrintMessage(str);
+	PIC_ID(devID);
+	if(dati_hex[0x8006]<0x3FFF&&devID!=dati_hex[0x8006]) PrintMessage(strings[S_DevMismatch]);	//"Warning: the device is different from what specified in source data"
+	for(z+=3;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+	calib1=(bufferI[z+1]<<8)+bufferI[z+2];
+	if(calib1<0x3fff){
+		str.Format(strings[S_CalibWord1],calib1);	//"Calib1: 0x%04X\r\n"
+		PrintMessage(str);
+	}
+	for(z+=3;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+	calib2=(bufferI[z+1]<<8)+bufferI[z+2];
+	if(calib2<0x3fff){
+		str.Format(strings[S_CalibWord2],calib2);	//"Calib2: 0x%04X\r\n"
+		PrintMessage(str);
+	}
+//****************** erase memory ********************
+	PrintMessage(strings[S_StartErase]);	//"Erasing ... "
+	j=1;
+	if(programID){
+		bufferU[j++]=LOAD_CONF;			//PC @ 0x8000
+		bufferU[j++]=0xFF;
+		bufferU[j++]=0xFF;
+	}
+	bufferU[j++]=BULK_ERASE_PROG;
+	bufferU[j++]=WAIT_T3;			// wait 5ms
+	bufferU[j++]=WAIT_T3;
+	bufferU[j++]=CUST_CMD;
+	bufferU[j++]=0x16;		//Reset address
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(8);
+	read();
+	if(saveLog)WriteLogIO();
+	PrintMessage(strings[S_Compl]);	//"completed\r\n"
+//****************** write code ********************
+	PrintMessage(strings[S_StartCodeProg]);	//"Write code ... "
+	for(;dim>0&&dati_hex[dim]>=0x3fff;dim--); //skip empty space at end
+	dim+=dim%8;		//grow to 8 word multiple
+	int valid,inc;
+	for(i=k=0,j=1;i<dim;i+=8){
+		valid=inc=0;
+		for(;i<dim&&!valid;){	//skip empty locations (8 words)
+			valid=0;
+			for(k=0;k<8;k++) if(dati_hex[i+k]<0x3fff) valid=1;
+			if(!valid){
+				inc+=8;
+				i+=8;
+			}
+			if(inc&&(valid||inc==248)){	//increase address to skip empty words
+				bufferU[j++]=INC_ADDR_N;
+				bufferU[j++]=k=inc;
+				inc=0;
+			}
+			if(j>DIMBUF-4||valid){
+				bufferU[j++]=FLUSH;
+				for(;j<DIMBUF;j++) bufferU[j]=0x0;
+				write();
+				msDelay(3);
+				msDelay(1*k/2);	//wait for long INC_ADDR_N
+				read();
+				j=1;
+				if(saveLog)	WriteLogIO();
+			}
+		}		
+		if(valid){
+			k=0;
+			bufferU[j++]=LOAD_DATA_PROG;
+			bufferU[j++]=dati_hex[i+k]>>8;  		//MSB
+			bufferU[j++]=dati_hex[i+k]&0xff;		//LSB
+			for(k=1;k<8;k++){
+				bufferU[j++]=INC_ADDR;
+				bufferU[j++]=LOAD_DATA_PROG;
+				bufferU[j++]=dati_hex[i+k]>>8;  		//MSB
+				bufferU[j++]=dati_hex[i+k]&0xff;		//LSB
+			}
+			bufferU[j++]=BEGIN_PROG;			//internally timed, T=2.5ms
+			bufferU[j++]=WAIT_T3;
+			bufferU[j++]=INC_ADDR;
+			bufferU[j++]=FLUSH;
+			for(;j<DIMBUF;j++) bufferU[j]=0x0;
+			write();
+			msDelay(3);
+			read();
+			j=1;
+			if(saveLog){
+				str.Format(strings[S_Log7],i,i,0,0);	//"i=%d, k=%d 0=%d\n"
+				WriteLog(str);
+				WriteLogIO();
+			}
+			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Writing: %d%%, addr. %03X"
+			StatusBar.SetWindowText(str);
+		}
+	}
+	PrintMessage(strings[S_Compl]);	//"completed\r\n"
+//****************** verify code ********************
+	PrintMessage(strings[S_CodeV]);	//"Verifying code ... "
+	j=1;
+	bufferU[j++]=CUST_CMD;
+	bufferU[j++]=0x16;		//Reset address
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(2);
+	read();
+	if(saveLog)	WriteLogIO();
+	j=1;
+	for(i=k=0;i<dim;i++){
+		if(dati_hex[i]<0x3FFF) bufferU[j++]=READ_DATA_PROG;
+		bufferU[j++]=INC_ADDR;
+		if(j>DIMBUF*2/4-2||i==dim-1){		//2B cmd -> 4B data
+			bufferU[j++]=FLUSH;
+			for(;j<DIMBUF;j++) bufferU[j]=0x0;
+			write();
+			msDelay(5);
+			read();
+			for(z=1;z<DIMBUF-2;z++){
+				if(bufferI[z]==INC_ADDR) k++;
+				else if(bufferI[z]==READ_DATA_PROG){
+					if(dati_hex[k]<0x3FFF&&(dati_hex[k]!=(bufferI[z+1]<<8)+bufferI[z+2])){
+						str.Format(strings[S_CodeWError2],k,dati_hex[k],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing address %3X: written %04X, read %04X\r\n"
+						PrintMessage(str);
+						err++;
+					}
+					z+=2;
+				}
+			}
+			str.Format(strings[S_CodeV2],i*100/(dim+dim2),i);	//"Verify: %d%%, addr. %04X"
+			StatusBar.SetWindowText(str);
+			j=1;
+			if(saveLog){
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errors=%d\n"
+				WriteLog(str);
+				WriteLogIO();
+			}
+			if(err>=max_err) i=dim;
+		}
+	}
+	if(k<dim){
+		str.Format(strings[S_CodeVError3],dim,k);	//"Errore in verifica area programma, richieste %d word, lette %d\r\n"
+		PrintMessage(str);
+	}
+	str.Format(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
+	PrintMessage(str);
+	if(err>=max_err){
+		str.Format(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+		PrintMessage(str);
+	}
+//****************** write eeprom ********************
+	if(dim2&&err<max_err){
+		int errEE=0;
+		PrintMessage(strings[S_EEAreaW]);	//"Writing EEPROM ... "
+		j=1;
+		bufferU[j++]=SET_PARAMETER;
+		bufferU[j++]=SET_T3;
+		bufferU[j++]=5000>>8;
+		bufferU[j++]=5000&0xff;
+		bufferU[j++]=BULK_ERASE_DATA;
+		bufferU[j++]=WAIT_T3;			// wait 5ms
+		bufferU[j++]=CUST_CMD;
+		bufferU[j++]=0x16;		//Reset address
+		bufferU[j++]=FLUSH;
+		for(;j<DIMBUF;j++) bufferU[j]=0x0;
+		write();
+		msDelay(7);
+		read();
+		j=1;
+		if(saveLog)WriteLogIO();
+		for(w=i=k=0;i<dim2;i++){
+			if(memEE[i]<0xff){
+				bufferU[j++]=LOAD_DATA_DATA;
+				bufferU[j++]=memEE[i];
+				bufferU[j++]=BEGIN_PROG;			//internally timed, T=5ms max
+				bufferU[j++]=WAIT_T3;				//Tprogram
+				bufferU[j++]=READ_DATA_DATA;
+				w++;
+			}
+			bufferU[j++]=INC_ADDR;
+			if(j>DIMBUF-12||i==dim2-1){
+				str.Format(strings[S_CodeWriting],(i+dim)*100/(dim+dim2),i);	//"Writing: %d%%, add. %03X"
+				StatusBar.SetWindowText(str);
+				bufferU[j++]=FLUSH;
+				for(;j<DIMBUF;j++) bufferU[j]=0x0;
+				write();
+				msDelay(w*5+2);
+				w=0;
+				read();
+				for(z=1;z<DIMBUF-4;z++){
+					if(bufferI[z]==INC_ADDR&&memEE[k]>=0xff) k++;
+					else if(bufferI[z]==LOAD_DATA_DATA&&bufferI[z+3]==READ_DATA_DATA){
+						if (memEE[k]!=bufferI[z+4]){
+							str.Format(strings[S_CodeWError3],k,memEE[k],bufferI[z+4]);	//"Error writing address %4X: written %02X, read %02X\r\n"
+							PrintMessage(str);
+							errEE++;
+							if(max_err&&err+errEE>max_err){
+								str.Format(strings[S_MaxErr],err+errEE);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+								PrintMessage(str);
+								PrintMessage(strings[S_IntW]);	//"write interrupted"
+								i=dim2;
+								z=DIMBUF;
+							}
+						}
+						k++;
+						z+=5;
+					}
+				}
+				j=1;
+				if(saveLog){
+					str.Format(strings[S_Log8],i,i,k,k,errEE);	//"i=%d, k=%d, errors=%d\n"
+					WriteLog(str);
+					WriteLogIO();
+				}
+			}
+		}
+		errEE+=i-k;
+		str.Format(strings[S_ComplErr],errEE);	//"completed, %d errors\r\n"
+		PrintMessage(str);
+		err+=errEE;
+	}
+//****************** write ID, CONFIG, CALIB ********************
+	if(max_err&&err<max_err){
+		PrintMessage(strings[S_ConfigAreaW]);	//"Writing CONFIG area ... "
+		int err_c=0;
+		bufferU[j++]=SET_PARAMETER;
+		bufferU[j++]=SET_T3;
+		bufferU[j++]=5000>>8;
+		bufferU[j++]=5000&0xff;
+		bufferU[j++]=LOAD_CONF;			//PC @ 0x8000
+		bufferU[j++]=0xFF;
+		bufferU[j++]=0xFF;
+		if(programID){
+			for(i=0x8000;i<0x8004;i++){
+				bufferU[j++]=LOAD_DATA_PROG;
+				bufferU[j++]=dati_hex[i]>>8;		//MSB
+				bufferU[j++]=dati_hex[i]&0xff;		//LSB
+				bufferU[j++]=BEGIN_PROG;			//internally timed
+				bufferU[j++]=WAIT_T3;				//Tprogram 5ms
+				bufferU[j++]=READ_DATA_PROG;
+				bufferU[j++]=INC_ADDR;
+			}
+			bufferU[j++]=INC_ADDR_N;
+			bufferU[j++]=3;
+		}
+		else{
+			bufferU[j++]=INC_ADDR_N;
+			bufferU[j++]=7;
+		}
+		bufferU[j++]=LOAD_DATA_PROG;			//Config word 0x8007
+		bufferU[j++]=dati_hex[0x8007]>>8;		//MSB
+		bufferU[j++]=dati_hex[0x8007]&0xff;		//LSB
+		bufferU[j++]=BEGIN_PROG;			//internally timed
+		bufferU[j++]=WAIT_T3;				//Tprogram 5ms
+		bufferU[j++]=READ_DATA_PROG;
+		bufferU[j++]=INC_ADDR;
+		bufferU[j++]=LOAD_DATA_PROG;			//Config word 2
+		bufferU[j++]=dati_hex[0x8008]>>8;		//MSB
+		bufferU[j++]=dati_hex[0x8008]&0xff;		//LSB
+		bufferU[j++]=BEGIN_PROG;			//internally timed
+		bufferU[j++]=WAIT_T3;				//Tprogram 5ms
+		bufferU[j++]=READ_DATA_PROG;
+		bufferU[j++]=INC_ADDR;
+		bufferU[j++]=FLUSH;
+		for(;j<DIMBUF;j++) bufferU[j]=0x0;
+		write();
+		msDelay(12);
+		if(programID) msDelay(22);
+		read();
+		for(i=0,z=0;programID&&i<4;i++){
+			for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+			if(dati_hex[0x8000+i]!=(bufferI[z+1]<<8)+bufferI[z+2]){
+				str.Format(strings[S_IDErr],i,dati_hex[0x8000+i],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing ID%d: written %04X, read %04X\r\n"
+				PrintMessage(str);
+				err_c++;
+			}
+			z+=6;
+		}
+		for(;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+		if(!dati_hex[0x8007]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x8007],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
+			PrintMessage(str);
+			err_c++;
+		}
+		for(z+=6;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
+		if(!dati_hex[0x8008]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
+			str.Format(strings[S_ConfigWErr3],dati_hex[0x8008],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Error writing config area: written %04X, read %04X\r\n"
+			PrintMessage(str);
+			err_c++;
+		}
+		err+=err_c;
+		str.Format(strings[S_ComplErr],err_c);	//"completed, %d errors\r\n"
+		PrintMessage(str);
+		if(saveLog){
+			str.Format(strings[S_Log9],err);	//"Config area 	errors=%d \n"
+			WriteLog(str);
+			WriteLogIO();
+		}
+	}
+//****************** exit ********************
+	j=1;
+	bufferU[j++]=SET_PARAMETER;
+	bufferU[j++]=SET_T3;
+	bufferU[j++]=2000>>8;
+	bufferU[j++]=2000&0xff;
+	bufferU[j++]=NOP;				//exit program mode
+	bufferU[j++]=EN_VPP_VCC;
+	bufferU[j++]=0x1;
+	bufferU[j++]=EN_VPP_VCC;
+	bufferU[j++]=0x0;
+	bufferU[j++]=SET_CK_D;
+	bufferU[j++]=0x0;
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(1);
+	read();
+	unsigned int stop=GetTickCount();
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
+	PrintMessage(str);
+	if(saveLog){
+		WriteLog(str);
+		CloseLogFile();
+	}
+	StatusBar.SetWindowText("");
+}
+

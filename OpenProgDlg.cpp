@@ -37,7 +37,7 @@
 
 #define DIMBUF 65
 #define COL 16
-#define VERSION "0.7.2"
+#define VERSION "0.7.3"
 #define G (12.0/34*1024/5)		//=72,2823529412
 
 #ifdef _DEBUG
@@ -82,7 +82,7 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 	m_license.Format("  OpenProg v.%s - control program for the open programmer\
 \r\n	For detailed info see http://openprog.altervista.org/\
 \r\n \
-\r\n               Copyright (C) 2009 Alberto Maccioni\
+\r\n               Copyright (C) 2009-2010 Alberto Maccioni\
 \r\n \
 \r\n  This program is free software; you can redistribute it and/or modify\
 \r\n  it under the terms of the GNU General Public License as published by\
@@ -357,6 +357,22 @@ BOOL COpenProgDlg::OnInitDialog()
 	m_DispoPage.m_dispo.AddString("16F916");
 	m_DispoPage.m_dispo.AddString("16F917");
 	m_DispoPage.m_dispo.AddString("16F946");
+	m_DispoPage.m_dispo.AddString("16F1822");
+	m_DispoPage.m_dispo.AddString("16F1823");
+	m_DispoPage.m_dispo.AddString("16F1824");
+	m_DispoPage.m_dispo.AddString("16F1825");
+	m_DispoPage.m_dispo.AddString("16F1826");
+	m_DispoPage.m_dispo.AddString("16F1827");
+	m_DispoPage.m_dispo.AddString("16F1828");
+	m_DispoPage.m_dispo.AddString("16F1829");
+	m_DispoPage.m_dispo.AddString("16F1933");
+	m_DispoPage.m_dispo.AddString("16F1934");
+	m_DispoPage.m_dispo.AddString("16F1936");
+	m_DispoPage.m_dispo.AddString("16F1937");
+	m_DispoPage.m_dispo.AddString("16F1938");
+	m_DispoPage.m_dispo.AddString("16F1939");
+	m_DispoPage.m_dispo.AddString("16F1946");
+	m_DispoPage.m_dispo.AddString("16F1947");
 	m_DispoPage.m_dispo.AddString("18F242");
 	m_DispoPage.m_dispo.AddString("18F248");
 	m_DispoPage.m_dispo.AddString("18F252");
@@ -1071,7 +1087,7 @@ void COpenProgDlg::OnConnect()
 #define  FUSE_X	8
 #define  CAL	16
 
-//this is needed to use the same code to both win and linux
+//this is needed to use the same code on both win and linux
 #define EQ(s) c==s	
 
 void COpenProgDlg::OnWrite()
@@ -1083,7 +1099,8 @@ void COpenProgDlg::OnWrite()
 	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
-	if(!hvreg&&(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16")) StartHVReg(13);
+	if(!hvreg&&(c.Left(4)=="16F1")); // StartHVReg(8.5);
+	else if(!hvreg&&(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16")) StartHVReg(13);
 	else if(!hvreg&&(c.Left(2)=="18")) StartHVReg(12);
 //-------------PIC10-16---------------------------------------------------------
 		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
@@ -1149,6 +1166,9 @@ void COpenProgDlg::OnWrite()
 		else if(EQ("16F819")){
 			Write16F81x(0x800,ee?0x100:0);					//2K, 256, vdd no delay
 		}
+		else if(EQ("16F1822")||EQ("16F1823")||EQ("16F1826")){
+			Write16F1xxx(0x800,ee?0x100:0,0);				//2K, 256
+		}
 		else if(EQ("16F73")||EQ("16F74")){
 			Write16F7x(0x1000,0);							//4K
 		}
@@ -1170,6 +1190,9 @@ void COpenProgDlg::OnWrite()
 		else if(EQ("16F87")||EQ("16F88")){
 			Write16F81x(0x1000,ee?0x100:0);					//4K, 256, vdd no delay
 		}
+		else if(EQ("16F1933")||EQ("16F1934")||EQ("16F1824")||EQ("16F1827")||EQ("16F1828")){
+			Write16F1xxx(0x1000,ee?0x100:0,0);				//4K, 256
+		}
 		else if(EQ("16F76")||EQ("16F77")){
 			Write16F7x(0x2000,0);							//8K
 		}
@@ -1187,6 +1210,12 @@ void COpenProgDlg::OnWrite()
 		}
 		else if(EQ("16F886")||EQ("16F887")){
 			Write16F88x(0x2000,ee?0x100:0);					//8K, 256
+		}
+		else if(EQ("16F1936")||EQ("16F1937")||EQ("16F1946")||EQ("16F1825")||EQ("16F1829")){
+			Write16F1xxx(0x2000,ee?0x100:0,0);				//8K, 256
+		}
+		else if(EQ("16F1938")||EQ("16F1939")||EQ("16F1947")){
+			Write16F1xxx(0x4000,ee?0x100:0,0);				//16K, 256
 		}
 //-------------PIC18---------------------------------------------------------
 		else if(EQ("18F1230")){
@@ -1437,7 +1466,8 @@ void COpenProgDlg::OnRead()
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
-	if(!hvreg&&(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16")) StartHVReg(13);
+	if(!hvreg&&(c.Left(4)=="16F1")); // StartHVReg(8.5);
+	else if(!hvreg&&(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16")) StartHVReg(13);
 	else if(!hvreg&&(c.Left(2)=="18")) StartHVReg(12);
 //-------------PIC10-16---------------------------------------------------------
 		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
@@ -1524,6 +1554,9 @@ void COpenProgDlg::OnRead()
 		else if(EQ("16F677")||EQ("16F687")){
 			Read16Fxxx(0x800,ee?0x100:0,r?0x80:9,0);		//2K, 256, vpp, cal1
 		}
+		else if(EQ("16F1822")||EQ("16F1823")||EQ("16F1826")){
+			Read16F1xxx(0x800,ee?0x100:0,r?0x200:11,0);		//2K, 256, vpp
+		}
 		else if(EQ("16F73")||EQ("16F74")){
 			Read16Fxxx(0x1000,0,r?0x20:8,1);				//4K, vdd
 		}
@@ -1554,6 +1587,9 @@ void COpenProgDlg::OnRead()
 		else if(EQ("16F913")||EQ("16F914")){
 			Read16Fxxx(0x1000,ee?0x100:0,r?0x40:10,0);		//4K, 256, vpp, cal1 + cal2
 		}
+		else if(EQ("16F1933")||EQ("16F1934")||EQ("16F1824")||EQ("16F1827")||EQ("16F1828")){
+			Read16F1xxx(0x1000,ee?0x100:0,r?0x200:11,0);	//4K, 256, vpp
+		}
 		else if(EQ("16F76")||EQ("16F77")){
 			Read16Fxxx(0x2000,0,r?0x20:8,1);				//8K, vdd
 		}
@@ -1564,13 +1600,19 @@ void COpenProgDlg::OnRead()
 			Read16Fxxx(0x2000,ee?0x100:0,r?0x100:8,1);		//8K, 256, vdd
 		}
 		else if(EQ("16F876")||EQ("16F877")){
-			Read16Fxxx(0x2000,ee?-0x100:0,r?0x100:8,1);	//8K, 256, vdd, ee@0x2200
+			Read16Fxxx(0x2000,ee?-0x100:0,r?0x100:8,1);		//8K, 256, vdd, ee@0x2200
 		}
 		else if(EQ("16F886")||EQ("16F887")){
 			Read16Fxxx(0x2000,ee?0x100:0,r?0x80:10,0);		//8K, 256, vpp, config2 + cal1
 		}
 		else if(EQ("16F916")||EQ("16F917")||EQ("16F946")){
 			Read16Fxxx(0x2000,ee?0x100:0,r?0x40:10,0);		//8K, 256, vpp, cal1 + cal2
+		}
+		else if(EQ("16F1936")||EQ("16F1937")||EQ("16F1946")||EQ("16F1825")||EQ("16F1829")){
+			Read16F1xxx(0x2000,ee?0x100:0,r?0x200:11,0);	//8K, 256, vpp
+		}
+		else if(EQ("16F1938")||EQ("16F1939")||EQ("16F1947")){
+			Read16F1xxx(0x4000,ee?0x100:0,r?0x200:11,0);	//16K, 256, vpp
 		}
 //-------------PIC18---------------------------------------------------------
 		else if(EQ("18F1230")){
@@ -2546,6 +2588,90 @@ void COpenProgDlg::PIC_ID(int id)
 			case 0x22A>>1:		//10 0010 101x xxxx
 				print("16HV610 rev%d\r\n",id&0x1F);
 				break;
+			case 0x232>>1:		//10 0011 001x xxxx
+				print("16F1933 rev%d\r\n",id&0x1F);
+				break;
+			case 0x234>>1:		//10 0011 010x xxxx
+				print("16F1934 rev%d\r\n",id&0x1F);
+				break;
+			case 0x236>>1:		//10 0011 011x xxxx
+				print("16F1936 rev%d\r\n",id&0x1F);
+				break;
+			case 0x238>>1:		//10 0011 100x xxxx
+				print("16F1937 rev%d\r\n",id&0x1F);
+				break;
+			case 0x23A>>1:		//10 0011 101x xxxx
+				print("16F1938 rev%d\r\n",id&0x1F);
+				break;
+			case 0x23C>>1:		//10 0011 110x xxxx
+				print("16F1939 rev%d\r\n",id&0x1F);
+				break;
+			case 0x242>>1:		//10 0100 001x xxxx
+				print("16LF1933 rev%d\r\n",id&0x1F);
+				break;
+			case 0x244>>1:		//10 0100 010x xxxx
+				print("16LF1934 rev%d\r\n",id&0x1F);
+				break;
+			case 0x246>>1:		//10 0100 011x xxxx
+				print("16LF1936 rev%d\r\n",id&0x1F);
+				break;
+			case 0x248>>1:		//10 0100 100x xxxx
+				print("16LF1937 rev%d\r\n",id&0x1F);
+				break;
+			case 0x24A>>1:		//10 0100 101x xxxx
+				print("16LF1938 rev%d\r\n",id&0x1F);
+				break;
+			case 0x24C>>1:		//10 0100 110x xxxx
+				print("16LF1939 rev%d\r\n",id&0x1F);
+				break;
+			case 0x250>>1:		//10 0101 000x xxxx
+				print("16F1946 rev%d\r\n",id&0x1F);
+				break;
+			case 0x252>>1:		//10 0101 001x xxxx
+				print("16F1947 rev%d\r\n",id&0x1F);
+				break;
+			case 0x258>>1:		//10 0101 100x xxxx
+				print("16LF1946 rev%d\r\n",id&0x1F);
+				break;
+			case 0x25A>>1:		//10 0101 101x xxxx
+				print("16LF1947 rev%d\r\n",id&0x1F);
+				break;
+			case 0x270>>1:		//10 0111 000x xxxx
+				print("16F1822 rev%d\r\n",id&0x1F);
+				break;
+			case 0x272>>1:		//10 0111 001x xxxx
+				print("16F1823 rev%d\r\n",id&0x1F);
+				break;
+			case 0x274>>1:		//10 0111 010x xxxx
+				print("16F1824 rev%d\r\n",id&0x1F);
+				break;
+			case 0x276>>1:		//10 0111 011x xxxx
+				print("16F1825 rev%d\r\n",id&0x1F);
+				break;
+			case 0x278>>1:		//10 0111 100x xxxx
+				print("16F1826 rev%d\r\n",id&0x1F);
+				break;
+			case 0x27A>>1:		//10 0111 101x xxxx
+				print("16F1827 rev%d\r\n",id&0x1F);
+				break;
+			case 0x280>>1:		//10 1000 000x xxxx
+				print("16LF1822 rev%d\r\n",id&0x1F);
+				break;
+			case 0x282>>1:		//10 1000 001x xxxx
+				print("16LF1823 rev%d\r\n",id&0x1F);
+				break;
+			case 0x284>>1:		//10 1000 010x xxxx
+				print("16LF1824 rev%d\r\n",id&0x1F);
+				break;
+			case 0x286>>1:		//10 1000 011x xxxx
+				print("16LF1825 rev%d\r\n",id&0x1F);
+				break;
+			case 0x288>>1:		//10 1000 100x xxxx
+				print("16LF1826 rev%d\r\n",id&0x1F);
+				break;
+			case 0x28A>>1:		//10 1000 101x xxxx
+				print("16LF1827 rev%d\r\n",id&0x1F);
+				break;			
 			default:
 				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
 		}
@@ -2627,7 +2753,7 @@ int COpenProgDlg::StartHVReg(double V=13)
 		PrintMessage(strings[S_lowUsbV]);	//"Tensione USB troppo bassa (VUSB<4.5V)\r\n"
 		return 0;
 	}
-	for(;(v<(vreg/10.0-0.5)*G||v>(vreg/10.0+0.5)*G)&&t<t0+500;t=GetTickCount()){
+	for(;(v<(vreg/10.0-0.5)*G||v>(vreg/10.0+0.5)*G)&&t<t0+1500;t=GetTickCount()){
 		j=1;
 		bufferU[j++]=WAIT_T3;
 		bufferU[j++]=READ_ADC;
@@ -2690,986 +2816,41 @@ void COpenProgDlg::ProgID()
 	CancelIo(ReadHandle);
 }
 
-void COpenProgDlg::OnFileSave()
+int COpenProgDlg::CheckV33Regulator()
 {
-	CFileDialog dlg(FALSE,"hex",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
-	if (rfile!=""||dlg.DoModal()==IDOK){
-		CFile f;
-		if (f.Open(rfile!=""?rfile:dlg.GetPathName(),CFile::modeWrite|CFile::modeCreate))	{
-			CString c;
-			m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),c);
-//**************** 10-16F *******************************************
-			if(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16"){
-				CString line,str,str1;
-				int i,x=0xfff;
-				if(c.Left(2)=="16") x=0x3fff;
-				line.Format(":020000040000FA\n");			//extended address = 0
-				f.Write(LPCTSTR(line),line.GetLength());
-				int sum=0,count=0,s;
-				for(i=0;i<dati_hex.GetSize()&&dati_hex[i]>=x;i++); //remove leading 0xFFF
-				for(;i<dati_hex.GetSize();i++){
-					sum+=(dati_hex[i]>>8)+dati_hex[i]&0xff;
-					str.Format("%02X%02X",dati_hex[i]&0xff,dati_hex[i]>>8);
-					str1+=str;
-					count++;
-					if(count==8||i==dati_hex.GetSize()-1){
-						for(s=i;s>i-count&&dati_hex[s]>=x;s--){	//remove trailing 0xFFF
-							sum-=(dati_hex[s]>>8)+dati_hex[s]&0xff;
-							str1=str1.Left(str1.GetLength()-4);
-						}
-						count-=i-s;
-						sum+=count*2+(((s-count+1)*2)&0xff)+(((s-count+1)*2)>>8);
-						line.Format(":%02X%04X00%s%02X\n",count*2,(s-count+1)*2,str1,(-sum)&0xff);
-						f.Write(LPCTSTR(line),line.GetLength());
-						str1.Empty();
-						count=sum=0;
-					}
-				}
-				line.Format(":00000001FF\n");
-				f.Write(LPCTSTR(line),line.GetLength());
-			}
-//**************** 18F *******************************************
-			else if(c.Left(3)=="18F"){
-				CString line,str,str1;
-				int i,ext=0,base;
-				line.Format(":020000040000FA\n");			//extended address = 0
-				f.Write(LPCTSTR(line),line.GetLength());
-				int sum=0,count=0,s;
-				for(i=0;i<memCODE.GetSize()&&memCODE[i]==0xff;i++); //remove leading 0xFF
-				for(;i<memCODE.GetSize();i++){
-					sum+=memCODE[i];
-					str.Format("%02X",memCODE[i]&0xff);
-					str1+=str;
-					count++;
-					if(count==16||i==memCODE.GetSize()-1){
-						base=i-count+1;
-						for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
-							sum-=memCODE[s];
-							str1=str1.Left(str1.GetLength()-2);
-						}
-						count-=i-s;
-						sum+=count+(base&0xff)+(base>>8)&0xff;
-						if(base>>16>ext){
-							ext=base>>16;
-							line.Format(":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						if(count){
-							line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						str1.Empty();
-						count=sum=0;
-					}
-				}
-				for(i=0,count=sum=0;i<memID.GetSize()&&i<8;i++){
-					sum+=memID[i];
-					str.Format("%02X",memID[i]&0xff);
-					str1+=str;
-					count++;
-					if(count==8||i==memID.GetSize()-1){
-						line.Format(":020000040020DA\n");
-						f.Write(LPCTSTR(line),line.GetLength());
-						for(s=i;s>i-count&&memID[s]>=0xff;s--){	//remove trailing 0xFF
-							sum-=memID[s]&0xff;
-							str1=str1.Left(str1.GetLength()-2);
-						}
-						count-=i-s;
-						sum+=count+(s-count+1)&0xff+((s-count+1)>>8);
-						if(count){
-							line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						str1.Empty();
-						count=sum=0;
-					}
-				}
-				if(memCONFIG.GetSize()){
-					line.Format(":020000040030CA\n");
-					f.Write(LPCTSTR(line),line.GetLength());
-					for(i=0,count=sum=0;i<memCONFIG.GetSize()&&i<14;i++){
-						sum+=memCONFIG[i];
-						str.Format("%02X",memCONFIG[i]&0xff);
-						str1+=str;
-						count++;
-						if(count==13||i==memCONFIG.GetSize()-1){
-							for(s=i;s>i-count&&memCONFIG[s]>=0xff;s--){	//remove trailing 0xFF
-								sum-=memCONFIG[s]&0xff;
-								str1=str1.Left(str1.GetLength()-2);
-							}
-							count-=i-s;
-							sum+=count+(s-count+1)&0xff+((s-count+1)>>8);
-							if(count){
-								line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-								f.Write(LPCTSTR(line),line.GetLength());
-							}
-							str1.Empty();
-							count=sum=0;
-						}
-					}
-				}
-				if(memEE.GetSize()){
-					line.Format(":0200000400F00A\n");
-					f.Write(LPCTSTR(line),line.GetLength());
-					for(i=0,count=sum=0;i<memEE.GetSize();i++){
-						sum+=memEE[i];
-						str.Format("%02X",memEE[i]&0xff);
-						str1+=str;
-						count++;
-						if(count==16||i==memEE.GetSize()-1){
-							for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
-								sum-=memEE[s]&0xff;
-								str1=str1.Left(str1.GetLength()-2);
-							}
-							count-=i-s;
-							sum+=count+(s-count+1)&0xff+((s-count+1)>>8);
-							if(count){
-								line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-								f.Write(LPCTSTR(line),line.GetLength());
-							}
-							str1.Empty();
-							count=sum=0;
-						}
-					}
-				}
-				line.Format(":00000001FF\n");
-				f.Write(LPCTSTR(line),line.GetLength());
-			}
-//**************** 24F *******************************************
-			else if(c.Left(3)=="24F"){
-				CString line,str,str1;
-				int i,ext=0,base;
-				int valid;
-				line.Format(":020000040000FA\n");			//extended address = 0
-				f.Write(LPCTSTR(line),line.GetLength());
-				int sum=0,count=0,s,word;
-				word=memCODE[0]+(memCODE[1]<<8)+(memCODE[2]<<16)+(memCODE[3]<<24);
-				for(i=0;i<memCODE.GetSize()&&word==0xffffffff;i+=4) //remove leading 0xFFFFFFFF
-					word=memCODE[i]+(memCODE[i+1]<<8)+(memCODE[i+2]<<16)+(memCODE[i+3]<<24); 
-				for(;i<memCODE.GetSize();i++){
-					sum+=memCODE[i];
-					str.Format("%02X",memCODE[i]&0xff);
-					str1+=str;
-					count++;
-					if(count==16||i==memCODE.GetSize()-1){
-						base=i-count+1;
-						for(s=base,valid=0;s<=i&&!valid;s+=4){	//remove empty lines
-							if(memCODE[s]<0xFF||memCODE[s+1]<0xFF||+memCODE[s+2]<0xFF) valid=1;
-						}
-/*						word=memCODE[i]+memCODE[i+1]<<8+memCODE[i+2]<<16+memCODE[i+3]<<24; 
-						for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
-							sum-=memCODE[s];
-							str1=str1.Left(str1.GetLength()-2);
-						}
-						count-=i-s;*/
-						s=i;
-						sum+=count+(base&0xff)+(base>>8)&0xff;
-						if(base>>16>ext){
-							ext=base>>16;
-							line.Format(":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						if(count&&valid){
-							line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						str1.Empty();
-						count=sum=0;
-					}
-				}
-				if(memCONFIG.GetSize()){
-					line.Format(":0200000401F009\n");
-					f.Write(LPCTSTR(line),line.GetLength());
-					for(i=0,count=sum=0;i<memCONFIG.GetSize()&&i<34;i++){
-						sum+=memCONFIG[i];
-						str.Format("%02X",memCONFIG[i]&0xff);
-						str1+=str;
-						count++;
-						if(count==4||i==memCONFIG.GetSize()-1){
-/*							for(s=i;s>i-count&&memCONFIG[s]>=0xff;s--){	//remove trailing 0xFF
-								sum-=memCONFIG[s]&0xff;
-								str1=str1.Left(str1.GetLength()-2);
-							}
-							count-=i-s;*/
-							s=i;
-							sum+=count+(s-count+1)&0xff+((s-count+1)>>8);
-							if(count){
-								line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-								f.Write(LPCTSTR(line),line.GetLength());
-							}
-							str1.Empty();
-							count=sum=0;
-						}
-					}
-				}
-				if(memEE.GetSize()){
-					line.Format(":0200000400FFFB\n");
-					f.Write(LPCTSTR(line),line.GetLength());
-					for(i=0,count=sum=0;i<memEE.GetSize();i++){
-						sum+=memEE[i];
-						str.Format("%02X",memEE[i]&0xff);
-						str1+=str;
-						count++;
-						if(count==16||i==memEE.GetSize()-1){
-							for(s=i-count+1,valid=0;s<=i&&!valid;s+=4){	//remove empty lines
-								if(memEE[s]<0xFF||memEE[s+1]<0xFF) valid=1;
-							}
-				/*			for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
-								sum-=memEE[s]&0xff;
-								str1=str1.Left(str1.GetLength()-2);
-							}
-							count-=i-s;*/
-							s=i;
-							sum+=0xfc+count+((s-count+1)&0xff)+((s-count+1)>>8);
-							if(count&&valid){
-								line.Format(":%02X%04X00%s%02X\n",count,(s-count+1)+0xFC00,str1,(-sum)&0xff);
-								f.Write(LPCTSTR(line),line.GetLength());
-							}
-							str1.Empty();
-							count=sum=0;
-						}
-					}
-				}
-				line.Format(":00000001FF\n");
-				f.Write(LPCTSTR(line),line.GetLength());
-			}
-//**************** ATxxxx *******************************************
-			else if(c.Left(2)=="AT"){
-				CString line,str,str1;
-				int i,ext=0,base;
-				line.Format(":020000040000FA\n");			//extended address = 0
-				f.Write(LPCTSTR(line),line.GetLength());
-				int sum=0,count=0,s;
-				for(i=0;i<memCODE.GetSize()&&memCODE[i]==0xff;i++); //remove leading 0xFF
-				for(;i<memCODE.GetSize();i++){
-					sum+=memCODE[i];
-					str.Format("%02X",memCODE[i]&0xff);
-					str1+=str;
-					count++;
-					if(count==16||i==memCODE.GetSize()-1){
-						base=i-count+1;
-						for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
-							sum-=memCODE[s];
-							str1=str1.Left(str1.GetLength()-2);
-						}
-						count-=i-s;
-						sum+=count+(base&0xff)+(base>>8)&0xff;
-						if(base>>16>ext){
-							ext=base>>16;
-							line.Format(":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						if(count){
-							line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-						}
-						str1.Empty();
-						count=sum=0;
-					}
-				}
-				line.Format(":00000001FF\n");
-				f.Write(LPCTSTR(line),line.GetLength());
-				if(memEE.GetSize()){
-					CFileDialog dlg2(FALSE,"hex;eep",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."S_file]);
-					dlg2.m_ofn.lpstrTitle =strings[S_saveEEfile];		//"Salva eeprom";
-					if (dlg2.DoModal()==IDOK){
-						CFile fe;
-						if (fe.Open(dlg2.GetPathName(),CFile::modeWrite|CFile::modeCreate)){
-							line.Format(":020000040000FA\n");			//extended address = 0
-							fe.Write(LPCTSTR(line),line.GetLength());
-							for(i=0,count=sum=0;i<memEE.GetSize();i++){
-								sum+=memEE[i];
-								str.Format("%02X",memEE[i]&0xff);
-								str1+=str;
-								count++;
-								if(count==16||i==memEE.GetSize()-1){
-									for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
-										sum-=memEE[s]&0xff;
-										str1=str1.Left(str1.GetLength()-2);
-									}
-									count-=i-s;
-									sum+=count+(s-count+1)&0xff+((s-count+1)>>8);
-									if(count){
-										line.Format(":%02X%04X00%s%02X\n",count,(s-count+1),str1,(-sum)&0xff);
-										fe.Write(LPCTSTR(line),line.GetLength());
-									}
-									str1.Empty();
-									count=sum=0;
-								}
-							}
-							line.Format(":00000001FF\n");
-							fe.Write(LPCTSTR(line),line.GetLength());
-							fe.Close();
-						}
-					}
-				}
-			}
-//**************** 24xxx / 93xxx / 25xxx *******************************************
-			else if(c.Left(2)=="24"||c.Left(2)=="93"||c.Left(2)=="25"){
-				if(dlg.GetFileExt()=="bin"||dlg.GetFileExt()=="BIN"){
-					f.Write(memEE.GetData(),memEE.GetSize());
-				}
-				else if(dlg.GetFileExt()=="hex"||dlg.GetFileExt()=="HEX"){
-					CString line,str,str1;
-					int i;
-					line.Format(":020000040000FA\n");			//extended address = 0
-					f.Write(LPCTSTR(line),line.GetLength());
-					int sum=0,count=0;
-					for(i=0;i<memEE.GetSize();i++){
-						sum+=memEE[i];
-						str.Format("%02X",memEE[i]);
-						str1+=str;
-						count++;
-						if(count==16||i==memEE.GetSize()-1){
-							sum+=count+((i-count+1)&0xff)+((i-count+1)>>8);
-							line.Format(":%02X%04X00%s%02X\n",count,(i-count+1),str1,(-sum)&0xff);
-							f.Write(LPCTSTR(line),line.GetLength());
-							str1.Empty();
-							count=sum=0;
-						}
-					}
-					line.Format(":00000001FF\n");
-					f.Write(LPCTSTR(line),line.GetLength());
-				}
-			}
-		f.Close();
-		}
-	}
+	DWORD BytesWritten=0;
+	ULONG Result;
+	int i,j=1;
+	bufferU[j++]=WRITE_RAM;
+	bufferU[j++]=0x0F;
+	bufferU[j++]=0x93;
+	bufferU[j++]=0xFE;	//B0 = output
+	bufferU[j++]=EXT_PORT;
+	bufferU[j++]=0x01;	//B0=1
+	bufferU[j++]=0;
+	bufferU[j++]=READ_RAM;
+	bufferU[j++]=0x0F;
+	bufferU[j++]=0x81;	//Check if B1=1
+	bufferU[j++]=EXT_PORT;
+	bufferU[j++]=0x00;	//B0=0
+	bufferU[j++]=0;
+	bufferU[j++]=READ_RAM;
+	bufferU[j++]=0x0F;
+	bufferU[j++]=0x81;	//Check if B1=0
+	bufferU[j++]=WRITE_RAM;
+	bufferU[j++]=0x0F;
+	bufferU[j++]=0x93;
+	bufferU[j++]=0xFF;	//BX = input
+	bufferU[j++]=FLUSH;
+	for(;j<DIMBUF;j++) bufferU[j]=0x0;
+	write();
+	msDelay(2);
+	read();
+	for(j=1;j<DIMBUF-3&&bufferI[j]!=READ_RAM;j++);
+	i=bufferI[j+3]&0x2;		//B1 should be high
+	for(j+=3;j<DIMBUF-3&&bufferI[j]!=READ_RAM;j++);
+	return (i+bufferI[j+3]&0x2)==2?1:0;
 }
-
-void COpenProgDlg::OnFileOpen()
-{
-	CFileDialog dlg(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
-	if (wfile!=""||dlg.DoModal()==IDOK){
-		CStdioFile f;
-		CByteArray buffer;
-		if (f.Open(wfile!=""?wfile:dlg.GetPathName(),CFile::modeRead))	{
-			CString c;
-			m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),c);
-//**************** 10-16F *******************************************
-			if(c.Left(2)=="10"||c.Left(2)=="12"||c.Left(2)=="16"){
-				if(wfile.Find(".bin")>-1||dlg.GetFileExt()=="bin"||dlg.GetFileExt()=="BIN"){
-					buffer.SetSize(f.GetLength()<0x100000?f.GetLength():0x100000);
-					int read=f.Read(buffer.GetData(),buffer.GetSize());
-					if(read!=buffer.GetSize())
-						for(int i=read;i<buffer.GetSize();i++) buffer[i]=0xff;
-				}
-				else if(wfile.Find(".hex")>-1||dlg.GetFileExt()=="hex"||dlg.GetFileExt()=="HEX"){
-					CString line;
-					int input_address=0;
-					int end_address=0;
-					for(;f.ReadString(line);){
-						if(line.GetLength()>9){
-							int hex_count = htoi((LPCTSTR)line+1, 2);
-							if (line.GetLength() - 11 < hex_count * 2) {
-								CString err;
-								err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-								PrintMessage(err);
-							}
-							else{
-								input_address=htoi((LPCTSTR)line+3,4);
-								int sum = 0;
-								for (int i=1;i<=hex_count*2+9;i+=2)
-									sum += htoi((LPCTSTR)line+i,2);
-								if ((sum & 0xff)!=0) {
-									CString err;
-									err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-									PrintMessage(err);
-								}
-								else{
-									if (htoi((LPCTSTR)line+7,2)==0){
-										buffer.SetSize(input_address+hex_count);
-										for(i=end_address;i<input_address;i++) buffer[i]=0xff;	//fill with 0xFF
-										end_address=input_address+hex_count;
-										for (i=0;i<hex_count;i++){
-											buffer[input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				dati_hex.SetSize(buffer.GetSize()/2);
-				for(int i=0;i<dati_hex.GetSize();i++){		//Swap bytes
-					dati_hex[i]=(buffer[i*2+1]<<8)+buffer[i*2];
-				}
-				CString s,t,aux,str;
-				t.Format("%s :\r\n",f.GetFileName());
-				PrintMessage(t);
-				PrintMessage(strings[S_CodeMem2]);	//"\r\nMemoria programma:\r\n"
-				for(i=0;i<0x2100&&i<dati_hex.GetSize();i+=COL){
-					int valid=0;
-					for(int j=i;j<i+COL&&i<0x2100&&j<dati_hex.GetSize();j++){
-						t.Format("%04X ",dati_hex[j]);
-						s+=t;
-						if(dati_hex[j]<0x3fff) valid=1;
-					}
-					if(valid){
-						t.Format("%04X: %s\r\n",i,s);
-						aux+=t;
-					}
-					s.Empty();
-				}
-				PrintMessage(aux);
-				PrintMessage("\r\n");
-				aux.Empty();
-				if(dati_hex.GetSize()>=0x2100) PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
-				for(i=0x2100;i<0x2800&&i<dati_hex.GetSize();i+=COL){
-					int valid=0;
-					for(int j=i;j<i+COL&&i<0x2800&&j<dati_hex.GetSize();j++){
-						t.Format("%02X ",dati_hex[j]&0xff);
-						s+=t;
-						t.Format("%c",isprint(dati_hex[j]&0xff)?dati_hex[j]&0xff:'.');
-						str+=t;
-						if(dati_hex[j]<0xff) valid=1;
-					}
-					if(valid){
-						t.Format("%04X: %s %s\r\n",i,s,str);
-						aux+=t;
-					}
-					s.Empty();
-					str.Empty();
-				}
-				PrintMessage(aux);
-				PrintMessage("\r\n");
-			}
-//**************** 18F *******************************************
-			else if(c.Left(2)=="18"&&(wfile.Find(".hex")>-1||dlg.GetFileExt()=="hex"|dlg.GetFileExt()=="HEX")){
-				CString line;
-				int input_address=0,ext_addr=0;
-				int end_address=0,aa;
-				memCODE.SetSize(0);
-				memEE.SetSize(0);
-				memID.SetSize(0);
-				memCONFIG.SetSize(0);
-				for(;f.ReadString(line);){
-					if(line.GetLength()>9){
-						int hex_count = htoi((LPCTSTR)line+1, 2);
-						if (line.GetLength() - 11 < hex_count * 2) {
-							CString err;
-							err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-							PrintMessage(err);
-						}
-						else{
-							input_address=htoi((LPCTSTR)line+3,4);
-							int sum = 0;
-							for (int i=1;i<=hex_count*2+9;i+=2)
-								sum += htoi((LPCTSTR)line+i,2);
-							if ((sum & 0xff)!=0) {
-								CString err;
-								err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-								PrintMessage(err);
-							}
-							else{
-								switch(htoi((LPCTSTR)line+7,2)){
-									case 0:		//Data record
-										if(ext_addr<0x20){		//Code
-											buffer.SetSize((ext_addr<<16)+input_address+hex_count);
-											for(i=end_address;i<(ext_addr<<16)+input_address;i++) buffer[i]=0xff;	//fill with 0xFF
-											end_address=(ext_addr<<16)+input_address+hex_count;
-											for (i=0;i<hex_count;i++){
-												buffer[(ext_addr<<16)+input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										else if(ext_addr==0x20&&input_address<8){	//ID
-											aa=memID.GetSize();
-											memID.SetSize(input_address+hex_count);
-											for(i=aa;i<input_address+hex_count;i++) memID[i]=0xff;	//fill with 0xFF
-											for (i=0;i<hex_count;i++){
-												memID[input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										else if(ext_addr==0x30&&input_address<14){	//CONFIG
-											aa=memCONFIG.GetSize();
-											memCONFIG.SetSize(input_address+hex_count);
-											for(i=aa;i<input_address+hex_count;i++) memCONFIG[i]=0xff;	//fill with 0xFF
-											for (i=0;i<hex_count;i++){
-												memCONFIG[input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										else if(ext_addr==0xF0&&input_address<0x1000){	//EEPROM
-											aa=memEE.GetSize();
-											memEE.SetSize(input_address+hex_count);
-											for(i=aa;i<input_address+hex_count;i++) memEE[i]=0xff;	//fill with 0xFF
-											for (i=0;i<hex_count;i++){
-												memEE[input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										break;
-									case 4:		//extended linear address record
-										if(line.GetLength()>14)	ext_addr=htoi((LPCTSTR)line+9,4);
-										break;
-									default:
-										break;
-								}
-							}
-						}
-					}
-				}
-				memCODE.Copy(buffer);
-				CString s,t,aux,str;
-				t.Format("%s :\r\n",f.GetFileName());
-				PrintMessage(t);
-				if(memID.GetSize()){
-					PrintMessage(strings[S_IDMem]);	//"memoria ID:\r\n"
-					for (int i=memID.GetSize();i<COL;i++) memID.SetAtGrow(i,0xFF);
-					for(i=0;i<COL;i+=2){
-						str.Format("ID%d: 0x%02X   ID%d: 0x%02X\r\n",i,memID[i],i+1,memID[i+1]);
-						PrintMessage(str);
-					}
-				}
-				if(memCONFIG.GetSize()){
-					PrintMessage(strings[S_ConfigMem]);	//"memoria CONFIG:\r\n"
-					for (int i=memCONFIG.GetSize();i<14;i++) memCONFIG.SetAtGrow(i,0xFF);
-					for( i=0;i<7;i++){
-						str.Format("CONFIG%dH: 0x%02X\t",i+1,memCONFIG[i*2+1]);
-						PrintMessage(str);
-						str.Format("CONFIG%dL: 0x%02X\r\n",i+1,memCONFIG[i*2]);
-						PrintMessage(str);
-					}
-				}
-				if(memCODE.GetSize()) PrintMessage(strings[S_CodeMem]);	//"\r\nmemoria CODICE:\r\n"
-				for(int i=0;i<memCODE.GetSize();i+=COL*2){
-					int valid=0;
-					for(int j=i;j<i+COL*2&&j<memCODE.GetSize();j++){
-						t.Format("%02X ",memCODE[j]);
-						s+=t;
-						if(memCODE[j]<0xff) valid=1;
-					}
-					if(valid){
-						t.Format("%04X: %s\r\n",i,s);
-						aux+=t;
-					}
-					s.Empty();
-				}
-				PrintMessage(aux);
-				if(memEE.GetSize()){
-					PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
-					str.Empty();
-					aux.Empty();
-					for(i=0;i<memEE.GetSize();i+=COL){
-						int valid=0;
-						for(int j=i;j<i+COL&&j<memEE.GetSize();j++){
-							t.Format("%02X ",memEE[j]);
-							s+=t;
-							t.Format("%c",isprint(memEE[j])?memEE[j]:'.');
-							str+=t;
-							if(memEE[j]<0xff) valid=1;
-						}
-						if(valid){
-							t.Format("%04X: %s %s\r\n",i,s,str);
-							aux+=t;
-						}
-						s.Empty();
-						str.Empty();
-					}
-					PrintMessage(aux);
-				}
-				PrintMessage("\r\n");
-			}
-//**************** 24F *******************************************
-			else if(c.Left(3)=="24F"&&(wfile.Find(".hex")>-1||dlg.GetFileExt()=="hex"|dlg.GetFileExt()=="HEX")){
-				CString line;
-				int input_address=0,ext_addr=0;
-				int end_address=0,aa;
-				memCODE.SetSize(0);
-				memEE.SetSize(0);
-				memID.SetSize(0);
-				memCONFIG.SetSize(0);
-				for(;f.ReadString(line);){
-					if(line.GetLength()>9){
-						int hex_count = htoi((LPCTSTR)line+1, 2);
-						if (line.GetLength() - 11 < hex_count * 2) {
-							CString err;
-							err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-							PrintMessage(err);
-						}
-						else{
-							input_address=htoi((LPCTSTR)line+3,4);
-							int sum = 0;
-							for (int i=1;i<=hex_count*2+9;i+=2)
-								sum += htoi((LPCTSTR)line+i,2);
-							if ((sum & 0xff)!=0) {
-								CString err;
-								err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-								PrintMessage(err);
-							}
-							else{
-								switch(htoi((LPCTSTR)line+7,2)){
-									case 0:		//Data record
-										if(ext_addr<0x20){		//Code
-											int end1=(ext_addr<<16)+input_address+hex_count;
-											int end0=buffer.GetSize();
-											if(end0<end1){			//grow array and fill with 0xFF
-												buffer.SetSize(end1);
-												for(i=end0;i<(ext_addr<<16)+input_address;i++) buffer[i]=0xff;
-											}
-											end_address=(ext_addr<<16)+input_address+hex_count;
-											for (i=0;i<hex_count;i++){
-												buffer[(ext_addr<<16)+input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										else if(ext_addr==0x1f0&&input_address<0x22){	//CONFIG
-											aa=memCONFIG.GetSize();
-											memCONFIG.SetSize(input_address+hex_count);
-											for(i=aa;i<input_address+hex_count;i++) memCONFIG[i]=0xff;	//fill with 0xFF
-											for (i=0;i<hex_count;i++){
-												memCONFIG[input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										else if(ext_addr==0xFF&&input_address>=0xFC00){	//EEPROM
-											aa=memEE.GetSize();
-											memEE.SetSize(input_address-0xFC00+hex_count);
-											for(i=aa;i<input_address-0xFC00+hex_count;i++) memEE[i]=0xff;	//fill with 0xFF
-											for (i=0;i<hex_count;i++){
-												memEE[input_address-0xFC00+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										break;
-									case 4:		//extended linear address record
-										if(line.GetLength()>14)	ext_addr=htoi((LPCTSTR)line+9,4);
-										break;
-									default:
-										break;
-								}
-							}
-						}
-					}
-				}
-				memCODE.Copy(buffer);
-				CString s,t,aux,str;
-				t.Format("%s :\r\n",f.GetFileName());
-				PrintMessage(t);
-				if(memCONFIG.GetSize()){
-					aa=memCONFIG.GetSize();
-					memCONFIG.SetSize(0x22);
-					for(int i=aa;i<0x22;i++) memCONFIG[i]=0xff;
-					PrintMessage(strings[S_ConfigMem]);				//"\r\nMemoria CONFIG:\r\n"
-					str.Format("0xF80000: FBS = 0x%02X\r\n",memCONFIG[0]);
-					PrintMessage(str);
-					str.Format("0xF80004: FGS = 0x%02X\r\n",memCONFIG[8]);
-					PrintMessage(str);
-					str.Format("0xF80006: FOSCSEL = 0x%02X\r\n",memCONFIG[12]);
-					PrintMessage(str);
-					str.Format("0xF80008: FOSC = 0x%02X\r\n",memCONFIG[16]);
-					PrintMessage(str);
-					str.Format("0xF8000A: FWDT = 0x%02X\r\n",memCONFIG[20]);
-					PrintMessage(str);
-					str.Format("0xF8000C: FPOR = 0x%02X\r\n",memCONFIG[24]);
-					PrintMessage(str);
-					str.Format("0xF8000E: FICD = 0x%02X\r\n",memCONFIG[28]);
-					PrintMessage(str);
-					str.Format("0xF80010: FDS = 0x%02X\r\n",memCONFIG[32]);
-					PrintMessage(str);
-				}
-				if(memCODE.GetSize()) PrintMessage(strings[S_CodeMem]);	//"\r\nmemoria CODICE:\r\n"
-				for(int i=0;i<memCODE.GetSize();i+=COL*2){
-					int valid=0,d;
-					for(int j=i;j<i+COL*2&&j<memCODE.GetSize();j+=4){
-						d=(memCODE[j+3]<<24)+(memCODE[j+2]<<16)+(memCODE[j+1]<<8)+memCODE[j];
-						t.Format("%08X ",d);
-						s+=t;
-						if(d!=0xffffffff) valid=1;
-					}
-					if(valid){
-						t.Format("%06X: %s\r\n",i/2,s);
-						aux+=t;
-					}
-					s.Empty();
-				}
-				PrintMessage(aux);
-				if(memEE.GetSize()){
-					PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
-					str.Empty();
-					aux.Empty();
-					for(i=0;i<memEE.GetSize();i+=COL*2){
-						int valid=0;
-						for(int j=i;j<i+COL*2&&j<memEE.GetSize();j+=4){	//skip high word
-							t.Format("%02X %02X ",memEE[j],memEE[j+1]);
-							s+=t;
-							t.Format("%c",isprint(memEE[j])?memEE[j]:'.');
-							str+=t;
-							if(memEE[j]<0xff) valid=1;
-							t.Format("%c",isprint(memEE[j+1])?memEE[j+1]:'.');
-							str+=t;
-							if(memEE[j+1]<0xff) valid=1;
-						}
-						if(valid){
-							t.Format("%04X: %s %s\r\n",i/2,s,str);
-							aux+=t;
-						}
-						s.Empty();
-						str.Empty();
-					}
-					PrintMessage(aux);
-				}
-				PrintMessage("\r\n");
-			}
-//**************** ATxxxx *******************************************
-			else if(c.Left(2)=="AT"&&(wfile.Find(".hex")>-1||dlg.GetFileExt()=="hex"|dlg.GetFileExt()=="HEX")){
-				CString line;
-				int input_address=0,ext_addr=0;
-				int end_address=0;
-				memCODE.SetSize(0);
-				memEE.SetSize(0);
-				for(;f.ReadString(line);){
-					if(line.GetLength()>9){
-						int hex_count = htoi((LPCTSTR)line+1, 2);
-						if (line.GetLength() - 11 < hex_count * 2) {
-							CString err;
-							err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-							PrintMessage(err);
-						}
-						else{
-							input_address=htoi((LPCTSTR)line+3,4);
-							int sum = 0;
-							for (int i=1;i<=hex_count*2+9;i+=2)
-								sum += htoi((LPCTSTR)line+i,2);
-							if ((sum & 0xff)!=0) {
-								CString err;
-								err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-								PrintMessage(err);
-							}
-							else{
-								switch(htoi((LPCTSTR)line+7,2)){
-									case 0:		//Data record
-										if(ext_addr<0x20){		//Code
-											buffer.SetSize((ext_addr<<16)+input_address+hex_count);
-											for(i=end_address;i<(ext_addr<<16)+input_address;i++) buffer[i]=0xff;	//fill with 0xFF
-											end_address=(ext_addr<<16)+input_address+hex_count;
-											for (i=0;i<hex_count;i++){
-												buffer[(ext_addr<<16)+input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-										}
-										break;
-									case 4:		//extended linear address record
-										if(line.GetLength()>14)	ext_addr=htoi((LPCTSTR)line+9,4);
-										break;
-									default:
-										break;
-								}
-							}
-						}
-					}
-				}
-				memCODE.Copy(buffer);
-				CString s,t,aux,str;
-				t.Format("%s :\r\n",f.GetFileName());
-				PrintMessage(t);
-				if(memCODE.GetSize()) PrintMessage(strings[S_CodeMem]);	//"\r\nmemoria CODICE:\r\n"
-				for(int i=0;i<memCODE.GetSize();i+=COL*2){
-					int valid=0;
-					for(int j=i;j<i+COL*2&&j<memCODE.GetSize();j++){
-						t.Format("%02X ",memCODE[j]);
-						s+=t;
-						if(memCODE[j]<0xff) valid=1;
-					}
-					if(valid){
-						t.Format("%04X: %s\r\n",i,s);
-						aux+=t;
-					}
-					s.Empty();
-				}
-				PrintMessage(aux);
-				CFileDialog dlg2(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."
-				dlg2.m_ofn.lpstrTitle =strings[S_openEEfile];							//"Apri file eeprom";
-				if (dlg2.DoModal()==IDOK){
-					CStdioFile fe;
-					buffer.RemoveAll();
-					input_address=0,ext_addr=0;
-					end_address=0;
-					if (fe.Open(dlg2.GetPathName(),CFile::modeRead))	{
-						for(;fe.ReadString(line);){
-							if(line.GetLength()>9){
-								int hex_count = htoi((LPCTSTR)line+1, 2);
-								if (line.GetLength() - 11 < hex_count * 2) {
-									CString err;
-									err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-									PrintMessage(err);
-								}
-								else{
-									input_address=htoi((LPCTSTR)line+3,4);
-									int sum = 0;
-									for (int i=1;i<=hex_count*2+9;i+=2)
-										sum += htoi((LPCTSTR)line+i,2);
-									if ((sum & 0xff)!=0) {
-										CString err;
-										err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-										PrintMessage(err);
-									}
-									else{
-										switch(htoi((LPCTSTR)line+7,2)){
-											case 0:		//Data record
-												if(ext_addr<0x20){		//Code
-													buffer.SetSize((ext_addr<<16)+input_address+hex_count);
-													for(i=end_address;i<(ext_addr<<16)+input_address;i++) buffer[i]=0xff;	//fill with 0xFF
-													end_address=(ext_addr<<16)+input_address+hex_count;
-													for (i=0;i<hex_count;i++){
-														buffer[(ext_addr<<16)+input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-													}
-												}
-												break;
-											case 4:		//extended linear address record
-												if(line.GetLength()>14)	ext_addr=htoi((LPCTSTR)line+9,4);
-												break;
-											default:
-												break;
-										}
-									}
-								}
-							}
-						}
-						memEE.Copy(buffer);
-						if(memEE.GetSize()){
-							PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
-							str.Empty();
-							aux.Empty();
-							for(i=0;i<memEE.GetSize();i+=COL){
-								int valid=0;
-								for(int j=i;j<i+COL&&j<memEE.GetSize();j++){
-									t.Format("%02X ",memEE[j]);
-									s+=t;
-									t.Format("%c",isprint(memEE[j])?memEE[j]:'.');
-									str+=t;
-									if(memEE[j]<0xff) valid=1;
-								}
-								if(valid){
-									t.Format("%04X: %s %s\r\n",i,s,str);
-									aux+=t;
-								}
-								s.Empty();
-								str.Empty();
-							}
-							PrintMessage(aux);
-						}
-						PrintMessage("\r\n");
-						fe.Close();
-					}
-				}
-			}
-//**************** 24xxx / 93xxx / 25xxx **************************************
-			else if(c.Left(2)=="24"||c.Left(2)=="93"||c.Left(2)=="25"){
-				if(wfile.Find(".bin")>-1||dlg.GetFileExt()=="bin"||dlg.GetFileExt()=="BIN"){
-					memEE.SetSize(f.GetLength()<0x100000?f.GetLength():0x100000);
-					for(int i=0;i<memEE.GetSize();i++) memEE[i]=0xff;
-					int read=f.Read(memEE.GetData(),memEE.GetSize());
-				}
-				else if(wfile.Find(".hex")>-1||dlg.GetFileExt()=="hex"||dlg.GetFileExt()=="HEX"){
-					CString line;
-					int input_address=0,ext_addr=0;
-					int end_address=0;
-					memEE.SetSize(0);
-					for(;f.ReadString(line);){
-						if(line.GetLength()>9){
-							int hex_count = htoi((LPCTSTR)line+1, 2);
-							if (line.GetLength() - 11 < hex_count * 2) {
-								CString err;
-								err.Format(strings[S_IhexShort],(LPCTSTR)line);	//"Intel hex8 line too short:\r\n%s\r\n"
-								PrintMessage(err);
-							}
-							else{
-								input_address=htoi((LPCTSTR)line+3,4);
-								int sum = 0;
-								int end0,end1;
-								for (int i=1;i<=hex_count*2+9;i+=2)
-									sum += htoi((LPCTSTR)line+i,2);
-								if ((sum & 0xff)!=0) {
-									CString err;
-									err.Format(strings[S_IhexChecksum],(LPCTSTR)line);	//"Intel hex8 checksum error in line:\r\n%s\r\n"
-									PrintMessage(err);
-								}
-								else{
-									switch(htoi((LPCTSTR)line+7,2)){
-										case 0:		//Data record
-											end1=(ext_addr<<16)+input_address+hex_count;
-											end0=memEE.GetSize();
-											if(end0<end1){			//grow array and fill with 0xFF
-												memEE.SetSize(end1);
-												for(i=end0;i<(ext_addr<<16)+input_address;i++) memEE[i]=0xff;
-											}									
-											end_address=(ext_addr<<16)+input_address+hex_count;
-											for (i=0;i<hex_count;i++){
-												memEE[(ext_addr<<16)+input_address+i]=htoi((LPCTSTR)line+9+i*2,2);
-											}
-											break;
-										case 4:		//extended linear address record
-											if(line.GetLength()>14)	ext_addr=htoi((LPCTSTR)line+9,4);
-											break;
-										default:
-											break;
-									}
-								}
-							}
-						}
-					}
-				}
-				DisplayEE();	//visualize
-				PrintMessage("\r\n");
-			}
-		f.Close();
-		}
-	}
-}
-
-
-unsigned int COpenProgDlg::htoi(const char *hex, int length)
-{
-	int i;
-	unsigned int v = 0;
-	for (i = 0; i < length; i++) {
-		v <<= 4;
-		if (hex[i] >= '0' && hex[i] <= '9') v += hex[i] - '0';
-		else if (hex[i] >= 'a' && hex[i] <= 'f') v += hex[i] - 'a' + 10;
-		else if (hex[i] >= 'A' && hex[i] <= 'F') v += hex[i] - 'A' + 10;
-		else {
-			CString err;
-			err.Format(strings[S_Inohex],hex);	//"Error: '%.4s' doesn't look very hexadecimal, right?\n"
-			PrintMessage(err);
-		}
-	}
-	return v;
-}
-
-void COpenProgDlg::OpenLogFile(CString nome){
-	if(!RegFile.Open(nome,CFile::modeWrite|CFile::modeCreate))return;
-	CString str;
-	struct tm *newtime;
-    time_t long_time;
-    time( &long_time );                /* Get time as long integer. */
-    newtime = localtime( &long_time ); /* Convert to local time. */
-	str.Format("***** %d:%02d:%02d *****\n",newtime->tm_hour,newtime->tm_min,newtime->tm_sec);
-	RegFile.Write(str,str.GetLength());
-}
-
-void COpenProgDlg::CloseLogFile(){
-	RegFile.Close();
-}
-
-void COpenProgDlg::WriteLog(CString str){
-	RegFile.Write(str,str.GetLength());
-}
-
-void COpenProgDlg::WriteLogIO(){
-	CString str;
-	str.Format("bufferU=[%02X\n",bufferU[0]);
-	RegFile.Write(str,str.GetLength());
-	for(int i=1;i<DIMBUF;i++){
-		str.Format("%02X ",bufferU[i]);
-		RegFile.Write(str,str.GetLength());
-		if(i%32==0) RegFile.Write("\n",1);
-	}
-	RegFile.Write("]\n",2);
-	str.Format("bufferI=[%02X\n",bufferU[0]);
-	RegFile.Write(str,str.GetLength());
-	for(i=1;i<DIMBUF;i++){
-		str.Format("%02X ",bufferI[i]);
-		RegFile.Write(str,str.GetLength());
-		if(i%32==0) RegFile.Write("\n",1);
-	}
-	RegFile.Write("]\n",2);
-}
-
 
 
 void COpenProgDlg::OnTestHw()
@@ -3769,3 +2950,6 @@ void COpenProgDlg::OnWriteLangFile()
 #include "progP24.cpp"
 #include "progEEPROM.cpp"
 #include "progAVR.cpp"
+#include "fileIO.cpp"
+
+

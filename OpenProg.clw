@@ -42,7 +42,7 @@ ImplementationFile=OpenProgDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=ID_WRITE_LANG_FILE
+LastObject=COpenProgDlg
 
 [CLS:CAboutDlg]
 Type=0
@@ -161,7 +161,7 @@ HeaderFile=OpzioniPage.h
 ImplementationFile=OpzioniPage.cpp
 BaseClass=CPropertyPage
 Filter=D
-LastObject=COpzioniPage
+LastObject=ID_OPZIONI_PROGRAMMATORE_CONNETTI
 VirtualFilter=idWC
 
 [DLG:IDD_I2C_SPI]

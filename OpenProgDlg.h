@@ -26,10 +26,12 @@ public:
 	void OnFileOpen();
 	void OnWrite();
 	int  StartHVReg(double V);
+	int  CheckV33Regulator();
 	void ProgID();
 	void PrintMessage(LPCTSTR s);
 	void Read12F5xx(int dim,int dim2);
 	void Read16Fxxx(int dim,int dim2,int dim3,int vdd);
+	void Read16F1xxx(int dim,int dim2,int dim3,int options);
 	void Read18Fx(int dim,int dim2);
 	void Read24Fx(int dim,int dim2,int options,int appIDaddr,int executiveArea,int EEbaseAddr);
 	void ReadI2C(int dim,int addr);
@@ -48,6 +50,7 @@ public:
 	void Write16F88x(int dim,int dim2);
 	void Write16F7x(int dim,int vdd);
 	void Write16F71x(int dim,int vdd);
+	void Write16F1xxx(int dim,int dim2,int options);
 	void Write18Fx(int dim,int dim2,int wbuf,int eraseW1,int eraseW2,int EEalgo);
 	void Write24Fx(int dim,int dim2,int options,int appIDaddr,int rowSize, double wait,int EEbaseAddr,int EraseWord,int CodeWriteWord);
 	void WriteI2C(int dim,int addr,int page, float wait);
@@ -64,6 +67,8 @@ public:
 	void AtmelID(BYTE id[3]);
 	void CheckData(int a,int b, int addr,int &err);
 	void DisplayEE();
+	void SaveEE();
+	void LoadEE();
 	unsigned int htoi(const char *hex, int length);
 	CToolBar			ToolBar;
 	CStatusBarCtrl		StatusBar;

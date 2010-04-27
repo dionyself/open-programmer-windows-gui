@@ -215,9 +215,9 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 // erase: BULK_ERASE_PROG (1001) +10ms
 // write: BEGIN_PROG (1000) + Tprogram 2ms + END_PROG2 (1110);
 	int k=0,z=0,i,j,SaveLog,w;
-	int programID,max_errori,errori=0,usa_BKosccal,usa_osccal,load_osccal;
+	int programID,max_err,err=0,usa_BKosccal,usa_osccal,load_osccal;
 	WORD osccal=-1,BKosccal=-1;
-	CString str,err;
+	CString str;
 	CString s,t;
 	DWORD BytesWritten=0;
 	ULONG Result;
@@ -232,7 +232,7 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 	usa_BKosccal=b->GetCheck();
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	SaveLog=b->GetCheck();
-	max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
+	max_err=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
 	if(OscAddr==-1) usa_BKosccal=usa_osccal=0;
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
@@ -384,6 +384,7 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 	PrintMessage(strings[S_StartCodeProg]);	//"Scrittura codice ... "
 	int dim1=dim;
 	if(programID) dim1=dim+5;
+	if(dati_hex[dim+4]>=0xFFF) dati_hex[dim+4]=BKosccal;  //reload BKosccal if not present
 	if(usa_BKosccal) dati_hex[OscAddr]=BKosccal;
 	else if(usa_osccal) dati_hex[OscAddr]=osccal;
 	for(i=k=w=0,j=1;i<dim1;i++){
@@ -414,9 +415,9 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 					if (dati_hex[k]!=(bufferI[z+6]<<8)+bufferI[z+7]){
 						str.Format(strings[S_CodeWError],k,dati_hex[k],(bufferI[z+6]<<8)+bufferI[z+7]);	//"Errore in scrittura all'indirizzo %3X: scritto %03X, letto %03X\r\n"
 						PrintMessage(str);
-						errori++;
-						if(max_errori&&errori>max_errori){
-							str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
+						err++;
+						if(max_err&&err>max_err){
+							str.Format(strings[S_MaxErr],err);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
 							PrintMessage(str);
 							PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
 							i=dim1;
@@ -429,14 +430,14 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 			}
 			j=1;
 			if(SaveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d,\n"
+				str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errori=%d,\n"
 				WriteLog(str);
 				WriteLogIO();
 			}
 		}
 	}
-	errori+=i-k;
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
+	err+=i-k;
+	str.Format(strings[S_ComplErr],err);	//"completata, %d errori\r\n"
 	PrintMessage(str);
 //****************** write CONFIG ********************
 	PrintMessage(strings[S_ConfigW]);	//"Scrittura CONFIG ... "
@@ -480,22 +481,22 @@ void COpenProgDlg::Write12F5xx(int dim,int OscAddr)
 	read();
 	unsigned int stop=GetTickCount();
 	for(z=10;z<DIMBUF-2&&bufferI[z]!=READ_DATA_PROG;z++);
-	if (z<(DIMBUF-2)&&dati_hex[0xfff]!=(bufferI[z+1]<<8)+bufferI[z+2]){
+	if (!dati_hex[0xfff]&((bufferI[z+1]<<8)+bufferI[z+2])){	//error if written 0 and read 1 (!W&R)
 		str.Format(strings[S_ConfigWErr],dati_hex[0xfff],(bufferI[z+1]<<8)+bufferI[z+2]);	//"Errore in scrittura config:\r\ndato scritto %03X, letto %03X\r\n"
 		PrintMessage(str);
 		err_c++;
 	}
-	errori+=err_c;
+	err+=err_c;
 	if (z>DIMBUF-2) PrintMessage(strings[S_ConfigWErr2]);	//"Errore in scrittura CONFIG"
 	str.Format(strings[S_ComplErr],err_c);	//"completata, %d errori\r\n"
 	PrintMessage(str);
 	if(SaveLog){
-		str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
+		str.Format(strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, errori=%d\n"
 		WriteLog(str);
 		WriteLogIO();
 		CloseLogFile();
 	}
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	str.Format(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
 	PrintMessage(str);
 	StatusBar.SetWindowText("");
 }
