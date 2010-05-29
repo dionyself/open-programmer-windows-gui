@@ -1,6 +1,6 @@
 /*
  * progAVR.cpp - algorithms to program the Atmel AVR family of microcontrollers
- * Copyright (C) 2009 Alberto Maccioni
+ * Copyright (C) 2009-2010 Alberto Maccioni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,93 +18,96 @@
  * or see <http://www.gnu.org/licenses/>
  */
 
+#define  LOCK	1
+#define  FUSE	2
+#define  FUSE_H 4
+#define  FUSE_X	8
+#define  CAL	16
+#define  SLOW	256
+
 void COpenProgDlg::AtmelID(BYTE id[])
 {
-	CString str,str2;
-	if(id[0]==0x1e) print("%s","Atmel ");
-	str2+=str;
+	char str[128];
+	str[0]=0;
+	if(id[0]==0x1E) strcat(str,"Atmel ");
 	if(id[1]==0x90){
 		switch(id[2]){
 			case 0x01:
-				print("%s","AT90S1200");
+				strcat(str,"AT90S1200");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 1KB Flash");
+		strcat(str," 1KB Flash");
 	}
 	else if(id[1]==0x91){
 		switch(id[2]){
 			case 0x01:
-				print("%s","AT90S2313");
+				strcat(str,"AT90S2313");
+				break;
+			case 0x0A:
+				strcat(str,"ATtiny2313");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 2KB Flash");
+		strcat(str," 2KB Flash");
 	}
 	else if(id[1]==0x93){
 		switch(id[2]){
 			case 0x01:
-				print("%s","AT90S8515");
+				strcat(str,"AT90S8515");
 				break;
 			case 0x03:
-				print("%s","AT90S8535");
+				strcat(str,"AT90S8535");
 				break;
 			case 0x06:
-				print("%s","ATmega8515");
+				strcat(str,"ATmega8515");
 				break;
 			case 0x07:
-				print("%s","ATmega8");
+				strcat(str,"ATmega8");
 				break;
 			case 0x08:
-				print("%s","ATmega8535");
+				strcat(str,"ATmega8535");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 8KB Flash");
+		strcat(str," 8KB Flash");
 	}
 	else if(id[1]==0x94){
 		switch(id[2]){
 			case 0x03:
-				print("%s","ATmega16");
+				strcat(str,"ATmega16");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 16KB Flash");
+		strcat(str," 16KB Flash");
 	}
 	else if(id[1]==0x95){
 		switch(id[2]){
 			case 0x02:
-				print("%s","ATmega32");
+				strcat(str,"ATmega32");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 32KB Flash");
+		strcat(str," 32KB Flash");
 	}
 	else if(id[1]==0x96){
 		switch(id[2]){
 			case 0x02:
-				print("%s","ATmega64");
+				strcat(str,"ATmega64");
 				break;
 			default:
-				print("%s",strings[S_nodev]); //"Dispositivo sconosciuto\r\n");
+				strcat(str,strings[S_nodev]); //"Unknown device\r\n");
 		}
-		str2+=str;
-		print("%s"," 64KB Flash");
+		strcat(str," 64KB Flash");
 	}
-	if(id[0]==0&&id[1]==1&&id[2]==2) print("%s",strings[S_Protected]);		//"Dispositivo protetto"
-	str2+=str;
-	str2+="\r\n";
-	PrintMessage(str2);
+	if(id[0]==0&&id[1]==1&&id[2]==2) strcat(str,strings[S_Protected]);		//"Dispositivo protetto"
+	strcat(str,"\r\n");
+	PrintMessage(str);
 }
 
 #define RST 0x40
@@ -112,40 +115,33 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 // read ATMEL AVR
 // dim=FLASH size in bytes, dim2=EEPROM size
 // options: LOCK,FUSE,FUSE_H,FUSE_X,CAL
+//			SLOW = slow communication
 {
+	CString str,aux;
+	int size,sizeEE;
 	int k=0,k2=0,z=0,i,j;
-	int saveLog;
 	BYTE signature[]={0,0,0};
-	CString str,s,t;
-	DWORD BytesWritten=0;
-	ULONG Result;
-	if(MyDeviceDetected==FALSE) return;
 	if(dim>0x20000||dim<0){
-		PrintMessage(strings[S_CodeLim]);	//"Dimensione programma oltre i limiti\r\n"
+		PrintMessage(strings[S_CodeLim]);	//"Code size out of limits\r\n"
 		return;
 	}
 	if(dim2>0x800||dim2<0){
-		PrintMessage(strings[S_EELim]);	//"Dimensione eeprom oltre i limiti\r\n"
-		return;
-	}
-	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
-	saveLog=b->GetCheck();
-	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_EELim]);	//"EEPROM size out of limits\r\n"
 		return;
 	}
 	if(saveLog){
-		OpenLogFile(strings[S_LogFile]);	//"Registro.txt"
-		str.Format("ReadAT(0x%X,0x%X,0x%X)\n",dim,dim2,options);
-		WriteLog(str);
+		OpenLogFile();	//"Log.txt"
+		fprintf(logfile,"ReadAT(0x%X,0x%X,0x%X)\n",dim,dim2,options);
 	}
 	hvreg=0;
+	size=dim;
+	sizeEE=dim2;
 	memCODE.RemoveAll();
 	memCODE.SetSize(dim);		//CODE
-	for(j=0;j<memCODE.GetSize();j++) memCODE[j]=0x55;
 	memEE.RemoveAll();
 	memEE.SetSize(dim2);		//EEPROM
-	for(j=0;j<memEE.GetSize();j++) memEE[j]=0x55;
+	for(j=0;j<size;j++) memCODE[j]=0xFF;
+	for(j=0;j<sizeEE;j++) memEE[j]=0xFF;
 	unsigned int start=GetTickCount();
 	bufferU[0]=0;
 	j=1;
@@ -157,7 +153,7 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 	bufferU[j++]=EN_VPP_VCC;	//VDD
 	bufferU[j++]=0x0;
 	bufferU[j++]=SPI_INIT;
-	bufferU[j++]=1;				//0=100k, 1=200k
+	bufferU[j++]=options&SLOW?0:1;				//0=100k, 1=200k
 	bufferU[j++]=CLOCK_GEN;
 	bufferU[j++]=3;				//0=100k,200k,500k,1M,2M
 	bufferU[j++]=CLOCK_GEN;
@@ -201,8 +197,6 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 		read();
 		if(saveLog)WriteLogIO();
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		//str.Format("i=%d z=%d   rx:%02X%02X\r\n",i,z,bufferI[z+2],bufferI[z+3]);
-		//PrintMessage(str);
 		if(bufferI[z+2]==0x53) i=32;
 	}
 	if(i<33){
@@ -222,7 +216,7 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 		msDelay(3);
 		read();
 		if(saveLog)WriteLogIO();
-		PrintMessage(strings[S_SyncErr]);	//"Errore di sincronizzazione\r\n"
+		PrintMessage(strings[S_SyncErr]);	//"Synchronization error\r\n"
 		if(saveLog) CloseLogFile();
 		return;
 	}
@@ -296,28 +290,23 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 	signature[1]=bufferI[z+2];
 	for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 	signature[2]=bufferI[z+2];
-	str.Format("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
-	PrintMessage(str);
+	PrintMessage3("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
 	AtmelID(signature);
 	if(options&LOCK){			//LOCK byte
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format("LOCK bits:\t  0x%02X\r\n",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1("LOCK bits:\t  0x%02X\r\n",bufferI[z+2]);
 	}
 	if(options&FUSE){			//FUSE byte
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format("FUSE bits:\t  0x%02X\r\n",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1("FUSE bits:\t  0x%02X\r\n",bufferI[z+2]);
 	}
 	if(options&FUSE_H){			//FUSE high byte
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format("FUSE HIGH bits:\t  0x%02X\r\n",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1("FUSE HIGH bits:\t  0x%02X\r\n",bufferI[z+2]);
 	}
 	if(options&FUSE_X){			//extended FUSE byte
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format("Extended FUSE bits: 0x%02X\r\n",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1("Extended FUSE bits: 0x%02X\r\n",bufferI[z+2]);
 	}
 	if(options&CAL){			//calibration byte
 		j=1;
@@ -356,20 +345,16 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 		read();
 		if(saveLog)WriteLogIO();
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format("Calibration bits:\t  0x%02X",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1("Calibration bits:\t  0x%02X",bufferI[z+2]);
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format(",0x%02X",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1(",0x%02X",bufferI[z+2]);
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format(",0x%02X",bufferI[z+2]);
-		PrintMessage(str);
+		PrintMessage1(",0x%02X",bufferI[z+2]);
 		for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		str.Format(",0x%02X\r\n",bufferI[z+2]);
-		PrintMessage(str);
-	}/**/
+		PrintMessage1(",0x%02X\r\n",bufferI[z+2]);
+	}
 //****************** read code ********************
-	PrintMessage(strings[S_CodeReading1]);		//lettura codice ...
+	PrintMessage(strings[S_CodeReading1]);		//read code ...
 	int c=(DIMBUF-5)/2;
 	for(i=0,j=1;i<dim;i+=c*2){
 		bufferU[j++]=AT_READ_DATA;
@@ -379,20 +364,18 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 		bufferU[j++]=FLUSH;
 		for(;j<DIMBUF;j++) bufferU[j]=0x0;
 		write();
-		msDelay(15);
+		msDelay(options&SLOW?30:15);	//15
 		read();
 		if(bufferI[1]==AT_READ_DATA){
 			for(z=3;z<bufferI[2]*2+3&&z<DIMBUF;z++) memCODE[k++]=bufferI[z];
 		}
-		str.Format(strings[S_CodeReading],i*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
-		StatusBar.SetWindowText(str);
+		PrintStatus(strings[S_CodeReading],i*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
 		j=1;
 		if(saveLog){
-			str.Format(strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
-			WriteLog(str);
+			fprintf(logfile,strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
 			WriteLogIO();
 		}
-	}/**/
+	}
 /*	for(k=0,i=0,j=1;i<dim;i+=2){	//read byte by byte
 		bufferU[j++]=SPI_WRITE;
 		bufferU[j++]=3;
@@ -420,25 +403,24 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 					z+=2;
 				}
 			}
-			str.Format(strings[S_CodeReading],i*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
+			PrintStatus(strings[S_CodeReading],i*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
 			StatusBar.SetWindowText(str);
 			j=1;
 			if(saveLog){
-				str.Format(strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
-				WriteLog(str);
+				fprintf(logfile,strings[S_Log7],i,i,k,k);	//"i=%d(0x%X), k=%d(0x%X)\n"
 				WriteLogIO();
 			}
 		}
 	}
 */
 	if(k!=dim){
-		str.Format(strings[S_ReadCodeErr2],dim,k);	//"Errore in lettura area programma, richiesti %d byte, letti %d\r\n"
-		PrintMessage(str);
+		PrintMessage("\r\n");
+		PrintMessage2(strings[S_ReadCodeErr2],dim,k);	//"Errore in lettura area programma, richiesti %d byte, letti %d\r\n"
 	}
-	else PrintMessage(strings[S_Compl]);	//"completata\r\n"
+	else PrintMessage(strings[S_Compl]);	//"completed\r\n"
 //****************** read eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_ReadEE]);		//lettura EE ...
+		PrintMessage(strings[S_ReadEE]);		//read EE ...
 		for(k2=0,i=0,j=1;i<dim2;i++){
 			bufferU[j++]=SPI_WRITE;		//Read eeprom memory
 			bufferU[j++]=3;
@@ -459,21 +441,19 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 						z+=3;
 					}
 				}
-				str.Format(strings[S_CodeReading],(i+dim)*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
-				StatusBar.SetWindowText(str);
+				PrintStatus(strings[S_CodeReading],(i+dim)*100/(dim+dim2),i);	//"Lettura: %d%%, ind. %03X"
 				j=1;
 				if(saveLog){
-					str.Format(strings[S_Log7],i,i,k2,k2);	//"i=%d(0x%X), k=%d(0x%X)\n"
-					WriteLog(str);
+					fprintf(logfile,strings[S_Log7],i,i,k2,k2);	//"i=%d(0x%X), k=%d(0x%X)\n"
 					WriteLogIO();
 				}
 			}
 		}
 		if(k2!=dim2){
-			str.Format(strings[S_ReadEEErr],dim2,k2);	//"Errore in lettura area EEPROM, richiesti %d byte, letti %d\r\n"
-			PrintMessage(str);
+			PrintMessage("\r\n");
+			PrintMessage2(strings[S_ReadEEErr],dim2,k2);	//"Errore in lettura area EEPROM, richiesti %d byte, letti %d\r\n"
 		}
-		else PrintMessage(strings[S_Compl]);	//"completata\r\n"
+		else PrintMessage(strings[S_Compl]);	//"completed\r\n"
 	}
 //****************** exit program mode ********************
 	bufferU[j++]=CLOCK_GEN;
@@ -492,27 +472,29 @@ void COpenProgDlg::ReadAT(int dim, int dim2, int options)
 	StatusBar.SetWindowText("");
 //****************** visualize ********************
 	PrintMessage(strings[S_CodeMem]);	//"\r\nMemoria programma:\r\n"
-	CString aux;
+	char s[256],t[256];
+	int valid=0,empty=1;
+	s[0]=0;
 	for(i=0;i<dim;i+=COL*2){
-		int valid=0;
+		valid=0;
 		for(j=i;j<i+COL*2&&j<dim;j++){
-			t.Format("%02X ",memCODE[j]&0xff);
-			s+=t;
+			sprintf(t,"%02X ",memCODE[j]);
+			strcat(s,t);
 			if(memCODE[j]<0xff) valid=1;
 		}
 		if(valid){
-			t.Format("%04X: %s\r\n",i,s);
+			sprintf(t,"%04X: %s\r\n",i,s);
+			empty=0;
 			aux+=t;
 		}
-		s.Empty();
+		s[0]=0;
 	}
-	if(aux.GetLength()) PrintMessage(aux);
-	else PrintMessage(strings[S_Empty]);	//empty
+	if(empty) PrintMessage(strings[S_Empty]);	//empty
+	else PrintMessage(aux);
 	if(dim2){
-		DisplayEE();
+		DisplayEE();	//visualize EE
 	}
-	str.Format(strings[S_End],(stop-start)/1000.0);	//"\r\nFine (%.2f s)\r\n"
-	PrintMessage(str);
+	PrintMessage1(strings[S_End],(stop-start)/1000.0);	//"\r\nEnd (%.2f s)\r\n"
 	if(saveLog) CloseLogFile();
 }
 
@@ -520,44 +502,34 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 // write ATMEL micro
 // dim=FLASH size in bytes, dim2=EEPROM size
 {
-	int k=0,k2=0,z=0,i,j;
-	int saveLog, errori=0,erroriEE=0,ritenta=0,maxtent=0;
+	CString str;
+	int size=memCODE.GetSize(),sizeEE=memEE.GetSize();
 	int lock=0x100;
+	int k=0,z=0,i,j;
+	int err=0,errEE=0,ritenta=0,maxtent=0;
 	BYTE signature[]={0,0,0};
-	CString str,s,t;
-	DWORD BytesWritten=0;
-	ULONG Result;
-	if(MyDeviceDetected==FALSE) return;
 	if(dim>0x8000||dim<0){
-		PrintMessage(strings[S_CodeLim]);	//"Dimensione programma oltre i limiti\r\n"
+		PrintMessage(strings[S_CodeLim]);	//"Code size out of limits\r\n"
 		return;
 	}
 	if(dim2>0x800||dim2<0){
-		PrintMessage(strings[S_EELim]);	//"Dimensione eeprom oltre i limiti\r\n"
+		PrintMessage(strings[S_EELim]);	//"EEPROM size out of limits\r\n"
 		return;
 	}
-	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
-	saveLog=b->GetCheck();
-	b=(CButton*)m_DispoPage.GetDlgItem(IDC_LOCK_P);
+	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_LOCK_P);
 	if(b->GetCheck()){
 		m_DispoPage.GetDlgItemText(IDC_LOCK,str);
 		i=sscanf(str,"%x",&lock);
 		if(i!=1||lock<0||lock>0xFF) lock=0x100;
 	}
-	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
-		return;
-	}
 	if(saveLog){
-		OpenLogFile(strings[S_LogFile]);	//"Registro.txt"
-		str.Format("WriteAT(0x%X,0x%X)\n",dim,dim2);
-		WriteLog(str);
+		OpenLogFile();	//"Log.txt"
+		fprintf(logfile,"WriteAT(0x%X,0x%X)\n",dim,dim2);
 	}
-	int max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
-	if(dim>memCODE.GetSize()) dim=memCODE.GetSize();
-	if(dim2>memEE.GetSize()) dim2=memEE.GetSize();
+	if(dim>size) dim=size;
+	if(dim2>sizeEE) dim2=sizeEE;
 	if(dim<1){
-		PrintMessage(strings[S_NoCode]);	//"Area dati vuota\r\n"
+		PrintMessage(strings[S_NoCode]);	//"Data area is empty\r\n"
 		return;
 	}
 	hvreg=0;
@@ -617,7 +589,7 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 		read();
 		if(saveLog)WriteLogIO();
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		//str.Format("i=%d z=%d   rx:%02X%02X\r\n",i,z,bufferI[z+2],bufferI[z+3]);
+		//PrintMessage("i=%d z=%d   rx:%02X%02X\r\n",i,z,bufferI[z+2],bufferI[z+3]);
 		//PrintMessage(str);
 		if(bufferI[z+2]==0x53) i=32;
 	}
@@ -638,7 +610,7 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 		msDelay(1);
 		read();
 		if(saveLog)WriteLogIO();
-		PrintMessage(strings[S_SyncErr]);	//"Errore di sincronizzazione\r\n"
+		PrintMessage(strings[S_SyncErr]);	//"Synchronization error\r\n"
 		if(saveLog) CloseLogFile();
 		return;
 	}
@@ -676,11 +648,10 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 	signature[1]=bufferI[z+2];
 	for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 	signature[2]=bufferI[z+2];
-	str.Format("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
-	PrintMessage(str);
+	PrintMessage3("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
 	AtmelID(signature);
 //****************** erase memory ********************
-	PrintMessage(strings[S_StartErase]);	//"Cancellazione ... "
+	PrintMessage(strings[S_StartErase]);	//"Erase ... "
 	j=1;
 	bufferU[j++]=SPI_WRITE;		//Chip erase
 	bufferU[j++]=4;
@@ -698,9 +669,9 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 	msDelay(15);
 	read();
 	if(saveLog)WriteLogIO();
-	PrintMessage(strings[S_Compl]);	//"completata\r\n"
+	PrintMessage(strings[S_Compl]);	//"completed\r\n"
 //****************** write code ********************
-	PrintMessage(strings[S_StartCodeProg]);	//"Scrittura codice ... "
+	PrintMessage(strings[S_StartCodeProg]);	//"Write code ... "
 	for(i=0,j=1;i<dim;i++){
 		if(memCODE[i]!=0xFF){
 			bufferU[j++]=SPI_WRITE;		//Write program memory
@@ -725,8 +696,7 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 			write();
 			msDelay(9);
 			read();
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
-			StatusBar.SetWindowText(str);
+			PrintStatus(strings[S_CodeWriting],i*100/dim,i);	//"Write: %d%%, addr. %03X"
 			for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 			if(z==DIMBUF-2||memCODE[i]!=bufferI[z+2]){
 				if(ritenta<5){
@@ -735,28 +705,26 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 					i--;
 				}
 				else{
-					errori++;
+					err++;
 					ritenta=0;
 				}
 			}
-			if(max_errori&&errori>max_errori){
-				str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
-				PrintMessage(str);
-				PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
+			if(max_err&&err>max_err){
+				PrintMessage1(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+				PrintMessage(strings[S_IntW]);	//"Write interrupted"
 				i=dim;
 			}
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,k,k,errori);	//"i=%d, k=%d, errori=%d\n"
-				WriteLog(str);
+				fprintf(logfile,strings[S_Log8],i,i,k,k,err);	//"i=%d, k=%d, err=%d\n"
 				WriteLogIO();
 			}
 		}
 	}
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
-	PrintMessage(str);
+	PrintMessage1(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Write EEPROM ... "
+		int errEE=0;
 		for(i=0,j=1;i<dim2;i++){
 			if(memEE[i]!=0xFF){
 				bufferU[j++]=SPI_WRITE;		//Write EEPROM memory
@@ -781,8 +749,7 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 				write();
 				msDelay(9);
 				read();
-				str.Format(strings[S_CodeWriting],i*100/dim2,i);	//"Scrittura: %d%%, ind. %03X"
-				StatusBar.SetWindowText(str);
+				PrintStatus(strings[S_CodeWriting],i*100/dim2,i);	//"Write: %d%%, addr. %03X"
 				for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 				if(z==DIMBUF-2||memEE[i]!=bufferI[z+2]){
 					if(ritenta<10){
@@ -791,34 +758,28 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 						i--;
 					}
 					else{
-						erroriEE++;
+						errEE++;
 						ritenta=0;
 					}
 				}
-				if(max_errori&&errori+erroriEE>max_errori){
-					str.Format(strings[S_MaxErr],errori+erroriEE);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
-					PrintMessage(str);
-					PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
+				if(max_err&&err+errEE>max_err){
+					PrintMessage1(strings[S_MaxErr],err+errEE);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+					PrintMessage(strings[S_IntW]);	//"Write interrupted"
 					i=dim2;
 				}
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,erroriEE);	//"i=%d, k=%d, errori=%d\n"
-					WriteLog(str);
+					fprintf(logfile,strings[S_Log8],i,i,k,k,errEE);	//"i=%d, k=%d, err=%d\n"
 					WriteLogIO();
 				}
 			}
 		}
-		str.Format(strings[S_ComplErr],erroriEE);	//"completata, %d errori\r\n"
-		PrintMessage(str);
-		errori+=erroriEE;
+		PrintMessage1(strings[S_ComplErr],errEE);	//"completed, %d errors\r\n"
+		err+=errEE;
 	}
-	if (maxtent){
-		str.Format(strings[S_MaxRetry],maxtent); 	//"Max tentativi di scrittura: %d\r\n"
-		PrintMessage(str);
-	}
+	if(maxtent) PrintMessage1(strings[S_MaxRetry],maxtent); 	//"Max retries in writing: %d\r\n"
 //****************** write FUSE ********************
 	if(lock<0x100){
-		PrintMessage(strings[S_FuseAreaW]);	//"Scrittura area Fuse ... "
+		PrintMessage(strings[S_FuseAreaW]);	//"Write Fuse ... "
 		bufferU[j++]=SPI_WRITE;		//Write lock
 		bufferU[j++]=4;
 		bufferU[j++]=0xAC;
@@ -833,7 +794,7 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 		msDelay(9);
 		read();
 		if(saveLog)WriteLogIO();
-		PrintMessage(strings[S_Compl]);	//"completata\r\n"
+		PrintMessage(strings[S_Compl]);	//"completed\r\n"
 	}
 //****************** exit program mode ********************
 	bufferU[j++]=CLOCK_GEN;
@@ -846,38 +807,31 @@ void COpenProgDlg::WriteAT(int dim, int dim2)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
-	PrintMessage(str);
-	if(saveLog){
-		WriteLog(str);
-		CloseLogFile();
-	}
+	PrintMessage3(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	if(saveLog)	CloseLogFile();
 	StatusBar.SetWindowText("");
 }
 
-void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
+void COpenProgDlg::WriteATmega(int dim, int dim2, int page, int options)
 // write ATMEL micro
 // dim=FLASH size in bytes, dim2=EEPROM, page=FLASH page size in bytes
+// options: SLOW=slow communication
 {
-	int k=0,k2=0,z=0,i,j;
-	int saveLog, errori=0,erroriEE=0,ritenta=0,maxtent=0;
-	BYTE signature[]={0,0,0};
+	CString str;
+	int size=memCODE.GetSize(),sizeEE=memEE.GetSize();
 	int lock=0x100,fuse=0x100,fuse_h=0x100,fuse_x=0x100;
-	CString str,s,t;
-	DWORD BytesWritten=0;
-	ULONG Result;
-	if(MyDeviceDetected==FALSE) return;
+	int k=0,z=0,i,j;
+	int err=0,errEE=0,ritenta=0,maxtent=0;
+	BYTE signature[]={0,0,0};
 	if(dim>0x10000||dim<0){
-		PrintMessage(strings[S_CodeLim]);	//"Dimensione programma oltre i limiti\r\n"
+		PrintMessage(strings[S_CodeLim]);	//"Code size out of limits\r\n"
 		return;
 	}
 	if(dim2>0x1000||dim2<0){
-		PrintMessage(strings[S_EELim]);	//"Dimensione eeprom oltre i limiti\r\n"
+		PrintMessage(strings[S_EELim]);	//"EEPROM size out of limits\r\n"
 		return;
 	}
-	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
-	saveLog=b->GetCheck();
-	b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSE_P);
+	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSE_P);
 	if(b->GetCheck()){
 		m_DispoPage.GetDlgItemText(IDC_FUSE,str);
 		i=sscanf(str,"%x",&fuse);
@@ -901,30 +855,26 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 		i=sscanf(str,"%x",&lock);
 		if(i!=1||lock<0||lock>0xFF) lock=0x100;
 	}
-	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
-		return;
-	}
 	if(saveLog){
-		OpenLogFile(strings[S_LogFile]);	//"Registro.txt"
-		str.Format("WriteATmega(0x%X,0x%X,0x%X)\n",dim,dim2,page);
-		WriteLog(str);
+		OpenLogFile();	//"Log.txt"
+		fprintf(logfile,"WriteATmega(0x%X,0x%X,0x%X)\n",dim,dim2,page);
 	}
-	int max_errori=m_OpzioniPage.GetDlgItemInt(IDC_ERRMAX);
-	if(dim>memCODE.GetSize()) dim=memCODE.GetSize();
-	else memCODE.SetSize(dim);
-	if(memCODE.GetSize()%(page*2)){
-		j=memCODE.GetSize();
-		memCODE.SetSize((j/(page*2)+1)*page*2);
-		for(;j<memCODE.GetSize();j++) memCODE[j]=0xFF;
-		dim=memCODE.GetSize();
+	if(dim>size) dim=size;
+	else{
+ 		size=dim;
+		memCODE.SetSize(dim);
 	}
-	if(dim2>memEE.GetSize()) dim2=memEE.GetSize();
+	if(size%(page*2)){	//grow to an integer number of pages
+		j=size;
+		dim=(j/(page*2)+1)*page*2;
+		memCODE.SetSize(dim);
+		for(;j<dim;j++) memCODE[j]=0xFF;
+	}
+	if(dim2>sizeEE) dim2=sizeEE;
 	if(dim<1){
-		PrintMessage(strings[S_NoCode]);	//"Area dati vuota\r\n"
+		PrintMessage(strings[S_NoCode]);	//"Data area is empty\r\n"
 		return;
 	}
-	PrintMessage(strings[S_Writing]);	//"Inizio scrittura...\r\n"
 	hvreg=0;
 	unsigned int start=GetTickCount();
 	bufferU[0]=0;
@@ -937,7 +887,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 	bufferU[j++]=EN_VPP_VCC;	//VDD
 	bufferU[j++]=0x0;
 	bufferU[j++]=SPI_INIT;
-	bufferU[j++]=1;
+	bufferU[j++]=options&SLOW?0:1;				//0=100k, 1=200k
 	bufferU[j++]=CLOCK_GEN;
 	bufferU[j++]=3;
 	bufferU[j++]=CLOCK_GEN;
@@ -981,7 +931,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 		read();
 		if(saveLog)WriteLogIO();
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
-		//str.Format("i=%d z=%d   rx:%02X%02X\r\n",i,z,bufferI[z+2],bufferI[z+3]);
+		//PrintMessage("i=%d z=%d   rx:%02X%02X\r\n",i,z,bufferI[z+2],bufferI[z+3]);
 		//PrintMessage(str);
 		if(bufferI[z+2]==0x53) i=32;
 	}
@@ -1002,7 +952,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 		msDelay(2);
 		read();
 		if(saveLog)WriteLogIO();
-		PrintMessage(strings[S_SyncErr]);	//"Errore di sincronizzazione\r\n"
+		PrintMessage(strings[S_SyncErr]);	//"Synchronization error\r\n"
 		if(saveLog) CloseLogFile();
 		return;
 	}
@@ -1040,11 +990,10 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 	signature[1]=bufferI[z+2];
 	for(z+=3;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 	signature[2]=bufferI[z+2];
-	str.Format("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
-	PrintMessage(str);
+	PrintMessage3("CHIP ID:%02X%02X%02X\r\n",signature[0],signature[1],signature[2]);
 	AtmelID(signature);
 //****************** erase memory ********************
-	PrintMessage(strings[S_StartErase]);	//"Cancellazione ... "
+	PrintMessage(strings[S_StartErase]);	//"Erase ... "
 	j=1;
 	bufferU[j++]=SPI_WRITE;		//Chip erase
 	bufferU[j++]=4;
@@ -1062,9 +1011,9 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 	msDelay(15);
 	read();
 	if(saveLog)WriteLogIO();
-	PrintMessage(strings[S_Compl]);	//"completata\r\n"
+	PrintMessage(strings[S_Compl]);	//"completed\r\n"
 //****************** write code ********************
-	PrintMessage(strings[S_StartCodeProg]);	//"Scrittura codice ... "
+	PrintMessage(strings[S_StartCodeProg]);	//"Write code ... "
 	int w,v,c,Rtry;
 	for(i=0;i<dim;i+=page*2){
 		for(z=i,v=0;z<i+page*2;z++) if(memCODE[z]<0xFF)v=1;
@@ -1080,7 +1029,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 				for(;j<DIMBUF;j++) bufferU[j]=0x0;
 				j=1;
 				write();
-				msDelay(15);
+				msDelay(options&SLOW?30:15);
 				read();
 				if(saveLog)WriteLogIO();
 			}
@@ -1097,8 +1046,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 			write();
 			msDelay(10);
 			read();
-			str.Format(strings[S_CodeWriting],i*100/dim,i);	//"Scrittura: %d%%, ind. %03X"
-			StatusBar.SetWindowText(str);
+			PrintStatus(strings[S_CodeWriting],i*100/dim,i);	//"Write: %d%%, addr. %03X"
 			if(saveLog)WriteLogIO();
 			c=(DIMBUF-5)/2;
 			for(k=0,j=1;k<page;k+=c){
@@ -1110,14 +1058,14 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 					bufferU[j++]=FLUSH;
 					for(;j<DIMBUF;j++) bufferU[j]=0x0;
 					write();
-					msDelay(25);
+					msDelay(options&SLOW?30:15);	//25
 					read();
 					if(saveLog)WriteLogIO();
 					if(bufferI[1]==AT_READ_DATA){
 						for(w=0,z=3;z<bufferI[2]*2+3&&z<DIMBUF;z++){
 							if(memCODE[i+k*2+w]!=bufferI[z]){
 								if(Rtry<4)	z=DIMBUF;
-								else errori++;
+								else err++;
 							}
 							w++;
 						}
@@ -1127,23 +1075,20 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 				}
 			}
 			if(saveLog){
-				str.Format(strings[S_Log8],i,i,w,w,errori);	//"i=%d, k=%d, errori=%d\n"
-				WriteLog(str);
-				WriteLog("\n");
+				fprintf(logfile,strings[S_Log8],i,i,w,w,err);	//"i=%d, k=%d, err=%d\n"
 			}
-			if(max_errori&&errori>max_errori){
-				str.Format(strings[S_MaxErr],errori);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
-				PrintMessage(str);
-				PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
+			if(max_err&&err>max_err){
+				PrintMessage1(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+				PrintMessage(strings[S_IntW]);	//"Write interrupted"
 				i=dim;
 			}
 		}
 	}
-	str.Format(strings[S_ComplErr],errori);	//"completata, %d errori\r\n"
-	PrintMessage(str);
+	PrintMessage1(strings[S_ComplErr],err);	//"completed, %d errors\r\n"
 //****************** write eeprom ********************
 	if(dim2){
-		PrintMessage(strings[S_EEAreaW]);	//"Scrittura area EEPROM ... "
+		PrintMessage(strings[S_EEAreaW]);	//"Write EEPROM ... "
+		int errEE=0;
 		for(i=0,j=1;i<dim2;i++){
 			if(memEE[i]!=0xFF){
 				bufferU[j++]=SPI_WRITE;		//Write EEPROM memory
@@ -1167,8 +1112,7 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 				write();
 				msDelay(11);
 				read();
-				str.Format(strings[S_CodeWriting],i*100/dim2,i);	//"Scrittura: %d%%, ind. %03X"
-				StatusBar.SetWindowText(str);
+				PrintStatus(strings[S_CodeWriting],i*100/dim2,i);	//"Write: %d%%, addr. %03X"
 				for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 				if(z==DIMBUF-2||memEE[i]!=bufferI[z+2]){
 					if(ritenta<4){
@@ -1177,30 +1121,27 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 						i--;
 					}
 					else{
-						erroriEE++;
+						errEE++;
 						ritenta=0;
 					}
 				}
-				if(max_errori&&errori+erroriEE>max_errori){
-					str.Format(strings[S_MaxErr],errori+erroriEE);	//"Superato il massimo numero di errori (%d), scrittura interrotta\r\n"
-					PrintMessage(str);
-					PrintMessage(strings[S_IntW]);	//"Scrittura interrotta"
+				if(max_err&&err+errEE>max_err){
+					PrintMessage1(strings[S_MaxErr],err+errEE);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
+					PrintMessage(strings[S_IntW]);	//"Write interrupted"
 					i=dim2;
 				}
 				if(saveLog){
-					str.Format(strings[S_Log8],i,i,k,k,erroriEE);	//"i=%d, k=%d, errori=%d\n"
-					WriteLog(str);
+					fprintf(logfile,strings[S_Log8],i,i,k,k,errEE);	//"i=%d, k=%d, err=%d\n"
 					WriteLogIO();
 				}
 			}
 		}
-		str.Format(strings[S_ComplErr],erroriEE);	//"completata, %d errori\r\n"
-		PrintMessage(str);
-		errori+=erroriEE;
+		PrintMessage1(strings[S_ComplErr],errEE);	//"completed, %d errors\r\n"
+		err+=errEE;
 	}
 //****************** write FUSE ********************
 	int err_f=0;
-	if(lock<0x100||fuse<0x100||fuse_h<0x100||fuse_x<0x100)PrintMessage(strings[S_FuseAreaW]);	//"Scrittura area Fuse ... "
+	if(lock<0x100||fuse<0x100||fuse_h<0x100||fuse_x<0x100)PrintMessage(strings[S_FuseAreaW]);	//"Write Fuse ... "
 	if(lock<0x100){
 		bufferU[j++]=SPI_WRITE;		//Write lock
 		bufferU[j++]=4;
@@ -1301,15 +1242,11 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=SPI_READ;z++);
 		if(z==DIMBUF-2||fuse_x!=bufferI[z+2]) err_f++;
 	}
-	errori+=err_f;
+	err+=err_f;
 	if(lock<0x100||fuse<0x100||fuse_h<0x100||fuse_x<0x100){
-		str.Format(strings[S_ComplErr],err_f);	//"completata, %d errori\r\n"
-		PrintMessage(str);
+		PrintMessage1(strings[S_ComplErr],err_f);	//"completed, %d errors\r\n"
 	}
-/*	if (maxtent){
-		str.Format(strings[S_MaxRetry],maxtent); 	//"Max tentativi di scrittura: %d\r\n"
-		PrintMessage(str);
-	}*/
+//	if(maxtent) PrintMessage(strings[S_MaxRetry],maxtent); 	//"Max retries in writing: %d\r\n"
 //****************** exit program mode ********************
 	bufferU[j++]=CLOCK_GEN;
 	bufferU[j++]=0xFF;
@@ -1324,12 +1261,8 @@ void COpenProgDlg::WriteATmega(int dim, int dim2, int page)
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
-	str.Format(strings[S_EndErr],(stop-start)/1000.0,errori,errori!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
-	PrintMessage(str);
-	if(saveLog){
-		WriteLog(str);
-		CloseLogFile();
-	}
+	PrintMessage3(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nFine (%.2f s) %d %s\r\n\r\n"
+	if(saveLog) CloseLogFile();
 	StatusBar.SetWindowText("");
 }
 

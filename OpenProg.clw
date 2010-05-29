@@ -13,19 +13,19 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=10
-Resource1=IDD_I2C_SPI
+Resource1=IDR_MENU1
 Resource2=IDR_MAINFRAME
-Resource3=IDD_ABOUTBOX
-Resource4=IDD_OPZIONI
+Resource3=IDD_OPENPROG_DIALOG
+Resource4=IDD_I2C_SPI
 Class4=CDatiPage
-Resource5=IDR_TOOLBAR1
+Resource5=IDD_ABOUTBOX
 Class5=CDispositivoPage
-Resource6=IDD_OPENPROG_DIALOG
-Resource7=IDD_DATI
+Resource6=IDD_DATI
+Resource7=IDD_DISP
 Class6=COpzioniPage
 Class7=CI2CSPIPage
-Resource8=IDD_DISP
-Resource9=IDR_MENU1
+Resource8=IDD_OPZIONI
+Resource9=IDR_TOOLBAR1
 Resource10=IDR_TOOLBAR2
 
 [CLS:COpenProgApp]
@@ -42,7 +42,7 @@ ImplementationFile=OpenProgDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=COpenProgDlg
+LastObject=ID_OPZIONI_PROGRAMMATORE_CONNETTI
 
 [CLS:CAboutDlg]
 Type=0
@@ -161,7 +161,7 @@ HeaderFile=OpzioniPage.h
 ImplementationFile=OpzioniPage.cpp
 BaseClass=CPropertyPage
 Filter=D
-LastObject=ID_OPZIONI_PROGRAMMATORE_CONNETTI
+LastObject=COpzioniPage
 VirtualFilter=idWC
 
 [DLG:IDD_I2C_SPI]
