@@ -89,7 +89,7 @@ public:
 	char **strings;
 	char **strings_ID;
 	int MinRit,maxerr,hvreg;
-	int saveLog,max_err,load_calibword,programID,load_osccal;
+	int saveLog,max_err,load_calibword,programID,load_osccal,ICDenable,ICDaddr;
 	DWORD BytesWritten;
 	ULONG Result;
 	FILE* logfile;

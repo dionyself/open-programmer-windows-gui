@@ -39,7 +39,7 @@
 
 #define DIMBUF 65
 #define COL 16
-#define VERSION "0.7.4"
+#define VERSION "0.7.5"
 #define G (12.0/34*1024/5)		//=72,2823529412
 #define  LOCK	1
 #define  FUSE	2
@@ -742,6 +742,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	m_OpzioniPage.SetDlgItemText(IDC_VID,vid);
 	m_OpzioniPage.SetDlgItemText(IDC_PID,pid);
 	m_OpzioniPage.SetDlgItemInt(IDC_USBDMIN,MinRit);
+	m_DispoPage.SetDlgItemText(IDC_ICDADDR,"1FF0");
 	if(m_DispoPage.m_dispo.SelectString(-1,dev)==CB_ERR)
 		m_DispoPage.m_dispo.SelectString(-1,"12F683");
 	RECT rect;
@@ -888,6 +889,8 @@ void COpenProgDlg::ChangeLanguage()
 	m_DispoPage.SetDlgItemText(IDC_FUSEH_P,strings[I_AT_FUSEH]);
 	m_DispoPage.SetDlgItemText(IDC_FUSEX_P,strings[I_AT_FUSEX]);
 	m_DispoPage.SetDlgItemText(IDC_LOCK_P,strings[I_AT_LOCK]);
+	m_DispoPage.SetDlgItemText(IDC_ICD_EN,strings[I_ICD_ENABLE]);
+	m_DispoPage.SetDlgItemText(IDC_ICD_ADDR,strings[I_ICD_ADDRESS]);
 	m_OpzioniPage.SetDlgItemText(IDC_CONNETTI,strings[I_CONN]);
 	m_OpzioniPage.SetDlgItemText(IDC_REGISTRO,strings[I_LOG]);
 	m_OpzioniPage.SetDlgItemText(IDC_STATICerr,strings[I_MAXERR]);
@@ -1017,6 +1020,12 @@ void COpenProgDlg::OnWrite()
 	load_calibword=b->GetCheck();
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_OSC_LOAD);
 	load_osccal=b->GetCheck();
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_ICD_EN);
+	ICDenable=b->GetCheck();
+	CString str;
+	m_DispoPage.GetDlgItemText(IDC_ICDADDR,str);
+	int i=sscanf(str,"%x",&ICDaddr);
+	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
 	if(!hvreg&&!strncmp(dev,"16F1",4)); // StartHVReg(8.5);
 	else if(!hvreg&&(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))) StartHVReg(13);
 //-------------PIC10-16---------------------------------------------------------

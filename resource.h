@@ -68,7 +68,10 @@
 #define IDC_FUSEX                       1055
 #define IDC_FUSEX_P                     1056
 #define IDC_ATCONF                      1057
+#define IDC_ICD_EN                      1058
+#define IDC_ICDADDR                     1059
 #define IDC_WLANGFILE                   1061
+#define IDC_ICD_ADDR                    1062
 #define ID_LEGGI                        32773
 #define ID_FILE_APRI                    32775
 #define ID_FILE_SALVA                   32776
@@ -90,7 +93,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        150
 #define _APS_NEXT_COMMAND_VALUE         32802
-#define _APS_NEXT_CONTROL_VALUE         1062
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

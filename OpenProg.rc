@@ -89,7 +89,7 @@ STYLE WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CLIPCHILDREN | WS_CAPTION |
     WS_SYSMENU | WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "OpenProg"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
 END
 
@@ -111,7 +111,7 @@ BEGIN
                     WS_TABSTOP
     LTEXT           "Dispositivo__",IDC_STATICdev,9,16,43,8
     CONTROL         "Leggi area riservata__",IDC_RISERVATA,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,38,86,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,50,86,10
     CONTROL         "Da file__",IDC_OSC_LOAD,"Button",BS_AUTORADIOBUTTON | 
                     WS_GROUP,20,125,44,10
     CONTROL         "OSCCAL__",IDC_OSC_OSCCAL,"Button",BS_AUTORADIOBUTTON,20,
@@ -120,11 +120,11 @@ BEGIN
                     20,114,79,10
     GROUPBOX        "Scrivi OSCCAL__",IDC_STATIC2,7,93,93,46
     CONTROL         "Programma ID e BKosccal__",IDC_IDPROG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,51,107,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,63,107,10
     CONTROL         "Leggi e programma EEPROM__",IDC_EEPROM,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,64,117,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,37,117,10
     CONTROL         "Programma CALIB1 e 2__",IDC_CALIB_LOAD,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,77,97,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,76,97,10
     EDITTEXT        IDC_LOCK,173,110,19,14,ES_AUTOHSCROLL
     CONTROL         "_Lock",IDC_LOCK_P,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     198,112,78,10
@@ -138,6 +138,10 @@ BEGIN
     EDITTEXT        IDC_FUSEX,173,90,19,14,ES_AUTOHSCROLL
     CONTROL         "_Extended Fuse",IDC_FUSEX_P,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,198,92,79,10
+    CONTROL         "_Abilita ICD",IDC_ICD_EN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,170,18,67,10
+    EDITTEXT        IDC_ICDADDR,247,16,28,14,ES_AUTOHSCROLL
+    LTEXT           "_indirizzo routine ICD",IDC_ICD_ADDR,277,19,67,8
 END
 
 IDD_OPZIONI DIALOG DISCARDABLE  0, 0, 335, 151

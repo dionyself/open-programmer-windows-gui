@@ -13,18 +13,18 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=10
-Resource1=IDR_MENU1
+Resource1=IDD_OPENPROG_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_OPENPROG_DIALOG
-Resource4=IDD_I2C_SPI
+Resource3=IDD_DATI
+Resource4=IDD_DISP
 Class4=CDatiPage
-Resource5=IDD_ABOUTBOX
+Resource5=IDD_I2C_SPI
 Class5=CDispositivoPage
-Resource6=IDD_DATI
-Resource7=IDD_DISP
+Resource6=IDD_OPZIONI
+Resource7=IDD_ABOUTBOX
 Class6=COpzioniPage
 Class7=CI2CSPIPage
-Resource8=IDD_OPZIONI
+Resource8=IDR_MENU1
 Resource9=IDR_TOOLBAR1
 Resource10=IDR_TOOLBAR2
 
@@ -97,7 +97,7 @@ LastObject=CDatiPage
 [DLG:IDD_DISP]
 Type=1
 Class=CDispositivoPage
-ControlCount=19
+ControlCount=22
 Control1=IDC_DISPO,combobox,1344339971
 Control2=IDC_STATICdev,static,1342308352
 Control3=IDC_RISERVATA,button,1342242819
@@ -117,6 +117,9 @@ Control16=IDC_FUSEH,edit,1350631552
 Control17=IDC_FUSEH_P,button,1342242819
 Control18=IDC_FUSEX,edit,1350631552
 Control19=IDC_FUSEX_P,button,1342242819
+Control20=IDC_ICD_EN,button,1342242819
+Control21=IDC_ICDADDR,edit,1350631552
+Control22=IDC_ICD_ADDR,static,1342308352
 
 [CLS:CDispositivoPage]
 Type=0

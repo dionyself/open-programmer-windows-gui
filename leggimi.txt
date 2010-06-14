@@ -5,9 +5,13 @@ Questi sorgenti sono distribuiti gratuitamente sotto licenza GNU General Public 
 
 Cambiamenti (per usare i dispositivi aggiunti è richiesto un programmatore con firmware corrispondente):
 
+V 0.7.5	giugno 2010:	corretto baco in scrittura config 18Fx (introdotto nella v.0.7.4),
+						aggiunta scrittura goto ICD per i 16Fx, 
+						correzioni varie
+
 V 0.7.4	maggio 2010:	aggiunti PIC24H, dsPIC30, dsPIC33, 18FxxKxx, 18FxxJxx,
 						eliminati parecchi costrutti MFC,
-						correzioni: verifica config word, algoritmo 24F, vari
+						correzioni: verifica config word, algoritmo 24F e 18F, vari
 
 V 0.7.3	aprile 2010:	aggiunti 16F1xxx, un po' di pulizia del codice,
 						separato fileIO.cpp e reso simile alla versione da linea di comando
