@@ -5,6 +5,9 @@ These sources are given free of charge under the GNU General Public License vers
 
 Changelog (to use new features the corresponding firmware is required):
 
+V 0.7.6	july 2010:		modified 93xxx algorithms with byte by byte read for better compatibility,
+						added support for programmers with 12 bit ADC (18F2553 etc.) 
+
 V 0.7.5	june 2010:		corrected write bug for 18Fx config (introduced in v.0.7.4),
 						added "goto ICD" write for 16Fx,
 						various minor fixes
@@ -32,7 +35,7 @@ V 0.5.3 march 2009: 	corrected a bug with PIC18 config words
 
 V 0.5.2 march 2009: 	added some PIC and Atmel micros, corrected some bugs
 
-V 0.5.1 january  2009: 	added some PIC micros, corrected some bugs
+V 0.5.1 january 2009: 	added some PIC micros, corrected some bugs
 
 V 0.5.0	november 2008: 	added some ATMEL micros(90S8515, 90S1200), universal support for I2C/SPI
 

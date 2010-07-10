@@ -39,7 +39,7 @@
 
 #define DIMBUF 65
 #define COL 16
-#define VERSION "0.7.5"
+#define VERSION "0.7.6"
 #define G (12.0/34*1024/5)		//=72,2823529412
 #define  LOCK	1
 #define  FUSE	2
@@ -742,7 +742,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	m_OpzioniPage.SetDlgItemText(IDC_VID,vid);
 	m_OpzioniPage.SetDlgItemText(IDC_PID,pid);
 	m_OpzioniPage.SetDlgItemInt(IDC_USBDMIN,MinRit);
-	m_DispoPage.SetDlgItemText(IDC_ICDADDR,"1FF0");
+	m_DispoPage.SetDlgItemText(IDC_ICDADDR,"1F00");
 	if(m_DispoPage.m_dispo.SelectString(-1,dev)==CB_ERR)
 		m_DispoPage.m_dispo.SelectString(-1,"12F683");
 	RECT rect;
@@ -2388,7 +2388,9 @@ int COpenProgDlg::StartHVReg(double V)
 		read();
 		for(z=1;z<DIMBUF-2&&bufferI[z]!=READ_ADC;z++);
 		v=(bufferI[z+1]<<8)+bufferI[z+2];
-//		printf("v=%d=%fV\n",v,v/G);
+		if(HwID==3) v>>=2;		//if 12 bit ADC
+//		str.Format("v=%d=%fV\r\n",v,v/G);
+//		PrintMessage(str);
 	}
 	if(v>(vreg/10.0+0.7)*G){
 		PrintMessage(strings[S_HiVPP]);	//"Attenzione: tensione regolatore troppo alta\r\n\r\n"
@@ -2433,8 +2435,10 @@ void COpenProgDlg::ProgID()
 	FWVersion=(bufferI[2]<<16)+(bufferI[3]<<8)+bufferI[4];
 	str.Format(strings[S_progid],bufferI[5],bufferI[6],bufferI[7]);	//"ID: %d.%d.%d\r\n"
 	PrintMessage(str);
-	if(bufferI[7]==1) str.Format(" (18F2550)\r\n\r\n");
-	else if(bufferI[7]==2) str.Format(" (18F2450)\r\n\r\n");
+	HwID=bufferI[7];
+	if(HwID==1) str.Format(" (18F2550)\r\n\r\n");
+	else if(HwID==2) str.Format(" (18F2450)\r\n\r\n");
+	else if(HwID==3) str.Format(" (18F2458/2553)\r\n\r\n");
 	else str.Format(" (?)\r\n\r\n");
 	PrintMessage(str);
 	CancelIo(ReadHandle);

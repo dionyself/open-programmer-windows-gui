@@ -83,7 +83,7 @@ public:
 	UINT				*lpIDArray;
 	CString argv[32];
 	int argc;
-	int FWVersion;
+	int FWVersion,HwID;
 	unsigned char		bufferI[128];
 	unsigned char		bufferU[128];
 	char **strings;

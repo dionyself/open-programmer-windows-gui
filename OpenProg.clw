@@ -13,19 +13,19 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=10
-Resource1=IDD_OPENPROG_DIALOG
+Resource1=IDD_DATI
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DATI
-Resource4=IDD_DISP
+Resource3=IDD_DISP
+Resource4=IDD_OPENPROG_DIALOG
 Class4=CDatiPage
-Resource5=IDD_I2C_SPI
+Resource5=IDR_MENU1
 Class5=CDispositivoPage
-Resource6=IDD_OPZIONI
-Resource7=IDD_ABOUTBOX
+Resource6=IDD_I2C_SPI
+Resource7=IDD_OPZIONI
 Class6=COpzioniPage
 Class7=CI2CSPIPage
-Resource8=IDR_MENU1
-Resource9=IDR_TOOLBAR1
+Resource8=IDR_TOOLBAR1
+Resource9=IDD_ABOUTBOX
 Resource10=IDR_TOOLBAR2
 
 [CLS:COpenProgApp]

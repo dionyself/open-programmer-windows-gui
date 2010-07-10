@@ -5,6 +5,9 @@ Questi sorgenti sono distribuiti gratuitamente sotto licenza GNU General Public 
 
 Cambiamenti (per usare i dispositivi aggiunti è richiesto un programmatore con firmware corrispondente):
 
+V 0.7.6	luglio 2010:	modifica algoritmi 93xxx con lettura byte a byte per maggiore compatibilità,
+						supporto programmatore con ADC a 12 bit (18F2553 ecc.)
+
 V 0.7.5	giugno 2010:	corretto baco in scrittura config 18Fx (introdotto nella v.0.7.4),
 						aggiunta scrittura goto ICD per i 16Fx, 
 						correzioni varie
@@ -32,7 +35,7 @@ V 0.5.3	marzo 2009: 	corretto baco sulle config word dei PIC18
 
 V 0.5.2	marzo 2009: 	aggiunti alcuni micro PIC e Atmel, corretti alcuni bachi
 
-V 0.5.1	gennaio  2009: 	aggiunti alcuni micro PIC, corretti alcuni bachi
+V 0.5.1	gennaio 2009: 	aggiunti alcuni micro PIC, corretti alcuni bachi
 
 V 0.5.0	novembre 2008: 	aggiunti alcuni micro ATMEL (90S8515, 90S1200), supporto universale I2C/SPI
 
