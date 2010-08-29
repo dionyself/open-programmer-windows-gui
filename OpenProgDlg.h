@@ -51,6 +51,7 @@ public:
 	void Write16F88x(int dim,int dim2);
 	void Write16F7x(int dim,int vdd);
 	void Write16F71x(int dim,int vdd);
+	void Write16F72x(int dim);
 	void Write16F1xxx(int dim,int dim2,int options);
 	void Write18Fx(int dim,int dim2,int wbuf,int eraseW1,int eraseW2,int options);
 	void Write24Fx(int dim,int dim2,int options,int appIDaddr,int rowSize, double wait);
@@ -88,7 +89,8 @@ public:
 	unsigned char		bufferU[128];
 	char **strings;
 	char **strings_ID;
-	int MinRit,maxerr,hvreg;
+	int MinDly,maxerr;
+	double hvreg;
 	int saveLog,max_err,load_calibword,programID,load_osccal,ICDenable,ICDaddr;
 	DWORD BytesWritten;
 	ULONG Result;

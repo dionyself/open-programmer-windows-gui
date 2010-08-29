@@ -396,7 +396,7 @@ void COpenProgDlg::OnFileOpen()
 			memset(bufferEE,0xFF,sizeof(bufferEE));
 			sizeEE=0;
 			for(;fgets(line,256,f);){
-				if(strlen(line)>9){
+				if(strlen(line)>9&&line[0]==':'){
 					int hex_count=htoi(line+1,2);
 					if((int)strlen(line)-11<hex_count*2) {
 						PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"
@@ -496,7 +496,7 @@ void COpenProgDlg::OnFileOpen()
 			memID.SetSize(0);
 			memCONFIG.SetSize(0);
 			for(;fgets(line,256,f);){
-				if(strlen(line)>9){
+				if(strlen(line)>9&&line[0]==':'){
 					int hex_count = htoi(line+1, 2);
 					if((int)strlen(line) - 11 < hex_count * 2) {
 						PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"
@@ -600,7 +600,7 @@ void COpenProgDlg::OnFileOpen()
 			memset(bufferEE,0xFF,sizeof(bufferEE));
 			memset(memCONFIG.GetData(),0xFF,48);
 			for(;fgets(line,256,f);){
-				if(strlen(line)>9){
+				if(strlen(line)>9&&line[0]==':'){
 					int hex_count = htoi(line+1, 2);
 					if((int)strlen(line) - 11 < hex_count * 2) {
 						PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"
@@ -717,7 +717,7 @@ void COpenProgDlg::OnFileOpen()
 			memEE.SetSize(0);
 			memset(buffer,0xFF,sizeof(buffer));
 			for(;fgets(line,256,f);){
-				if(strlen(line)>9){
+				if(strlen(line)>9&&line[0]==':'){
 					int hex_count = htoi(line+1, 2);
 					if((int)strlen(line) - 11 < hex_count * 2) {
 						PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"
@@ -786,7 +786,7 @@ void COpenProgDlg::OnFileOpen()
 				memEE.SetSize(0);
 				memset(bufferEE,0xFF,0x100000);
 				for(;fgets(line,256,f);){
-					if(strlen(line)>9){
+					if(strlen(line)>9&&line[0]==':'){
 						int hex_count = htoi(line+1, 2);
 						if((int)strlen(line) - 11 < hex_count * 2) {
 							PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"
@@ -847,7 +847,7 @@ void COpenProgDlg::LoadEE(){
 		PrintMessage1("%s :\r\n",dlg.GetFileName());
 		memset(bufferEE,0xFF,sizeof(bufferEE));
 		for(;fgets(line,256,f);){
-			if(strlen(line)>9){
+			if(strlen(line)>9&&line[0]==':'){
 				int hex_count = htoi(line+1, 2);
 				if((int)strlen(line) - 11 < hex_count * 2) {
 					PrintMessage1(strings[S_IhexShort],line);	//"Intel hex8 line too short:\r\n%s\r\n"

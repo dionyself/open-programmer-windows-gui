@@ -39,7 +39,7 @@
 
 #define DIMBUF 65
 #define COL 16
-#define VERSION "0.7.6"
+#define VERSION "0.7.7"
 #define G (12.0/34*1024/5)		//=72,2823529412
 #define  LOCK	1
 #define  FUSE	2
@@ -202,7 +202,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	CString s,dev="12F683",vid="0x04D8",pid="0x0100";
 	wfile=rfile="";
 	maxerr=200;
-	MinRit=5;
+	MinDly=1;
 	hvreg=0;
 	logfile=0;
 	s.Format("OpenProg v%s",VERSION);
@@ -244,7 +244,7 @@ BOOL COpenProgDlg::OnInitDialog()
 			if(sscanf(line,"vid %s",temp)>0)vid=temp;
 			if(sscanf(line,"pid %s",temp)>0)pid=temp;
 			sscanf(line,"maxerr %d",&maxerr);
-			sscanf(line,"usb_delay %d",&MinRit);
+			//sscanf(line,"usb_delay %d",&MinDly);
 			//sscanf(line,"delta_v %d",&delta_v);
 		}
 		f.Close();
@@ -331,6 +331,13 @@ BOOL COpenProgDlg::OnInitDialog()
 	m_DispoPage.m_dispo.AddString("16F689");
 	m_DispoPage.m_dispo.AddString("16F690");
 	m_DispoPage.m_dispo.AddString("16F716");
+	m_DispoPage.m_dispo.AddString("16F722");
+	m_DispoPage.m_dispo.AddString("16F722A");
+	m_DispoPage.m_dispo.AddString("16F723");
+	m_DispoPage.m_dispo.AddString("16F723A");
+	m_DispoPage.m_dispo.AddString("16F724");
+	m_DispoPage.m_dispo.AddString("16F726");
+	m_DispoPage.m_dispo.AddString("16F727");
 	m_DispoPage.m_dispo.AddString("16F73");
 	m_DispoPage.m_dispo.AddString("16F737");
 	m_DispoPage.m_dispo.AddString("16F74");
@@ -741,7 +748,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	ChangeLanguage();
 	m_OpzioniPage.SetDlgItemText(IDC_VID,vid);
 	m_OpzioniPage.SetDlgItemText(IDC_PID,pid);
-	m_OpzioniPage.SetDlgItemInt(IDC_USBDMIN,MinRit);
+	m_OpzioniPage.SetDlgItemInt(IDC_USBDMIN,MinDly);
 	m_DispoPage.SetDlgItemText(IDC_ICDADDR,"1F00");
 	if(m_DispoPage.m_dispo.SelectString(-1,dev)==CB_ERR)
 		m_DispoPage.m_dispo.SelectString(-1,"12F683");
@@ -911,7 +918,7 @@ void COpenProgDlg::OnClose()
 {
 	CStdioFile f;
 	CString s,t;
-	MinRit=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
+	//MinRit=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	s=argv[0];
 	s.Replace(".exe",".ini");
 	if (f.Open((LPCTSTR)s,CFile::modeCreate | CFile::modeWrite)){
@@ -936,7 +943,7 @@ void COpenProgDlg::OnClose()
 		sscanf(a,"%d",&maxerr);
 		s.Format("maxerr %d\n",maxerr);
 		f.WriteString(s);
-		s.Format("usb_delay %d\n",MinRit);
+		s.Format("usb_delay %d\n",MinDly);
 		f.WriteString(s);
 		//int Dvreg=m_OpzioniPage.GetDlgItemInt(IDC_HVDV);
 		//s.Format("delta_v %d\n",Dvreg);
@@ -1006,7 +1013,7 @@ void COpenProgDlg::OnWrite()
 		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
 		return;
 	}
-	MinRit=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
+	//MinDly=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
@@ -1026,8 +1033,8 @@ void COpenProgDlg::OnWrite()
 	m_DispoPage.GetDlgItemText(IDC_ICDADDR,str);
 	int i=sscanf(str,"%x",&ICDaddr);
 	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
-	if(!hvreg&&!strncmp(dev,"16F1",4)); // StartHVReg(8.5);
-	else if(!hvreg&&(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))) StartHVReg(13);
+	if(!strncmp(dev,"16F1",4)||!strncmp(dev,"16F72",5));
+	else if((!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))&&hvreg!=13) hvreg=StartHVReg(13)>0?13:0;
 //-------------PIC10-16---------------------------------------------------------
 	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
 		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
@@ -1075,6 +1082,9 @@ void COpenProgDlg::OnWrite()
 		else if(EQ("16F716")){
 			Write16F71x(0x800,1);							//2K, vdd
 		}
+		else if(EQ("16F722")||EQ("16F722A")){
+			Write16F72x(0x800);								//2K, vpp, 3.3V
+		}
 		else if(EQ("16F870")||EQ("16F871")||EQ("16F872")){
 			Write16F87x(0x800,ee?0x40:0);					//2K, 64
 		}
@@ -1099,6 +1109,9 @@ void COpenProgDlg::OnWrite()
 		else if(EQ("16F73")||EQ("16F74")){
 			Write16F7x(0x1000,0);							//4K
 		}
+		else if(EQ("16F723")||EQ("16F723A")||EQ("16F724")){
+			Write16F72x(0x1000);							//4K, vpp, 3.3V
+		}
 		else if(EQ("16F737")||EQ("16F747")){
 			Write16F7x(0x1000,1);							//4K, vdd no delay
 		}
@@ -1122,6 +1135,9 @@ void COpenProgDlg::OnWrite()
 		}
 		else if(EQ("16F76")||EQ("16F77")){
 			Write16F7x(0x2000,0);							//8K
+		}
+		else if(EQ("16F726")||EQ("16F727")){
+			Write16F72x(0x2000);							//8K, vpp, 3.3V
 		}
 		else if(EQ("16F767")||EQ("16F777")){
 			Write16F7x(0x2000,1);							//8K, vdd no delay
@@ -1556,7 +1572,7 @@ void COpenProgDlg::OnRead()
 		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
 		return;
 	}
-	MinRit=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
+	//MinDly=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_RISERVATA);
 	r=b->GetCheck();
@@ -1566,8 +1582,15 @@ void COpenProgDlg::OnRead()
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
-	if(!hvreg&&!strncmp(dev,"16F1",4)); // StartHVReg(8.5);
-	else if(!hvreg&&(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))) StartHVReg(13);
+	if(!strncmp(dev,"16F1",4));
+	else if(!strncmp(dev,"16F72",5)){
+		if(!CheckV33Regulator()){
+			PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expansion board
+			return;
+		}
+		if(hvreg!=8.5) hvreg=StartHVReg(8.5)>0?8.5:0;
+	}
+	else if((!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))&&hvreg!=13) hvreg=StartHVReg(13)>0?13:0;
 //-------------PIC10-16---------------------------------------------------------
 	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
 		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
@@ -1621,6 +1644,9 @@ void COpenProgDlg::OnRead()
 		else if(EQ("16F57")||EQ("16F59")){
 			Read12F5xx(0x800,r?0x40:4);						//2K
 		}
+		else if(EQ("16F722")||EQ("16F722A")){
+			Read16Fxxx(0x800,0,r?0x100:11,0);				//2K, vpp, config1-2 + cal1-2, 3.3V
+		}
 		else if(EQ("12C672")||EQ("12CE674")){
 			Read16Fxxx(0x800,0,r?0x100:0,0);				//2K, vpp
 		}
@@ -1663,6 +1689,9 @@ void COpenProgDlg::OnRead()
 		else if(EQ("16F737")||EQ("16F747")){
 			Read16Fxxx(0x1000,0,r?0x40:9,2);				//4K, vdd short delay
 		}
+		else if(EQ("16F723")||EQ("16F723A")||EQ("16F724")){
+			Read16Fxxx(0x1000,0,r?0x100:11,0);				//4K, vpp, config1-2 + cal1-2, 3.3V
+		}
 		else if(EQ("16F873A")||EQ("16F874A")){
 			Read16Fxxx(0x1000,ee?0x80:0,r?0x100:8,1);		//4K, 128, vdd
 		}
@@ -1695,6 +1724,9 @@ void COpenProgDlg::OnRead()
 		}
 		else if(EQ("16F767")||EQ("16F777")){
 			Read16Fxxx(0x2000,0,r?0x40:9,2);				//8K, vdd short delay
+		}
+		else if(EQ("16F726")||EQ("16F727")){
+			Read16Fxxx(0x2000,0,r?0x100:11,0);				//8K, vpp, config1-2 + cal1-2, 3.3V
 		}
 		else if(EQ("16F876A")||EQ("16F877A")){
 			Read16Fxxx(0x2000,ee?0x100:0,r?0x100:8,1);		//8K, 256, vdd
@@ -2549,7 +2581,7 @@ void COpenProgDlg::OnTestHw()
 
 void COpenProgDlg::msDelay(double delay)
 {
-	Sleep((long)ceil(delay)>MinRit?(long)ceil(delay):MinRit);
+	Sleep((long)ceil(delay)>MinDly?(long)ceil(delay):MinDly);
 }
 
 void COpenProgDlg::OnConnect()

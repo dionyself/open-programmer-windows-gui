@@ -520,7 +520,7 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 	bufferU[j++]=FLUSH;
 	for(;j<DIMBUF;j++) bufferU[j]=0x0;
 	write();
-	msDelay(3);
+	msDelay(4);
 	if(entry==2) msDelay(7);
 	read();
 	if(saveLog)WriteLogIO();
@@ -747,7 +747,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 		PrintMessage(strings[S_WbufLim]);	//"Write buffer size out of limits\r\n"
 		return;
 	}
-	if(entry==2&&!CheckV33Regulator()){
+	if(entry>0&&!CheckV33Regulator()){
 		PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expansion board
 		return;
 	}
