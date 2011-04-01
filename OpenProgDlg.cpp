@@ -27,6 +27,7 @@
 #include <math.h>
 #include "setupapi.h"
 #include "hidsdi.h"
+#include "msvc_common.h"
 #include "DatiPage.h"
 #include "DispositivoPage.h"
 #include "OpzioniPage.h"
@@ -34,31 +35,12 @@
 #include "OpenProg.h"
 #include "OpenProgDlg.h"
 #include <string.h>
-#include "strings.h"
-#include "instructions.h"
-
-#define DIMBUF 65
-#define COL 16
-#define VERSION "0.7.7"
-#define G (12.0/34*1024/5)		//=72,2823529412
-#define  LOCK	1
-#define  FUSE	2
-#define  FUSE_H 4
-#define  FUSE_X	8
-#define  CAL	16
-#define  SLOW	256
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-#define PrintMessage1(s,p) {str.Format(s,p); PrintMessage(str);}
-#define PrintMessage2(s,p1,p2) {str.Format(s,p1,p2); PrintMessage(str);}
-#define PrintMessage3(s,p1,p2,p3) {str.Format(s,p1,p2,p3); PrintMessage(str);}
-#define PrintMessage4(s,p1,p2,p3,p4) {str.Format(s,p1,p2,p3,p4); PrintMessage(str);}
-#define PrintStatus(s,p1,p2) {str.Format(s,p1,p2); StatusBar.SetWindowText(str);}
 
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
@@ -95,7 +77,7 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 	m_license.Format("  OpenProg v.%s - control program for the open programmer\
 \r\n	For detailed info see http://openprog.altervista.org/\
 \r\n \
-\r\n               Copyright (C) 2009-2010 Alberto Maccioni\
+\r\n               Copyright (C) 2009-2011 Alberto Maccioni\
 \r\n \
 \r\n  This program is free software; you can redistribute it and/or modify\
 \r\n  it under the terms of the GNU General Public License as published by\
@@ -283,448 +265,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	m_dlgPropSheet.SetActivePage(0);
 	m_OpzioniPage.m_language.AddString("Italiano");
 	m_OpzioniPage.m_language.AddString("English");
-	m_DispoPage.m_dispo.AddString("10F200");
-	m_DispoPage.m_dispo.AddString("10F202");
-	m_DispoPage.m_dispo.AddString("10F204");
-	m_DispoPage.m_dispo.AddString("10F206");
-	m_DispoPage.m_dispo.AddString("10F220");
-	m_DispoPage.m_dispo.AddString("10F222");
-	m_DispoPage.m_dispo.AddString("12C508/A");
-	m_DispoPage.m_dispo.AddString("12C509/A");
-	m_DispoPage.m_dispo.AddString("12F508");
-	m_DispoPage.m_dispo.AddString("12F509");
-	m_DispoPage.m_dispo.AddString("12F510");
-	m_DispoPage.m_dispo.AddString("12F519");
-	m_DispoPage.m_dispo.AddString("12F609");
-	m_DispoPage.m_dispo.AddString("12F615");
-	m_DispoPage.m_dispo.AddString("12F629");
-	m_DispoPage.m_dispo.AddString("12F635");
-	m_DispoPage.m_dispo.AddString("12C671");
-	m_DispoPage.m_dispo.AddString("12C672");
-	m_DispoPage.m_dispo.AddString("12CE673");
-	m_DispoPage.m_dispo.AddString("12CE674");
-	m_DispoPage.m_dispo.AddString("12F675");
-	m_DispoPage.m_dispo.AddString("12F683");
-	m_DispoPage.m_dispo.AddString("16F505");
-	m_DispoPage.m_dispo.AddString("16F506");
-	m_DispoPage.m_dispo.AddString("16F526");
-	m_DispoPage.m_dispo.AddString("16F54");
-	m_DispoPage.m_dispo.AddString("16F57");
-	m_DispoPage.m_dispo.AddString("16F59");
-	m_DispoPage.m_dispo.AddString("16F610");
-	m_DispoPage.m_dispo.AddString("16F616");
-	m_DispoPage.m_dispo.AddString("16F627");
-	m_DispoPage.m_dispo.AddString("16F627A");
-	m_DispoPage.m_dispo.AddString("16F628");
-	m_DispoPage.m_dispo.AddString("16F628A");
-	m_DispoPage.m_dispo.AddString("16F630");
-	m_DispoPage.m_dispo.AddString("16F631");
-	m_DispoPage.m_dispo.AddString("16F636");
-	m_DispoPage.m_dispo.AddString("16F639");
-	m_DispoPage.m_dispo.AddString("16F648A");
-	m_DispoPage.m_dispo.AddString("16F676");
-	m_DispoPage.m_dispo.AddString("16F677");
-	m_DispoPage.m_dispo.AddString("16F684");
-	m_DispoPage.m_dispo.AddString("16F685");
-	m_DispoPage.m_dispo.AddString("16F687");
-	m_DispoPage.m_dispo.AddString("16F688");
-	m_DispoPage.m_dispo.AddString("16F689");
-	m_DispoPage.m_dispo.AddString("16F690");
-	m_DispoPage.m_dispo.AddString("16F716");
-	m_DispoPage.m_dispo.AddString("16F722");
-	m_DispoPage.m_dispo.AddString("16F722A");
-	m_DispoPage.m_dispo.AddString("16F723");
-	m_DispoPage.m_dispo.AddString("16F723A");
-	m_DispoPage.m_dispo.AddString("16F724");
-	m_DispoPage.m_dispo.AddString("16F726");
-	m_DispoPage.m_dispo.AddString("16F727");
-	m_DispoPage.m_dispo.AddString("16F73");
-	m_DispoPage.m_dispo.AddString("16F737");
-	m_DispoPage.m_dispo.AddString("16F74");
-	m_DispoPage.m_dispo.AddString("16F747");
-	m_DispoPage.m_dispo.AddString("16F76");
-	m_DispoPage.m_dispo.AddString("16F767");
-	m_DispoPage.m_dispo.AddString("16F77");
-	m_DispoPage.m_dispo.AddString("16F777");
-	m_DispoPage.m_dispo.AddString("16F785");
-	m_DispoPage.m_dispo.AddString("16F818");
-	m_DispoPage.m_dispo.AddString("16F819");
-	m_DispoPage.m_dispo.AddString("16C83");
-	m_DispoPage.m_dispo.AddString("16F83");
-	m_DispoPage.m_dispo.AddString("16F83A");
-	m_DispoPage.m_dispo.AddString("16C84");
-	m_DispoPage.m_dispo.AddString("16F84");
-	m_DispoPage.m_dispo.AddString("16F84A");
-	m_DispoPage.m_dispo.AddString("16F87");
-	m_DispoPage.m_dispo.AddString("16F870");
-	m_DispoPage.m_dispo.AddString("16F871");
-	m_DispoPage.m_dispo.AddString("16F872");
-	m_DispoPage.m_dispo.AddString("16F873");
-	m_DispoPage.m_dispo.AddString("16F873A");
-	m_DispoPage.m_dispo.AddString("16F874");
-	m_DispoPage.m_dispo.AddString("16F874A");
-	m_DispoPage.m_dispo.AddString("16F876");
-	m_DispoPage.m_dispo.AddString("16F876A");
-	m_DispoPage.m_dispo.AddString("16F877");
-	m_DispoPage.m_dispo.AddString("16F877A");
-	m_DispoPage.m_dispo.AddString("16F88");
-	m_DispoPage.m_dispo.AddString("16F882");
-	m_DispoPage.m_dispo.AddString("16F883");
-	m_DispoPage.m_dispo.AddString("16F884");
-	m_DispoPage.m_dispo.AddString("16F886");
-	m_DispoPage.m_dispo.AddString("16F887");
-	m_DispoPage.m_dispo.AddString("16F913");
-	m_DispoPage.m_dispo.AddString("16F914");
-	m_DispoPage.m_dispo.AddString("16F916");
-	m_DispoPage.m_dispo.AddString("16F917");
-	m_DispoPage.m_dispo.AddString("16F946");
-	m_DispoPage.m_dispo.AddString("16F1822");
-	m_DispoPage.m_dispo.AddString("16F1823");
-	m_DispoPage.m_dispo.AddString("16F1824");
-	m_DispoPage.m_dispo.AddString("16F1825");
-	m_DispoPage.m_dispo.AddString("16F1826");
-	m_DispoPage.m_dispo.AddString("16F1827");
-	m_DispoPage.m_dispo.AddString("16F1828");
-	m_DispoPage.m_dispo.AddString("16F1829");
-	m_DispoPage.m_dispo.AddString("16F1933");
-	m_DispoPage.m_dispo.AddString("16F1934");
-	m_DispoPage.m_dispo.AddString("16F1936");
-	m_DispoPage.m_dispo.AddString("16F1937");
-	m_DispoPage.m_dispo.AddString("16F1938");
-	m_DispoPage.m_dispo.AddString("16F1939");
-	m_DispoPage.m_dispo.AddString("16F1946");
-	m_DispoPage.m_dispo.AddString("16F1947");
-	m_DispoPage.m_dispo.AddString("18F242");
-	m_DispoPage.m_dispo.AddString("18F248");
-	m_DispoPage.m_dispo.AddString("18F252");
-	m_DispoPage.m_dispo.AddString("18F258");
-	m_DispoPage.m_dispo.AddString("18F442");
-	m_DispoPage.m_dispo.AddString("18F448");
-	m_DispoPage.m_dispo.AddString("18F452");
-	m_DispoPage.m_dispo.AddString("18F458");
-	m_DispoPage.m_dispo.AddString("18F1220");
-	m_DispoPage.m_dispo.AddString("18F1230");
-	m_DispoPage.m_dispo.AddString("18F1320");
-	m_DispoPage.m_dispo.AddString("18F1330");
-	m_DispoPage.m_dispo.AddString("18F13K50");
-	m_DispoPage.m_dispo.AddString("18F14K50");
-	m_DispoPage.m_dispo.AddString("18F2220");
-	m_DispoPage.m_dispo.AddString("18F2221");
-	m_DispoPage.m_dispo.AddString("18F2320");
-	m_DispoPage.m_dispo.AddString("18F23K20");
-	m_DispoPage.m_dispo.AddString("18F2321");
-	m_DispoPage.m_dispo.AddString("18F2331");
-	m_DispoPage.m_dispo.AddString("18F2410");
-	m_DispoPage.m_dispo.AddString("18F24J10");
-	m_DispoPage.m_dispo.AddString("18F24J11");
-	m_DispoPage.m_dispo.AddString("18F2420");
-	m_DispoPage.m_dispo.AddString("18F24K20");
-	m_DispoPage.m_dispo.AddString("18F2423");
-	m_DispoPage.m_dispo.AddString("18F2431");
-	m_DispoPage.m_dispo.AddString("18F2439");
-	m_DispoPage.m_dispo.AddString("18F2450");
-	m_DispoPage.m_dispo.AddString("18F24J50");
-	m_DispoPage.m_dispo.AddString("18F2455");
-	m_DispoPage.m_dispo.AddString("18F2458");
-	m_DispoPage.m_dispo.AddString("18F2480");
-	m_DispoPage.m_dispo.AddString("18F2510");
-	m_DispoPage.m_dispo.AddString("18F25J10");
-	m_DispoPage.m_dispo.AddString("18F25J11");
-	m_DispoPage.m_dispo.AddString("18F2515");
-	m_DispoPage.m_dispo.AddString("18F25K20");
-	m_DispoPage.m_dispo.AddString("18F2520");
-	m_DispoPage.m_dispo.AddString("18F2523");
-	m_DispoPage.m_dispo.AddString("18F2525");
-	m_DispoPage.m_dispo.AddString("18F2539");
-	m_DispoPage.m_dispo.AddString("18F2550");
-	m_DispoPage.m_dispo.AddString("18F25J50");
-	m_DispoPage.m_dispo.AddString("18F2553");
-	m_DispoPage.m_dispo.AddString("18F2580");
-	m_DispoPage.m_dispo.AddString("18F2585");
-	m_DispoPage.m_dispo.AddString("18F2610");
-	m_DispoPage.m_dispo.AddString("18F26J11");
-	m_DispoPage.m_dispo.AddString("18F26J13");
-	m_DispoPage.m_dispo.AddString("18F2620");
-	m_DispoPage.m_dispo.AddString("18F26K20");
-	m_DispoPage.m_dispo.AddString("18F26J50");
-	m_DispoPage.m_dispo.AddString("18F26J53");
-	m_DispoPage.m_dispo.AddString("18F2680");
-	m_DispoPage.m_dispo.AddString("18F2682");
-	m_DispoPage.m_dispo.AddString("18F2685");
-	m_DispoPage.m_dispo.AddString("18F27J13");
-	m_DispoPage.m_dispo.AddString("18F27J53");
-	m_DispoPage.m_dispo.AddString("18F4220");
-	m_DispoPage.m_dispo.AddString("18F4221");
-	m_DispoPage.m_dispo.AddString("18F4320");
-	m_DispoPage.m_dispo.AddString("18F43K20");
-	m_DispoPage.m_dispo.AddString("18F4321");
-	m_DispoPage.m_dispo.AddString("18F4331");
-	m_DispoPage.m_dispo.AddString("18F4410");
-	m_DispoPage.m_dispo.AddString("18F44J10");
-	m_DispoPage.m_dispo.AddString("18F44J11");
-	m_DispoPage.m_dispo.AddString("18F4420");
-	m_DispoPage.m_dispo.AddString("18F44K20");
-	m_DispoPage.m_dispo.AddString("18F4423");
-	m_DispoPage.m_dispo.AddString("18F4431");
-	m_DispoPage.m_dispo.AddString("18F4439");
-	m_DispoPage.m_dispo.AddString("18F4450");
-	m_DispoPage.m_dispo.AddString("18F44J50");
-	m_DispoPage.m_dispo.AddString("18F4455");
-	m_DispoPage.m_dispo.AddString("18F4458");
-	m_DispoPage.m_dispo.AddString("18F4480");
-	m_DispoPage.m_dispo.AddString("18F4510");
-	m_DispoPage.m_dispo.AddString("18F45J10");
-	m_DispoPage.m_dispo.AddString("18F45J11");
-	m_DispoPage.m_dispo.AddString("18F4515");
-	m_DispoPage.m_dispo.AddString("18F4520");
-	m_DispoPage.m_dispo.AddString("18F45K20");
-	m_DispoPage.m_dispo.AddString("18F4523");
-	m_DispoPage.m_dispo.AddString("18F4525");
-	m_DispoPage.m_dispo.AddString("18F4539");
-	m_DispoPage.m_dispo.AddString("18F4550");
-	m_DispoPage.m_dispo.AddString("18F45J50");
-	m_DispoPage.m_dispo.AddString("18F4553");
-	m_DispoPage.m_dispo.AddString("18F4580");
-	m_DispoPage.m_dispo.AddString("18F4585");
-	m_DispoPage.m_dispo.AddString("18F4610");
-	m_DispoPage.m_dispo.AddString("18F46J11");
-	m_DispoPage.m_dispo.AddString("18F46J13");
-	m_DispoPage.m_dispo.AddString("18F4620");
-	m_DispoPage.m_dispo.AddString("18F46K20");
-	m_DispoPage.m_dispo.AddString("18F46J50");
-	m_DispoPage.m_dispo.AddString("18F46J53");
-	m_DispoPage.m_dispo.AddString("18F4680");
-	m_DispoPage.m_dispo.AddString("18F4682");
-	m_DispoPage.m_dispo.AddString("18F4685");
-	m_DispoPage.m_dispo.AddString("18F47J13");
-	m_DispoPage.m_dispo.AddString("18F47J53");
-	m_DispoPage.m_dispo.AddString("18F8722");
-	m_DispoPage.m_dispo.AddString("24F04KA200");
-	m_DispoPage.m_dispo.AddString("24F04KA201");
-	m_DispoPage.m_dispo.AddString("24F08KA101");
-	m_DispoPage.m_dispo.AddString("24F08KA102");
-	m_DispoPage.m_dispo.AddString("24F16KA101");
-	m_DispoPage.m_dispo.AddString("24F16KA102");
-	m_DispoPage.m_dispo.AddString("24FJ16GA002");
-	m_DispoPage.m_dispo.AddString("24FJ16GA004");
-	m_DispoPage.m_dispo.AddString("24FJ32GA002");
-	m_DispoPage.m_dispo.AddString("24FJ32GA004");
-	m_DispoPage.m_dispo.AddString("24FJ48GA002");
-	m_DispoPage.m_dispo.AddString("24FJ48GA004");
-	m_DispoPage.m_dispo.AddString("24FJ64GA002");
-	m_DispoPage.m_dispo.AddString("24FJ64GA004");
-	m_DispoPage.m_dispo.AddString("24FJ64GA006");
-	m_DispoPage.m_dispo.AddString("24FJ64GA008");
-	m_DispoPage.m_dispo.AddString("24FJ64GA010");
-	m_DispoPage.m_dispo.AddString("24FJ96GA006");
-	m_DispoPage.m_dispo.AddString("24FJ96GA008");
-	m_DispoPage.m_dispo.AddString("24FJ96GA010");
-	m_DispoPage.m_dispo.AddString("24FJ128GA006");
-	m_DispoPage.m_dispo.AddString("24FJ128GA008");
-	m_DispoPage.m_dispo.AddString("24FJ128GA010");
-	m_DispoPage.m_dispo.AddString("24FJ32GA102");
-	m_DispoPage.m_dispo.AddString("24FJ32GA104");
-	m_DispoPage.m_dispo.AddString("24FJ32GB002");
-	m_DispoPage.m_dispo.AddString("24FJ32GB004");
-	m_DispoPage.m_dispo.AddString("24FJ64GA102");
-	m_DispoPage.m_dispo.AddString("24FJ64GA104");
-	m_DispoPage.m_dispo.AddString("24FJ64GB002");
-	m_DispoPage.m_dispo.AddString("24FJ64GB004");
-	m_DispoPage.m_dispo.AddString("24FJ64GB106");
-	m_DispoPage.m_dispo.AddString("24FJ64GB108");
-	m_DispoPage.m_dispo.AddString("24FJ64GB110");
-	m_DispoPage.m_dispo.AddString("24FJ128GA106");
-	m_DispoPage.m_dispo.AddString("24FJ128GB106");
-	m_DispoPage.m_dispo.AddString("24FJ128GA108");
-	m_DispoPage.m_dispo.AddString("24FJ128GB108");
-	m_DispoPage.m_dispo.AddString("24FJ128GA110");
-	m_DispoPage.m_dispo.AddString("24FJ128GB110");
-	m_DispoPage.m_dispo.AddString("24FJ192GA106");
-	m_DispoPage.m_dispo.AddString("24FJ192GB106");
-	m_DispoPage.m_dispo.AddString("24FJ192GA108");
-	m_DispoPage.m_dispo.AddString("24FJ192GB108");
-	m_DispoPage.m_dispo.AddString("24FJ192GA110");
-	m_DispoPage.m_dispo.AddString("24FJ192GB110");
-	m_DispoPage.m_dispo.AddString("24FJ256GA106");
-	m_DispoPage.m_dispo.AddString("24FJ256GB106");
-	m_DispoPage.m_dispo.AddString("24FJ256GA108");
-	m_DispoPage.m_dispo.AddString("24FJ256GB108");
-	m_DispoPage.m_dispo.AddString("24FJ256GA110");
-	m_DispoPage.m_dispo.AddString("24FJ256GB110");
-	m_DispoPage.m_dispo.AddString("24HJ12GP201");
-	m_DispoPage.m_dispo.AddString("24HJ12GP202");
-	m_DispoPage.m_dispo.AddString("24HJ16GP304");
-	m_DispoPage.m_dispo.AddString("24HJ32GP202");
-	m_DispoPage.m_dispo.AddString("24HJ32GP204");
-	m_DispoPage.m_dispo.AddString("24HJ32GP302");
-	m_DispoPage.m_dispo.AddString("24HJ32GP304");
-	m_DispoPage.m_dispo.AddString("24HJ64GP202");
-	m_DispoPage.m_dispo.AddString("24HJ64GP204");
-	m_DispoPage.m_dispo.AddString("24HJ64GP206");
-	m_DispoPage.m_dispo.AddString("24HJ64GP210");
-	m_DispoPage.m_dispo.AddString("24HJ64GP502");
-	m_DispoPage.m_dispo.AddString("24HJ64GP504");
-	m_DispoPage.m_dispo.AddString("24HJ64GP506");
-	m_DispoPage.m_dispo.AddString("24HJ64GP510");
-	m_DispoPage.m_dispo.AddString("24HJ128GP202");
-	m_DispoPage.m_dispo.AddString("24HJ128GP204");
-	m_DispoPage.m_dispo.AddString("24HJ128GP206");
-	m_DispoPage.m_dispo.AddString("24HJ128GP210");
-	m_DispoPage.m_dispo.AddString("24HJ128GP306");
-	m_DispoPage.m_dispo.AddString("24HJ128GP310");
-	m_DispoPage.m_dispo.AddString("24HJ128GP502");
-	m_DispoPage.m_dispo.AddString("24HJ128GP504");
-	m_DispoPage.m_dispo.AddString("24HJ128GP506");
-	m_DispoPage.m_dispo.AddString("24HJ128GP510");
-	m_DispoPage.m_dispo.AddString("24HJ256GP206");
-	m_DispoPage.m_dispo.AddString("24HJ256GP210");
-	m_DispoPage.m_dispo.AddString("24HJ256GP610");
-	m_DispoPage.m_dispo.AddString("30F2010");
-	m_DispoPage.m_dispo.AddString("30F2011");
-	m_DispoPage.m_dispo.AddString("30F2012");
-	m_DispoPage.m_dispo.AddString("30F3010");
-	m_DispoPage.m_dispo.AddString("30F3011");
-	m_DispoPage.m_dispo.AddString("30F3012");
-	m_DispoPage.m_dispo.AddString("30F3013");
-	m_DispoPage.m_dispo.AddString("30F3014");
-	m_DispoPage.m_dispo.AddString("30F4011");
-	m_DispoPage.m_dispo.AddString("30F4012");
-	m_DispoPage.m_dispo.AddString("30F4013");
-	m_DispoPage.m_dispo.AddString("30F5011");
-	m_DispoPage.m_dispo.AddString("30F5013");
-	m_DispoPage.m_dispo.AddString("30F5015");
-	m_DispoPage.m_dispo.AddString("30F5016");
-	m_DispoPage.m_dispo.AddString("30F6010");
-	m_DispoPage.m_dispo.AddString("30F6011");
-	m_DispoPage.m_dispo.AddString("30F6012");
-	m_DispoPage.m_dispo.AddString("30F6013");
-	m_DispoPage.m_dispo.AddString("30F6014");
-	m_DispoPage.m_dispo.AddString("30F6015");
-	m_DispoPage.m_dispo.AddString("33FJ06GS101");
-	m_DispoPage.m_dispo.AddString("33FJ06GS102");
-	m_DispoPage.m_dispo.AddString("33FJ06GS202");
-	m_DispoPage.m_dispo.AddString("33FJ12GP201");
-	m_DispoPage.m_dispo.AddString("33FJ12GP202");
-	m_DispoPage.m_dispo.AddString("33FJ12MC201");
-	m_DispoPage.m_dispo.AddString("33FJ12MC202");
-	m_DispoPage.m_dispo.AddString("33FJ16GP304");
-	m_DispoPage.m_dispo.AddString("33FJ16GS402");
-	m_DispoPage.m_dispo.AddString("33FJ16GS404");
-	m_DispoPage.m_dispo.AddString("33FJ16GS502");
-	m_DispoPage.m_dispo.AddString("33FJ16GS504");
-	m_DispoPage.m_dispo.AddString("33FJ16MC304");
-	m_DispoPage.m_dispo.AddString("33FJ32GP202");
-	m_DispoPage.m_dispo.AddString("33FJ32GP204");
-	m_DispoPage.m_dispo.AddString("33FJ32GP302");
-	m_DispoPage.m_dispo.AddString("33FJ32GP304");
-	m_DispoPage.m_dispo.AddString("33FJ32GS406");
-	m_DispoPage.m_dispo.AddString("33FJ32GS606");
-	m_DispoPage.m_dispo.AddString("33FJ32GS608");
-	m_DispoPage.m_dispo.AddString("33FJ32GS610");
-	m_DispoPage.m_dispo.AddString("33FJ32MC202");
-	m_DispoPage.m_dispo.AddString("33FJ32MC204");
-	m_DispoPage.m_dispo.AddString("33FJ32MC302");
-	m_DispoPage.m_dispo.AddString("33FJ32MC304");
-	m_DispoPage.m_dispo.AddString("33FJ64GP202");
-	m_DispoPage.m_dispo.AddString("33FJ64GP204");
-	m_DispoPage.m_dispo.AddString("33FJ64GP206");
-	m_DispoPage.m_dispo.AddString("33FJ64GP306");
-	m_DispoPage.m_dispo.AddString("33FJ64GP310");
-	m_DispoPage.m_dispo.AddString("33FJ64GP706");
-	m_DispoPage.m_dispo.AddString("33FJ64GP708");
-	m_DispoPage.m_dispo.AddString("33FJ64GP710");
-	m_DispoPage.m_dispo.AddString("33FJ64GP802");
-	m_DispoPage.m_dispo.AddString("33FJ64GP804");
-	m_DispoPage.m_dispo.AddString("33FJ64GS406");
-	m_DispoPage.m_dispo.AddString("33FJ64GS606");
-	m_DispoPage.m_dispo.AddString("33FJ64GS608");
-	m_DispoPage.m_dispo.AddString("33FJ64GS610");
-	m_DispoPage.m_dispo.AddString("33FJ64MC202");
-	m_DispoPage.m_dispo.AddString("33FJ64MC204");
-	m_DispoPage.m_dispo.AddString("33FJ64MC506");
-	m_DispoPage.m_dispo.AddString("33FJ64MC508");
-	m_DispoPage.m_dispo.AddString("33FJ64MC510");
-	m_DispoPage.m_dispo.AddString("33FJ64MC706");
-	m_DispoPage.m_dispo.AddString("33FJ64MC710");
-	m_DispoPage.m_dispo.AddString("33FJ64MC802");
-	m_DispoPage.m_dispo.AddString("33FJ64MC804");
-	m_DispoPage.m_dispo.AddString("33FJ128GP202");
-	m_DispoPage.m_dispo.AddString("33FJ128GP204");
-	m_DispoPage.m_dispo.AddString("33FJ128GP206");
-	m_DispoPage.m_dispo.AddString("33FJ128GP306");
-	m_DispoPage.m_dispo.AddString("33FJ128GP310");
-	m_DispoPage.m_dispo.AddString("33FJ128GP706");
-	m_DispoPage.m_dispo.AddString("33FJ128GP708");
-	m_DispoPage.m_dispo.AddString("33FJ128GP710");
-	m_DispoPage.m_dispo.AddString("33FJ128GP802");
-	m_DispoPage.m_dispo.AddString("33FJ128GP804");
-	m_DispoPage.m_dispo.AddString("33FJ128MC202");
-	m_DispoPage.m_dispo.AddString("33FJ128MC204");
-	m_DispoPage.m_dispo.AddString("33FJ128MC506");
-	m_DispoPage.m_dispo.AddString("33FJ128MC510");
-	m_DispoPage.m_dispo.AddString("33FJ128MC706");
-	m_DispoPage.m_dispo.AddString("33FJ128MC708");
-	m_DispoPage.m_dispo.AddString("33FJ128MC710");
-	m_DispoPage.m_dispo.AddString("33FJ128MC802");
-	m_DispoPage.m_dispo.AddString("33FJ128MC804");
-	m_DispoPage.m_dispo.AddString("33FJ256GP506");
-	m_DispoPage.m_dispo.AddString("33FJ256GP510");
-	m_DispoPage.m_dispo.AddString("33FJ256GP710");
-	m_DispoPage.m_dispo.AddString("33FJ256MC510");
-	m_DispoPage.m_dispo.AddString("33FJ256MC710");
-	m_DispoPage.m_dispo.AddString("AT90S1200");
-	m_DispoPage.m_dispo.AddString("AT90S2313");
-	m_DispoPage.m_dispo.AddString("AT90S8515");
-	m_DispoPage.m_dispo.AddString("AT90S8535");
-	m_DispoPage.m_dispo.AddString("ATmega8");
-	m_DispoPage.m_dispo.AddString("ATmega8A");
-	m_DispoPage.m_dispo.AddString("ATmega8515");
-	m_DispoPage.m_dispo.AddString("ATmega8535");
-	m_DispoPage.m_dispo.AddString("ATmega16");
-	m_DispoPage.m_dispo.AddString("ATmega16A");
-	m_DispoPage.m_dispo.AddString("ATmega32");
-	m_DispoPage.m_dispo.AddString("ATmega32A");
-	m_DispoPage.m_dispo.AddString("ATmega64");
-	m_DispoPage.m_dispo.AddString("ATmega64A");
-	m_DispoPage.m_dispo.AddString("ATtiny2313");
-	m_DispoPage.m_dispo.AddString("2400");
-	m_DispoPage.m_dispo.AddString("2401");
-	m_DispoPage.m_dispo.AddString("2402");
-	m_DispoPage.m_dispo.AddString("2404");
-	m_DispoPage.m_dispo.AddString("2408");
-	m_DispoPage.m_dispo.AddString("2416");
-	m_DispoPage.m_dispo.AddString("2432");
-	m_DispoPage.m_dispo.AddString("2464");
-	m_DispoPage.m_dispo.AddString("24128");
-	m_DispoPage.m_dispo.AddString("24256");
-	m_DispoPage.m_dispo.AddString("24512");
-	m_DispoPage.m_dispo.AddString("241024");
-	m_DispoPage.m_dispo.AddString("241025");
-	m_DispoPage.m_dispo.AddString("25010");
-	m_DispoPage.m_dispo.AddString("25020");
-	m_DispoPage.m_dispo.AddString("25040");
-	m_DispoPage.m_dispo.AddString("25080");
-	m_DispoPage.m_dispo.AddString("25160");
-	m_DispoPage.m_dispo.AddString("25320");
-	m_DispoPage.m_dispo.AddString("25640");
-	m_DispoPage.m_dispo.AddString("25128");
-	m_DispoPage.m_dispo.AddString("25256");
-	m_DispoPage.m_dispo.AddString("25512");
-	m_DispoPage.m_dispo.AddString("251024");
-	m_DispoPage.m_dispo.AddString("93S46");
-	m_DispoPage.m_dispo.AddString("93x46");
-	m_DispoPage.m_dispo.AddString("93x46A");
-	m_DispoPage.m_dispo.AddString("93S56");
-	m_DispoPage.m_dispo.AddString("93x56");
-	m_DispoPage.m_dispo.AddString("93x56A");
-	m_DispoPage.m_dispo.AddString("93S66");
-	m_DispoPage.m_dispo.AddString("93x66");
-	m_DispoPage.m_dispo.AddString("93x66A");
-	m_DispoPage.m_dispo.AddString("93x76");
-	m_DispoPage.m_dispo.AddString("93x76A");
-	m_DispoPage.m_dispo.AddString("93x86");
-	m_DispoPage.m_dispo.AddString("93x86A");
-
+	AddDevices();	//populate device list
 	s.Replace("OpenProg.ini","languages.rc");
 	if (f.Open(s,CFile::modeRead))	{
 		CString line;
@@ -918,7 +459,6 @@ void COpenProgDlg::OnClose()
 {
 	CStdioFile f;
 	CString s,t;
-	//MinRit=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	s=argv[0];
 	s.Replace(".exe",".ini");
 	if (f.Open((LPCTSTR)s,CFile::modeCreate | CFile::modeWrite)){
@@ -1004,16 +544,60 @@ HCURSOR COpenProgDlg::OnQueryDragIcon()
 
 #define EQ(s) !strncmp(s,dev,64)
 
+void COpenProgDlg::OnFileOpen()
+{
+	CFileDialog dlg(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
+	if (wfile!=""||dlg.DoModal()==IDOK){
+		char dev[32];
+		CString aux,err,str;
+		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
+		char loadfile[256];
+		strncpy(loadfile,dlg.GetFileName(),sizeof(loadfile));
+		Load(dev,loadfile);
+		if(!strncmp(dev,"AT",2)){	//load EEPROM from separate file for ATMEL chips
+			CFileDialog dlgA(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."
+			dlgA.m_ofn.lpstrTitle =strings[S_openEEfile];							//"Apri file eeprom";
+			if (dlgA.DoModal()==IDOK){
+				char loadfileEE[256];
+				strncpy(loadfileEE,dlgA.GetPathName(),sizeof(loadfileEE));
+				LoadEE(dev,loadfileEE);
+			}
+		}
+	}
+}
+
+void COpenProgDlg::OnFileSave()
+{
+	CFileDialog dlg(FALSE,"hex",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
+	if (rfile!=""||dlg.DoModal()==IDOK){
+		int size=memCODE.GetSize();
+		int sizeEE=memEE.GetSize();
+		char dev[32];
+		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
+		char savefile[256];
+		strncpy(savefile,rfile!=""?rfile:dlg.GetPathName(),sizeof(savefile));
+		Save(dev,savefile);
+		if(!strncmp(dev,"AT",2)&&sizeEE){	//save EEPROM on separate file for ATMEL chips
+			CFileDialog dlgA(FALSE,"hex;eep",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."S_file]);
+			dlgA.m_ofn.lpstrTitle =strings[S_saveEEfile];		//"Save eeprom";
+			if (dlgA.DoModal()==IDOK){
+				char savefileEE[256];
+				strncpy(savefileEE,dlgA.GetPathName(),sizeof(savefileEE));
+				SaveEE(dev,savefileEE);
+			}
+		}
+	}
+}
+
 void COpenProgDlg::OnWrite()
 {
 	char dev[64];
 	int ee;
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"invalid handle \r\n"
 		return;
 	}
-	//MinDly=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
@@ -1029,550 +613,54 @@ void COpenProgDlg::OnWrite()
 	load_osccal=b->GetCheck();
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_ICD_EN);
 	ICDenable=b->GetCheck();
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_OSC_OSCCAL);
+	use_osccal=b->GetCheck();
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_OSC_BK);
+	use_BKosccal=b->GetCheck();
 	CString str;
 	m_DispoPage.GetDlgItemText(IDC_ICDADDR,str);
 	int i=sscanf(str,"%x",&ICDaddr);
 	if(i!=1||ICDaddr<0||ICDaddr>0xFFFF) ICDaddr=0x1FF0;
-	if(!strncmp(dev,"16F1",4)||!strncmp(dev,"16F72",5));
-	else if((!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))&&hvreg!=13) hvreg=StartHVReg(13)>0?13:0;
-//-------------PIC10-16---------------------------------------------------------
-	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
-		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
-			Write12F5xx(0x100,0xFF);						//256
-		}
-		else if(EQ("12F508")||EQ("10F202")||EQ("10F206")||EQ("10F222")){
-			Write12F5xx(0x200,0x1FF);						//512
-		}
-		else if(EQ("16F54")){
-			Write12F5xx(0x200,-1);							//512, no osccal
-		}
-		else if(EQ("16C83")||EQ("16F83")||EQ("16F83A")){
-			Write16F8x(0x200,ee?0x40:0);					//512, 64
-		}
-		else if(EQ("12F509")||EQ("12F510")||EQ("16F505")||EQ("16F506")){
-			Write12F5xx(0x400,0x3FF);						//1K
-		}
-		else if(EQ("12F519")||EQ("16F526")){
-			Write12F5xx(0x440,0x3FF);						//1K + 64
-		}
-		else if(EQ("12F609")||EQ("12F615")||EQ("16F610")){
-			Write12F61x(0x400);								//1K
-		}
-		else if(EQ("16C84")||EQ("16F84")||EQ("16F84A")){
-			Write16F8x(0x400,ee?0x40:0);					//1K, 64
-		}
-		else if(EQ("12F629")||EQ("12F675")||EQ("16F630")||EQ("16F676")){
-			Write12F62x(0x400,ee?0x80:0);					//1K, 128
-		}
-		else if(EQ("16F627")){
-			Write16F62x(0x400,ee?0x80:0);					//1K, 128
-		}
-		else if(EQ("12F635")||EQ("16F631")||EQ("16F627A")||EQ("16F785")){
-			Write12F6xx(0x400,ee?0x80:0);					//1K, 128
-		}
-		else if(EQ("16F818")){
-			Write16F81x(0x400,ee?0x80:0);					//1K, 128, vdd no delay
-		}
-		else if(EQ("16F57")||EQ("16F59")){
-			Write12F5xx(0x800,-1);							//2K, no osccal
-		}
-		else if(EQ("16F616")){
-			Write12F61x(0x800);								//2K
-		}
-		else if(EQ("16F716")){
-			Write16F71x(0x800,1);							//2K, vdd
-		}
-		else if(EQ("16F722")||EQ("16F722A")){
-			Write16F72x(0x800);								//2K, vpp, 3.3V
-		}
-		else if(EQ("16F870")||EQ("16F871")||EQ("16F872")){
-			Write16F87x(0x800,ee?0x40:0);					//2K, 64
-		}
-		else if(EQ("16F628A")){
-			Write12F6xx(0x800,ee?0x80:0);					//2K, 128
-		}
-		else if(EQ("16F628")){
-			Write16F62x(0x800,ee?0x80:0);					//2K, 128
-		}
-		else if(EQ("16F882")){
-			Write16F88x(0x800,ee?0x80:0);					//2K, 128
-		}
-		else if(EQ("12F683")||EQ("16F636")||EQ("16F639")||EQ("16F677")||EQ("16F684")||EQ("16F687")||EQ("16F785")){
-			Write12F6xx(0x800,ee?0x100:0);					//2K, 256
-		}
-		else if(EQ("16F819")){
-			Write16F81x(0x800,ee?0x100:0);					//2K, 256, vdd no delay
-		}
-		else if(EQ("16F1822")||EQ("16F1823")||EQ("16F1826")){
-			Write16F1xxx(0x800,ee?0x100:0,0);				//2K, 256
-		}
-		else if(EQ("16F73")||EQ("16F74")){
-			Write16F7x(0x1000,0);							//4K
-		}
-		else if(EQ("16F723")||EQ("16F723A")||EQ("16F724")){
-			Write16F72x(0x1000);							//4K, vpp, 3.3V
-		}
-		else if(EQ("16F737")||EQ("16F747")){
-			Write16F7x(0x1000,1);							//4K, vdd no delay
-		}
-		else if(EQ("16F873")||EQ("16F874")){
-			Write16F87x(0x1000,ee?-0x80:0);					//4K, 128, ee@0x2200
-		}
-		else if(EQ("16F648A")||EQ("16F685")||EQ("16F688")||EQ("16F689")||EQ("16F690")||EQ("16F913")||EQ("16F914")){
-			Write12F6xx(0x1000,ee?0x100:0);					//4K, 256
-		}
-		else if(EQ("16F873A")||EQ("16F874A")){
-			Write16F87xA(0x1000,ee?0x80:0,0);				//4K, 128
-		}
-		else if(EQ("16F883")||EQ("16F884")){
-			Write16F88x(0x1000,ee?0x100:0);					//4K, 256
-		}
-		else if(EQ("16F87")||EQ("16F88")){
-			Write16F81x(0x1000,ee?0x100:0);					//4K, 256, vdd no delay
-		}
-		else if(EQ("16F1933")||EQ("16F1934")||EQ("16F1824")||EQ("16F1827")||EQ("16F1828")){
-			Write16F1xxx(0x1000,ee?0x100:0,0);				//4K, 256
-		}
-		else if(EQ("16F76")||EQ("16F77")){
-			Write16F7x(0x2000,0);							//8K
-		}
-		else if(EQ("16F726")||EQ("16F727")){
-			Write16F72x(0x2000);							//8K, vpp, 3.3V
-		}
-		else if(EQ("16F767")||EQ("16F777")){
-			Write16F7x(0x2000,1);							//8K, vdd no delay
-		}
-		else if(EQ("16F916")||EQ("16F917")||EQ("16F946")){
-			Write12F6xx(0x2000,ee?0x100:0);					//8K, 256
-		}
-		else if(EQ("16F876")||EQ("16F877")){
-			Write16F87x(0x2000,ee?-0x100:0);				//8K, 256, ee@0x2200
-		}
-		else if(EQ("16F876A")||EQ("16F877A")){
-			Write16F87xA(0x2000,ee?0x100:0,0);				//8K, 256,
-		}
-		else if(EQ("16F886")||EQ("16F887")){
-			Write16F88x(0x2000,ee?0x100:0);					//8K, 256
-		}
-		else if(EQ("16F1936")||EQ("16F1937")||EQ("16F1946")||EQ("16F1825")||EQ("16F1829")){
-			Write16F1xxx(0x2000,ee?0x100:0,0);				//8K, 256
-		}
-		else if(EQ("16F1938")||EQ("16F1939")||EQ("16F1947")){
-			Write16F1xxx(0x4000,ee?0x100:0,0);				//16K, 256
-		}
-		else{
-			PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-		}
+	AVRlock=0x100;
+	AVRfuse=0x100;
+	AVRfuse_h=0x100;
+	AVRfuse_x=0x100;
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSE_P);
+	if(b->GetCheck()){
+		m_DispoPage.GetDlgItemText(IDC_FUSE,str);
+		i=sscanf(str,"%x",&AVRfuse);
+		if(i!=1||AVRfuse<0||AVRfuse>0xFF) AVRfuse=0x100;
 	}
-//-------------PIC18---------------------------------------------------------
-// options:
-//	bit [3:0]
-//     0 = vdd before vpp (12V)
-//     1 = vdd before vpp (9V)
-//     2 = low voltage entry with 32 bit key
-//	bit [7:4]
-//     0 = normal eeprom write algoritm
-//     1 = with unlock sequence 55 AA
-//	bit [11:8]
-//     0 = 5ms erase delay, 1ms code write time, 5ms EE write delay, 5ms config write time
-//     1 = 550ms erase delay, 1.2ms code write time, no config or EEPROM
-//     2 = 550ms erase delay, 3.4ms code write time, no config or EEPROM
-	else if(!strncmp(dev,"18F",3)){
-		if(EQ("18F1230")){
-			Write18Fx(0x1000,ee?0x80:0,8,0x0F0F,0x8787,0);		//4K, 128, 8
-		}
-		else if(EQ("18F2221")||EQ("18F4221")){
-			Write18Fx(0x1000,ee?0x100:0,8,0x3F3F,0x8F8F,0);		//4K, 256, 8
-		}
-		else if(EQ("18F1220")||EQ("18F2220")||EQ("18F4220")){
-			Write18Fx(0x1000,ee?0x100:0,8,0x10000,0x80,0x10);		//4K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F1330")){
-			Write18Fx(0x2000,ee?0x80:0,8,0x0F0F,0x8787,0);		//8K, 128, 8
-		}
-		else if(EQ("18F2321")||EQ("18F4321")){
-			Write18Fx(0x2000,ee?0x100:0,8,0x3F3F,0x8F8F,0);		//8K, 256, 8
-		}
-		else if(EQ("18F1320")||EQ("18F2320")||EQ("18F4320")||EQ("18F2331")||EQ("18F4331")){
-			Write18Fx(0x2000,ee?0x100:0,8,0x10000,0x80,0x10);		//8K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F13K50")){
-			Write18Fx(0x2000,ee?0x100:0,8,0x0F0F,0x8F8F,1);		//8K, 256, 9V
-		}
-		else if(EQ("18F23K20")||EQ("18F43K20")){
-			Write18Fx(0x2000,ee?0x100:0,16,0x0F0F,0x8F8F,1);		//8K, 256, 9V
-		}
-		else if(EQ("18F2439")||EQ("18F4439")){
-			Write18Fx(0x3000,ee?0x100:0,8,0x10000,0x80,0x10);		//12K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F2410")||EQ("18F4410")){
-			Write18Fx(0x4000,0,32,0x3F3F,0x8F8F,0);				//16K, 0, 32
-		}
-		else if(EQ("18F24J10")||EQ("18F44J10")){
-			Write18Fx(0x4000,0,64,0x0101,0x8080,0x202);				//16K, 0, 64, LV
-		}
-		else if(EQ("18F24J11")||EQ("18F24J50")||EQ("18F44J11")||EQ("18F44J50")){
-			Write18Fx(0x4000,0,64,0x0101,0x8080,0x102);				//16K, 0, 64, LV
-		}
-		else if(EQ("18F2450")||EQ("18F4450")){
-			Write18Fx(0x4000,0,16,0x3F3F,0x8F8F,0);				//16K, 0, 16
-		}
-		else if(EQ("18F14K50")){
-			Write18Fx(0x4000,ee?0x100:0,16,0x0F0F,0x8F8F,1);	//16K, 256, 9V
-		}
-		else if(EQ("18F24K20")||EQ("18F44K20")){
-			Write18Fx(0x4000,ee?0x100:0,32,0x0F0F,0x8F8F,1);	//16K, 256, 9V
-		}
-		else if(EQ("18F2431")||EQ("18F4431")||EQ("18F242")||EQ("18F248")||EQ("18F442")||EQ("18F448")){
-			Write18Fx(0x4000,ee?0x100:0,8,0x10000,0x80,0x10);		//16K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F2420")||EQ("18F2423")||EQ("18F4420")||EQ("18F4423")||EQ("18F2480")||EQ("18F4480")){
-			Write18Fx(0x4000,ee?0x100:0,32,0x3F3F,0x8F8F,0);	//16K, 256, 32
-		}
-		else if(EQ("18F2455")||EQ("18F2458")||EQ("18F4455")||EQ("18F4458")){
-			Write18Fx(0x6000,ee?0x100:0,32,0x3F3F,0x8F8F,0);	//24K, 256, 32
-		}
-		else if(EQ("18F2539")||EQ("18F4539")){
-			Write18Fx(0x6000,ee?0x100:0,8,0x10000,0x80,0x10);	//24K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F2510")||EQ("18F4510")){
-			Write18Fx(0x8000,0,32,0x3F3F,0x8F8F,0);				//32K, 0, 32
-		}
-		else if(EQ("18F25J10")||EQ("18F45J10")){
-			Write18Fx(0x8000,0,64,0x0101,0x8080,0x202);			//32K, 0, 64, LV
-		}
-		else if(EQ("18F25J11")||EQ("18F25J50")||EQ("18F45J11")||EQ("18F45J50")){
-			Write18Fx(0x8000,0,64,0x0101,0x8080,0x102);			//32K, 0, 64, LV
-		}
-		else if(EQ("18F252")||EQ("18F258")||EQ("18F452")||EQ("18F458")){
-			Write18Fx(0x8000,ee?0x100:0,8,0x10000,0x80,0x10);	//32K, 256, 8, EE with unlock
-		}
-		else if(EQ("18F2550")||EQ("18F2553")||EQ("18F4550")||EQ("18F4553")||EQ("18F2520")||EQ("18F2523")||EQ("18F4520")||EQ("18F4523")||EQ("18F2580")||EQ("18F4580")){
-			Write18Fx(0x8000,ee?0x100:0,32,0x3F3F,0x8F8F,0);	//32K, 256, 32
-		}
-		else if(EQ("18F25K20")||EQ("18F45K20")){
-			Write18Fx(0x8000,ee?0x100:0,32,0x0F0F,0x8F8F,1);	//32K, 256, 32, 9V
-		}
-		else if(EQ("18F2515")||EQ("18F4515")){
-			Write18Fx(0xC000,0,64,0x3F3F,0x8F8F,0);				//48K, 0, 64
-		}
-		else if(EQ("18F2525")||EQ("18F2585")||EQ("18F4525")||EQ("18F4585")){
-			Write18Fx(0xC000,ee?0x400:0,64,0x3F3F,0x8F8F,0);	//48K, 1K, 64
-		}
-		else if(EQ("18F2610")||EQ("18F4610")){
-			Write18Fx(0x10000,0,64,0x3F3F,0x8F8F,0);			//64K, 0, 64
-		}
-		else if(EQ("18F26J11")||EQ("18F26J13")||EQ("18F26J50")||EQ("18F26J53")||EQ("18F46J11")||EQ("18F46J13")||EQ("18F46J50")||EQ("18F46J53")){
-			Write18Fx(0x10000,0,64,0x0101,0x8080,0x102);		//64K, 0, 64, LV
-		}
-		else if(EQ("18F2620")||EQ("18F2680")||EQ("18F4620")||EQ("18F4680")){
-			Write18Fx(0x10000,ee?0x400:0,64,0x3F3F,0x8F8F,0);	//64K, 1K, 64
-		}
-		else if(EQ("18F26K20")||EQ("18F46K20")){
-			Write18Fx(0x10000,ee?0x100:0,64,0x0F0F,0x8F8F,1);	//64K, 256, 64, 9V
-		}
-		else if(EQ("18F2682")||EQ("18F4682")){
-			Write18Fx(0x14000,ee?0x400:0,64,0x3F3F,0x8F8F,0);	//80K, 1K, 64
-		}
-		else if(EQ("18F2685")||EQ("18F4685")){
-			Write18Fx(0x18000,ee?0x400:0,64,0x3F3F,0x8F8F,0);	//96K, 1K, 64
-		}
-		else if(EQ("18F27J13")||EQ("18F27J53")||EQ("18F47J13")||EQ("18F47J53")){
-			Write18Fx(0x20000,0,64,0x0101,0x8080,0x102);		//128K, 0, 64, LV
-		}
-		else if(EQ("18F8722")){
-			Write18Fx(0x20000,ee?0x400:0,64,0xFFFF,0x8787,0);	//128K, 1K, 64
-		}
-		else{
-			PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-		}
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSEH_P);
+	if(b->GetCheck()){
+		m_DispoPage.GetDlgItemText(IDC_FUSEH,str);
+		i=sscanf(str,"%x",&AVRfuse_h);
+		if(i!=1||AVRfuse_h<0||AVRfuse_h>0xFF) AVRfuse_h=0x100;
 	}
-//-------------PIC24---------------------------------------------------------
-// options:
-//	bit [3:0]
-//     0 = low voltage ICSP entry
-//     1 = High voltage ICSP entry (6V)
-//     2 = High voltage ICSP entry (12V) + PIC30F sequence (additional NOPs)
-//	bit [7:4]
-//	   0 = config area in the last 2 program words
-//	   1 = config area in the last 3 program words
-//	   2 = config area in the last 4 program words
-//	   3 = 0xF80000 to 0xF80010 except 02 (24F)
-//     4 = 0xF80000 to 0xF80016 (24H-33F)
-//     5 = 0xF80000 to 0xF8000C (x16 bit, 30F)
-//     6 = 0xF80000 to 0xF8000E (30FSMPS)
-//	bit [11:8]
-//	   0 = code erase word is 0x4064, row write is 0x4004
-//	   1 = code erase word is 0x404F, row write is 0x4001
-//	   2 = code erase word is 0x407F, row write is 0x4001, 55AA unlock and external timing (2 ms)
-//	   3 = code erase word is 0x407F, row write is 0x4001, 55AA unlock and external timing (200 ms)
-//	bit [15:12]
-//	   0 = eeprom erase word is 0x4050, write word is 0x4004
-//	   1 = eeprom erased with bulk erase, write word is 0x4004
-//	   2 = eeprom erased with special sequence, write word is 0x4004
-//	bit [19:16]
-//	   0 = config write is 0x4000
-//	   1 = config write is 0x4003
-//	   2 = config write is 0x4004
-//	   3 = config write is 0x4008
-	else if(!strncmp(dev,"24F",3)||!strncmp(dev,"24H",3)||!strncmp(dev,"30F",3)||!strncmp(dev,"33F",3)){
-		if(EQ("24F04KA200")||EQ("24F04KA201")){
-			Write24Fx(0xB00,0,0x20031,0x05BE,32,2.0);				//1.375KW, HV
-		}
-		else if(EQ("24F08KA101")||EQ("24F08KA102")){
-			Write24Fx(0x1600,ee?0x200:0,0x20031,0x05BE,32,2.0);		//2.75KW, HV, 512
-		}
-		else if(EQ("24F16KA101")||EQ("24F16KA102")){
-			Write24Fx(0x2C00,ee?0x200:0,0x20031,0x05BE,32,2.0);		//5.5KW, HV, 512
-		}
-		else if(EQ("24FJ16GA002")||EQ("24FJ16GA004")){
-			Write24Fx(0x2C00,0,0x10100,0x05BE,64,2.0);				//5.5KW
-		}
-		else if(EQ("24FJ32GA002")||EQ("24FJ32GA004")){
-			Write24Fx(0x5800,0,0x10100,0x05BE,64,2.0);				//11KW
-		}
-		else if(EQ("24FJ32GA102")||EQ("24FJ32GA104")||EQ("24FJ32GB002")||EQ("24FJ32GB004")){
-			Write24Fx(0x5800,0,0x10120,0x07F0,64,2.0);				//11KW
-		}
-		else if(EQ("24FJ48GA002")||EQ("24FJ48GA004")){
-			Write24Fx(0x8400,0,0x10100,0x05BE,64,2.0);				//16.5KW
-		}
-		else if(EQ("24FJ64GA002")||EQ("24FJ64GA004")||EQ("24FJ64GA006")||EQ("24FJ64GA008")||EQ("24FJ64GA010")){
-			Write24Fx(0xAC00,0,0x10100,0x05BE,64,2.0);				//22KW
-		}
-		else if(EQ("24FJ64GA102")||EQ("24FJ64GA104")||EQ("24FJ64GB002")||EQ("24FJ64GB004")){
-			Write24Fx(0xAC00,0,0x10120,0x07F0,64,2.0);				//22KW
-		}
-		else if(EQ("24FJ64GB106")||EQ("24FJ64GB108")||EQ("24FJ64GB110")){
-			Write24Fx(0xAC00,0,0x10110,0x07F0,64,2.0);				//22KW
-		}
-		else if(EQ("24FJ96GA006")||EQ("24FJ96GA008")||EQ("24FJ96GA010")){
-			Write24Fx(0x10000,0,0x10100,0x05BE,64,2.0);				//32KW
-		}
-		else if(EQ("24FJ128GA006")||EQ("24FJ128GA008")||EQ("24FJ128GA010")){
-			Write24Fx(0x15800,0,0x10100,0x05BE,64,2.0);				//44KW
-		}
-		else if(EQ("24FJ128GA106")||EQ("24FJ128GA108")||EQ("24FJ128GA110")||EQ("24FJ128GB106")||EQ("24FJ128GB108")||EQ("24FJ128GB110")){
-			Write24Fx(0x15800,0,0x10110,0x07F0,64,2.0);				//44KW
-		}
-		else if(EQ("24FJ192GA106")||EQ("24FJ192GA108")||EQ("24FJ192GA110")||EQ("24FJ192GB106")||EQ("24FJ192GB108")||EQ("24FJ192GB110")){
-			Write24Fx(0x20C00,0,0x10110,0x07F0,64,2.0);				//68KW
-		}
-		else if(EQ("24FJ256GA106")||EQ("24FJ256GA108")||EQ("24FJ256GA110")||EQ("24FJ256GB106")||EQ("24FJ256GB108")||EQ("24FJ256GB110")){
-			Write24Fx(0x2AC00,0,0x10110,0x07F0,64,2.0);				//88KW
-		}
-		else if(!strncmp(dev,"33FJ06",6)){
-			Write24Fx(0x1000,0,0x00140,0x07F0,64,2.0);				//2KW
-		}
-		else if(!strncmp(dev,"24HJ12",6)||!strncmp(dev,"33FJ12",6)){
-			Write24Fx(0x2000,0,0x00140,0x07F0,64,2.0);				//4KW
-		}
-		else if(!strncmp(dev,"24HJ16",6)||!strncmp(dev,"33FJ16",6)){
-			Write24Fx(0x2C00,0,0x00140,0x07F0,64,2.0);				//5.5KW
-		}
-		else if(!strncmp(dev,"24HJ32",6)||!strncmp(dev,"33FJ32",6)){
-			Write24Fx(0x5800,0,0x00140,0x07F0,64,2.0);				//11KW
-		}
-		else if(!strncmp(dev,"24HJ64",6)||!strncmp(dev,"33FJ64",6)){
-			Write24Fx(0xAC00,0,0x00140,0x07F0,64,2.0);				//22KW
-		}
-		else if(!strncmp(dev,"24HJ128",7)||!strncmp(dev,"33FJ128",7)){
-			Write24Fx(0x15800,0,0x00140,0x07F0,64,2.0);				//44KW
-		}
-		else if(!strncmp(dev,"24HJ256",7)||!strncmp(dev,"33FJ256",7)){
-			Write24Fx(0x2AC00,0,0x00140,0x07F0,64,2.0);				//88KW
-		}
-		else if(EQ("30F2010")){
-			Write24Fx(0x2000,ee?0x400:0,0x31252,0x05BE,32,2.0);		//4KW, 1K, HV12
-		}
-		else if(EQ("30F2011")||EQ("30F2012")){
-			Write24Fx(0x2000,0,0x31252,0x05BE,32,2.0);				//4KW, HV12
-		}
-		else if(!strncmp(dev,"30F301",6)){
-			Write24Fx(0x4000,ee?0x400:0,0x31252,0x05BE,32,2.0);		//8KW, 1K, HV12
-		}
-		else if(!strncmp(dev,"30F401",6)){
-			Write24Fx(0x8000,ee?0x400:0,0x31252,0x05BE,32,2.0);		//16KW, 1K, HV12
-		}
-		else if(!strncmp(dev,"30F501",6)){
-			Write24Fx(0xB000,ee?0x400:0,0x31252,0x05BE,32,2.0);		//22KW, 1K, HV12
-		}
-		else if(EQ("30F6011")||EQ("30F6013")){
-			Write24Fx(0x16000,ee?0x800:0,0x31252,0x05BE,32,2.0);	//44KW, 2K, HV12
-		}
-		else if(EQ("30F6010")||EQ("30F6012")||EQ("30F6014")||EQ("30F6015")){
-			Write24Fx(0x18000,ee?0x1000:0,0x31252,0x05BE,32,2.0);	//49KW, 4K, HV12
-		}
-		else{
-			PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-		}
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSEX_P);
+	if(b->GetCheck()){
+		m_DispoPage.GetDlgItemText(IDC_FUSEX,str);
+		i=sscanf(str,"%x",&AVRfuse_x);
+		if(i!=1||AVRfuse_x<0||AVRfuse_x>0xFF) AVRfuse_x=0x100;
 	}
-//-------------ATMEL---------------------------------------------------------
-	else if(!strncmp(dev,"AT",2)){
-		if(EQ("AT90S1200")){
-			WriteAT(0x400,ee?0x40:0);						//1K, 64
-		}
-		else if(EQ("AT90S2313")){
-			WriteAT(0x800,ee?0x80:0);						//2K, 128
-		}
-		else if(EQ("ATtiny2313")){
-			WriteATmega(0x800,ee?0x80:0,16,SLOW);			//2K, 128
-		}
-		else if(EQ("AT90S8515")||EQ("AT90S8535")){
-			WriteAT(0x2000,ee?0x100:0);						//8K, 256
-		}
-		else if(EQ("ATmega8")||EQ("ATmega8A")||EQ("ATmega8515")||EQ("ATmega8535")){
-			WriteATmega(0x2000,ee?0x200:0,32,0);				//8K, 512
-		}
-		else if(EQ("ATmega16")||EQ("ATmega16A")){
-			WriteATmega(0x4000,ee?0x200:0,64,0);				//16K, 512
-		}
-		else if(EQ("ATmega32")||EQ("ATmega32A")){
-			WriteATmega(0x8000,ee?0x400:0,64,0);				//32K, 1K
-		}
-		else if(EQ("ATmega64")||EQ("ATmega64A")){
-			WriteATmega(0x10000,ee?0x800:0,128,0);			//64K, 2K
-		}
-		else{
-			PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-		}
+	b=(CButton*)m_DispoPage.GetDlgItem(IDC_LOCK_P);
+	if(b->GetCheck()){
+		m_DispoPage.GetDlgItemText(IDC_LOCK,str);
+		i=sscanf(str,"%x",&AVRlock);
+		if(i!=1||AVRlock<0||AVRlock>0xFF) AVRlock=0x100;
 	}
-//-------------I2C---------------------------------------------------------
-	else if(!strncmp(dev,"24",2)||!strncmp(dev,"25",2)||!strncmp(dev,"93",2)){
-		if(EQ("2400")){
-			WriteI2C(0x10,0,1,10);			//16, 1B addr.
-		}
-		else if(EQ("2401")){
-			WriteI2C(0x80,0,8,10);			//128, 1B addr.
-		}
-		else if(EQ("2402")){
-			WriteI2C(0x100,0,8,10);			//256, 1B addr.
-		}
-		else if(EQ("2404")){
-			WriteI2C(0x200,0,16,10);		//512, 1B addr.
-		}
-		else if(EQ("2408")){
-			WriteI2C(0x400,0,16,10);		//1K, 1B addr.
-		}
-		else if(EQ("2416")){
-			WriteI2C(0x800,0,16,10);		//2K, 1B addr.
-		}
-		else if(EQ("2432")){
-			WriteI2C(0x1000,1,32,5);		//4K, 2B addr.
-		}
-		else if(EQ("2464")){
-			WriteI2C(0x2000,1,32,5);		//8K, 2B addr.
-		}
-		else if(EQ("24128")){
-			WriteI2C(0x4000,1,64,5);		//16K, 2B addr.
-		}
-		else if(EQ("24256")){
-			WriteI2C(0x8000,1,64,5);		//32K, 2B addr.
-		}
-		else if(EQ("24512")){
-			WriteI2C(0x10000,1,128,5);		//64K, 2B addr.
-		}
-		else if(EQ("241024")){
-			WriteI2C(0x20000,0x201,256,5);	//128K, 2B addr.
-		}
-		else if(EQ("241025")){
-			WriteI2C(0x20000,0x841,128,5);	//128K, 2B addr.
-		}
-//-------------Microwire EEPROM---------------------------------------------------------
-		else if(EQ("93S46")){
-			Write93Sx(0x80,6,8,10);							//128, 4W page, 10ms
-		}
-		else if(EQ("93x46")){
-			Write93Cx(0x80,6,0);							//128,
-		}
-		else if(EQ("93x46A")){
-			Write93Cx(0x80,7,1);							//128, x8
-		}
-		else if(EQ("93S56")){
-			Write93Sx(0x100,8,8,10);						//256, 4W page, 10ms
-		}
-		else if(EQ("93x56")){
-			Write93Cx(0x100,8,0);							//256,
-		}
-		else if(EQ("93x56A")){
-			Write93Cx(0x100,9,1);							//256, x8
-		}
-		else if(EQ("93S66")){
-			Write93Sx(0x200,8,8,10);						//512, 4W page, 10ms
-		}
-		else if(EQ("93x66")){
-			Write93Cx(0x200,8,0);						//512,
-		}
-		else if(EQ("93x66A")){
-			Write93Cx(0x200,9,1);						//512, x8
-		}
-		else if(EQ("93x76")){
-			Write93Cx(0x400,10,0);						//1k
-		}
-		else if(EQ("93x76A")){
-			Write93Cx(0x400,11,1);						//1k, x8
-		}
-		else if(EQ("93x86")){
-			Write93Cx(0x800,10,0);						//2k,
-		}
-		else if(EQ("93x86A")){
-			Write93Cx(0x800,11,1);						//2k, x8
-		}
-//-------------SPI---------------------------------------------------------
-		else if(EQ("25010")){
-			Write25xx(0x80,16,10);								//128
-		}
-		else if(EQ("25020")){
-			Write25xx(0x100,16,10);								//256
-		}
-		else if(EQ("25040")){
-			Write25xx(0x200,16,10);								//512
-		}
-		else if(EQ("25080")){
-			Write25xx(0x400,16,5);								//1K
-		}
-		else if(EQ("25160")){
-			Write25xx(0x800,16,5);								//2K
-		}
-		else if(EQ("25320")){
-			Write25xx(0x1000,32,5);								//4K
-		}
-		else if(EQ("25640")){
-			Write25xx(0x2000,32,5);								//8K
-		}
-		else if(EQ("25128")){
-			Write25xx(0x4000,64,5);								//16K
-		}
-		else if(EQ("25256")){
-			Write25xx(0x8000,64,5);								//32K
-		}
-		else if(EQ("25512")){
-			Write25xx(0x10000,128,6);							//64K
-		}
-		else if(EQ("251024")){
-			Write25xx(0x20000,256,5);							//128K
-		}
-		else{
-			PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-		}
-	}
-//-------------Unsupported device---------------------------------------------------------
-	else{
-		PrintMessage(strings[S_nodev_w]); //"Dispositivo non supportato in scrittura\r\n");
-	}
+	Write(dev,ee);	//choose the right function
 }
 
 void COpenProgDlg::OnRead()
 {
-	//CString c;
 	char dev[64];
 	int r,ee;
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
-		PrintMessage(strings[S_InvHandle]);	//"Handle invalido\r\n"
+		PrintMessage(strings[S_InvHandle]);	//"invalid handle \r\n"
 		return;
 	}
-	//MinDly=m_OpzioniPage.GetDlgItemInt(IDC_USBDMIN);
 	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_RISERVATA);
 	r=b->GetCheck();
@@ -1582,517 +670,28 @@ void COpenProgDlg::OnRead()
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
-	if(!strncmp(dev,"16F1",4));
-	else if(!strncmp(dev,"16F72",5)){
-		if(!CheckV33Regulator()){
-			PrintMessage(strings[S_noV33reg]);	//Can't find 3.3V expansion board
-			return;
-		}
-		if(hvreg!=8.5) hvreg=StartHVReg(8.5)>0?8.5:0;
-	}
-	else if((!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2))&&hvreg!=13) hvreg=StartHVReg(13)>0?13:0;
-//-------------PIC10-16---------------------------------------------------------
-	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
-		if(EQ("10F200")||EQ("10F204")||EQ("10F220")){
-			Read12F5xx(0x100,r?0x40:5);						//256
-		}
-		else if(!strncmp(dev,"12C508",6)||EQ("16F54")){
-			Read12F5xx(0x200,r?0x40:4);						//512
-		}
-		else if(EQ("12F508")||EQ("10F202")||EQ("10F206")||EQ("10F222")){
-			Read12F5xx(0x200,r?0x40:5);						//512
-		}
-		else if(EQ("16C83")||EQ("16F83")||EQ("16F83A")){
-			Read16Fxxx(0x200,ee?0x40:0,r?0x10:8,1);			//512, 64, vdd
-		}
-		else if(!strncmp(dev,"12C509",6)){
-			Read12F5xx(0x400,r?0x40:4);						//1K
-		}
-		else if(EQ("12F509")||EQ("12F510")||EQ("16F505")||EQ("16F506")){
-			Read12F5xx(0x400,r?0x40:5);						//1K
-		}
-		else if(EQ("12F519")||EQ("16F526")){
-			Read12F5xx(0x440,r?0x60:8);						//1K + 64
-		}
-		else if(EQ("12C671")||EQ("12CE673")){
-			Read16Fxxx(0x400,0,r?0x100:0,0);				//1K, vpp
-		}
-		else if(EQ("12F609")||EQ("12F615")||EQ("16F610")){
-			Read16Fxxx(0x400,0,r?0x40:9,0);					//1K, vpp, cal1
-		}
-		else if(EQ("16C84")||EQ("16F84")||EQ("16F84A")){
-			Read16Fxxx(0x400,ee?0x40:0,r?0x10:8,1);			//1K, 64, vdd
-		}
-		else if(EQ("12F635")){
-			Read16Fxxx(0x400,ee?0x80:0,r?0x40:10,0);		//1K, 128, vpp, cal1 + cal2
-		}
-		else if(EQ("16F631")){
-			Read16Fxxx(0x400,ee?0x80:0,r?0x80:9,0);			//1K, 128, vpp, cal1
-		}
-		else if(EQ("12F629")||EQ("12F675")||EQ("16F630")||EQ("16F676")){
-			Read16Fxxx(0x400,ee?0x80:0,r?0x20:8,0);			//1K, 128, vpp
-		}
-		else if(EQ("16F627")){
-			Read16Fxxx(0x400,ee?-0x80:0,r?0x10:8,0);		//1K, 128, vpp, ee@0x2200
-		}
-		else if(EQ("16F627A")){
-			Read16Fxxx(0x400,ee?0x80:0,r?0x10:8,0);			//1K, 128, vpp
-		}
-		else if(EQ("16F818")){
-			Read16Fxxx(0x400,ee?0x80:0,r?0x10:8,2);			//1K, 128, vdd short delay
-		}
-		else if(EQ("16F57")||EQ("16F59")){
-			Read12F5xx(0x800,r?0x40:4);						//2K
-		}
-		else if(EQ("16F722")||EQ("16F722A")){
-			Read16Fxxx(0x800,0,r?0x100:11,0);				//2K, vpp, config1-2 + cal1-2, 3.3V
-		}
-		else if(EQ("12C672")||EQ("12CE674")){
-			Read16Fxxx(0x800,0,r?0x100:0,0);				//2K, vpp
-		}
-		else if(EQ("16F716")){
-			Read16Fxxx(0x800,0,8,2);						//2K, vdd
-		}
-		else if(EQ("16F616")){
-			Read16Fxxx(0x800,0,r?0x40:9,0);					//2K, vpp, cal1
-		}
-		else if(EQ("16F870")||EQ("16F871")||EQ("16F872")){
-			Read16Fxxx(0x800,ee?0x40:0,r?0x100:8,1);		//2K, 64, vdd
-		}
-		else if(EQ("16F628")){
-			Read16Fxxx(0x800,ee?-0x80:0,r?0x10:8,0);		//2K, 128, vpp, ee@0x2200
-		}
-		else if(EQ("16F628A")){
-			Read16Fxxx(0x800,ee?0x80:0,r?0x10:8,0);			//2K, 128, vpp
-		}
-		else if(EQ("16F882")){
-			Read16Fxxx(0x800,ee?0x80:0,r?0x80:10,0);		//2K, 128, vpp, config2 + cal1
-		}
-		else if(EQ("16F819")){
-			Read16Fxxx(0x800,ee?0x100:0,r?0x10:8,2);		//2K, 256, vdd short delay
-		}
-		else if(EQ("12F683")||EQ("16F684")){
-			Read16Fxxx(0x800,ee?0x100:0,r?0x40:9,0);		//2K, 256, vpp, cal1
-		}
-		else if(EQ("16F636")||EQ("16F639")||EQ("16F785")||EQ("16F785")){
-			Read16Fxxx(0x800,ee?0x100:0,r?0x40:10,0);		//2K, 256, vpp, cal1 + cal2
-		}
-		else if(EQ("16F677")||EQ("16F687")){
-			Read16Fxxx(0x800,ee?0x100:0,r?0x80:9,0);		//2K, 256, vpp, cal1
-		}
-		else if(EQ("16F1822")||EQ("16F1823")||EQ("16F1826")){
-			Read16F1xxx(0x800,ee?0x100:0,r?0x200:11,0);		//2K, 256, vpp
-		}
-		else if(EQ("16F73")||EQ("16F74")){
-			Read16Fxxx(0x1000,0,r?0x20:8,1);				//4K, vdd
-		}
-		else if(EQ("16F737")||EQ("16F747")){
-			Read16Fxxx(0x1000,0,r?0x40:9,2);				//4K, vdd short delay
-		}
-		else if(EQ("16F723")||EQ("16F723A")||EQ("16F724")){
-			Read16Fxxx(0x1000,0,r?0x100:11,0);				//4K, vpp, config1-2 + cal1-2, 3.3V
-		}
-		else if(EQ("16F873A")||EQ("16F874A")){
-			Read16Fxxx(0x1000,ee?0x80:0,r?0x100:8,1);		//4K, 128, vdd
-		}
-		else if(EQ("16F873")||EQ("16F874")){
-			Read16Fxxx(0x1000,ee?-0x80:0,r?0x100:8,1);		//4K, 128, vdd, ee@0x2200
-		}
-		else if(EQ("16F685")||EQ("16F689")||EQ("16F690")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x80:9,0);		//4K, 256, vpp, cal1
-		}
-		else if(EQ("16F688")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x40:9,0);		//4K, 256, vpp, cal1
-		}
-		else if(EQ("16F883")||EQ("16F884")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x80:10,0);		//4K, 256, vpp, config2 + cal1
-		}
-		else if(EQ("16F648A")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x10:8,0);		//4K, 256, vpp
-		}
-		else if(EQ("16F87")||EQ("16F88")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x10:9,2);		//4K, 256, vdd short delay
-		}
-		else if(EQ("16F913")||EQ("16F914")){
-			Read16Fxxx(0x1000,ee?0x100:0,r?0x40:10,0);		//4K, 256, vpp, cal1 + cal2
-		}
-		else if(EQ("16F1933")||EQ("16F1934")||EQ("16F1824")||EQ("16F1827")||EQ("16F1828")){
-			Read16F1xxx(0x1000,ee?0x100:0,r?0x200:11,0);	//4K, 256, vpp
-		}
-		else if(EQ("16F76")||EQ("16F77")){
-			Read16Fxxx(0x2000,0,r?0x20:8,1);				//8K, vdd
-		}
-		else if(EQ("16F767")||EQ("16F777")){
-			Read16Fxxx(0x2000,0,r?0x40:9,2);				//8K, vdd short delay
-		}
-		else if(EQ("16F726")||EQ("16F727")){
-			Read16Fxxx(0x2000,0,r?0x100:11,0);				//8K, vpp, config1-2 + cal1-2, 3.3V
-		}
-		else if(EQ("16F876A")||EQ("16F877A")){
-			Read16Fxxx(0x2000,ee?0x100:0,r?0x100:8,1);		//8K, 256, vdd
-		}
-		else if(EQ("16F876")||EQ("16F877")){
-			Read16Fxxx(0x2000,ee?-0x100:0,r?0x100:8,1);		//8K, 256, vdd, ee@0x2200
-		}
-		else if(EQ("16F886")||EQ("16F887")){
-			Read16Fxxx(0x2000,ee?0x100:0,r?0x80:10,0);		//8K, 256, vpp, config2 + cal1
-		}
-		else if(EQ("16F916")||EQ("16F917")||EQ("16F946")){
-			Read16Fxxx(0x2000,ee?0x100:0,r?0x40:10,0);		//8K, 256, vpp, cal1 + cal2
-		}
-		else if(EQ("16F1936")||EQ("16F1937")||EQ("16F1946")||EQ("16F1825")||EQ("16F1829")){
-			Read16F1xxx(0x2000,ee?0x100:0,r?0x200:11,0);	//8K, 256, vpp
-		}
-		else if(EQ("16F1938")||EQ("16F1939")||EQ("16F1947")){
-			Read16F1xxx(0x4000,ee?0x100:0,r?0x200:11,0);	//16K, 256, vpp
-		}
-		else{
-			PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-		}
-	}
-//-------------PIC18---------------------------------------------------------
-	else if(!strncmp(dev,"18F",3)){
-		if(EQ("18F1230")){
-			Read18Fx(0x1000,ee?0x80:0,0);					//4K, 128
-		}
-		else if(EQ("18F2221")||EQ("18F4221")||EQ("18F1220")||EQ("18F2220")||EQ("18F4220")){
-			Read18Fx(0x1000,ee?0x100:0,0);					//4K, 256
-		}
-		else if(EQ("18F1330")){
-			Read18Fx(0x2000,ee?0x80:0,0);					//8K, 128
-		}
-		else if(EQ("18F2321")||EQ("18F4321")||EQ("18F1320")||EQ("18F2320")||EQ("18F4320")||EQ("18F2331")||EQ("18F4331")){
-			Read18Fx(0x2000,ee?0x100:0,0);					//8K, 256
-		}
-		else if(EQ("18F13K50")||EQ("18F23K20")||EQ("18F43K20")){
-			Read18Fx(0x2000,ee?0x100:0,1);					//8K, 256, 9V
-		}
-		else if(EQ("18F2439")||EQ("18F4439")){
-			Read18Fx(0x3000,ee?0x100:0,0);					//12K, 256
-		}
-		else if(EQ("18F2410")||EQ("18F4410")||EQ("18F2450")||EQ("18F4450")){
-			Read18Fx(0x4000,0,0);							//16K, 0
-		}
-		else if(EQ("18F24J10")||EQ("18F44J10")||EQ("18F24J11")||EQ("18F24J50")||EQ("18F44J11")||EQ("18F44J50")){
-			Read18Fx(0x4000,0,2);							//16K, 0, LV
-		}
-		else if(EQ("18F2420")||EQ("18F2423")||EQ("18F4420")||EQ("18F4423")||EQ("18F2431")||EQ("18F4431")||EQ("18F2480")||EQ("18F4480")||EQ("18F242")||EQ("18F248")||EQ("18F442")||EQ("18F448")){
-			Read18Fx(0x4000,ee?0x100:0,0);					//16K, 256
-		}
-		else if(EQ("18F14K50")||EQ("18F24K20")||EQ("18F44K20")){
-			Read18Fx(0x4000,ee?0x100:0,1);					//16K, 256, 9V
-		}
-		else if(EQ("18F2455")||EQ("18F2458")||EQ("18F4455")||EQ("18F4458")||EQ("18F2539")||EQ("18F4539")){
-			Read18Fx(0x6000,ee?0x100:0,0);					//24K, 256
-		}
-		else if(EQ("18F2510")||EQ("18F4510")){
-			Read18Fx(0x8000,0,0);							//32K, 0
-		}
-		else if(EQ("18F25J10")||EQ("18F25J11")||EQ("18F25J50")||EQ("18F45J10")||EQ("18F45J11")||EQ("18F45J50")){
-			Read18Fx(0x8000,0,2);							//32K, 0, LV
-		}
-		else if(EQ("18F2550")||EQ("18F2553")||EQ("18F4550")||EQ("18F4553")||EQ("18F2520")||EQ("18F2523")||EQ("18F4520")||EQ("18F4523")||EQ("18F2580")||EQ("18F4580")||EQ("18F252")||EQ("18F258")||EQ("18F452")||EQ("18F458")){
-			Read18Fx(0x8000,ee?0x100:0,0);					//32K, 256
-		}
-		else if(EQ("18F25K20")||EQ("18F45K20")){
-			Read18Fx(0x8000,ee?0x100:0,1);					//32K, 256, 9V
-		}
-		else if(EQ("18F2515")||EQ("18F4515")){
-			Read18Fx(0xC000,0,0);							//48K, 0
-		}
-		else if(EQ("18F2525")||EQ("18F2585")||EQ("18F4525")||EQ("18F4585")){
-			Read18Fx(0xC000,ee?0x400:0,0);					//48K, 1K
-		}
-		else if(EQ("18F2610")||EQ("18F4610")){
-			Read18Fx(0x10000,0,0);							//64K, 0
-		}
-		else if(EQ("18F26J11")||EQ("18F26J13")||EQ("18F26J50")||EQ("18F26J53")||EQ("18F46J11")||EQ("18F46J13")||EQ("18F46J50")||EQ("18F46J53")){
-			Read18Fx(0x10000,0,2);							//64K, 0, LV
-		}
-		else if(EQ("18F2620")||EQ("18F2680")||EQ("18F4620")||EQ("18F4680")){
-			Read18Fx(0x10000,ee?0x400:0,0);					//64K, 1K
-		}
-		else if(EQ("18F26K20")||EQ("18F46K20")){
-			Read18Fx(0x10000,ee?0x400:0,1);					//64K, 1K, 9V
-		}
-		else if(EQ("18F2682")||EQ("18F4682")){
-			Read18Fx(0x14000,ee?0x400:0,0);					//80K, 1K
-		}
-		else if(EQ("18F2685")||EQ("18F4685")){
-			Read18Fx(0x18000,ee?0x400:0,0);					//96K, 1K
-		}
-		else if(EQ("18F27J13")||EQ("18F27J53")||EQ("18F47J13")||EQ("18F47J53")){
-			Read18Fx(0x20000,0,2);							//128K, 0, LV
-		}
-		else if(EQ("18F8722")){
-			Read18Fx(0x20000,ee?0x400:0,0);					//128K, 1K
-		}
-		else{
-			PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-		}
-	}
-//-------------PIC24---------------------------------------------------------
-// options:
-//	bit [3:0]
-//     0 = low voltage ICSP entry
-//     1 = High voltage ICSP entry (6V)
-//     2 = High voltage ICSP entry (12V) + PIC30F sequence (additional NOPs)
-//	bit [7:4]
-//	   0 = config area in the last 2 program words
-//	   1 = config area in the last 3 program words
-//	   2 = config area in the last 4 program words
-//	   3 = 0xF80000 to 0xF80010 except 02 (24F)
-//     4 = 0xF80000 to 0xF80016 (24H-33F)
-//     5 = 0xF80000 to 0xF8000C (x16 bit, 30F)
-//     6 = 0xF80000 to 0xF8000E (30FSMPS)
-	else if(!strncmp(dev,"24F",3)||!strncmp(dev,"24H",3)||!strncmp(dev,"30F",3)||!strncmp(dev,"33F",3)){
-		if(EQ("24F04KA200")||EQ("24F04KA201")){
-			Read24Fx(0xB00,0,0x31,0x05BE,r?0x800:0);				//1.375KW, HV
-		}
-		else if(EQ("24F08KA101")||EQ("24F08KA102")){
-			Read24Fx(0x1600,ee?0x200:0,0x31,0x05BE,r?0x800:0);		//2.75KW, HV, 512
-		}
-		else if(EQ("24F16KA101")||EQ("24F16KA102")){
-			Read24Fx(0x2C00,ee?0x200:0,0x31,0x05BE,r?0x800:0);		//5.5KW, HV, 512
-		}
-		else if(EQ("24FJ16GA002")||EQ("24FJ16GA004")){
-			Read24Fx(0x2C00,0,0,0x05BE,r?0x800:0);					//5.5KW
-		}
-		else if(EQ("24FJ32GA002")||EQ("24FJ32GA004")){
-			Read24Fx(0x5800,0,0,0x05BE,r?0x800:0);					//11KW
-		}
-		else if(EQ("24FJ48GA002")||EQ("24FJ48GA004")){
-			Read24Fx(0x8400,0,0,0x05BE,r?0x800:0);					//16.5KW
-		}
-		else if(EQ("24FJ64GA002")||EQ("24FJ64GA004")||EQ("24FJ64GA006")||EQ("24FJ64GA008")||EQ("24FJ64GA010")){
-			Read24Fx(0xAC00,0,0,0x05BE,r?0x800:0);					//22KW
-		}
-		else if(EQ("24FJ64GB106")||EQ("24FJ64GB108")||EQ("24FJ64GB110")){
-			Read24Fx(0xAC00,0,0x10,0x07F0,r?0x800:0);					//22KW
-		}
-		else if(EQ("24FJ96GA006")||EQ("24FJ96GA008")||EQ("24FJ96GA010")){
-			Read24Fx(0x10000,0,0,0x05BE,r?0x800:0);					//32KW
-		}
-		else if(EQ("24FJ128GA006")||EQ("24FJ128GA008")||EQ("24FJ128GA010")){
-			Read24Fx(0x15800,0,0,0x05BE,r?0x800:0);					//44KW
-		}
-		else if(EQ("24FJ128GA106")||EQ("24FJ128GA108")||EQ("24FJ128GA110")||EQ("24FJ128GB106")||EQ("24FJ128GB108")||EQ("24FJ128GB110")){
-			Read24Fx(0x15800,0,0x10,0x07F0,r?0x800:0);					//44KW
-		}
-		else if(EQ("24FJ192GA106")||EQ("24FJ192GA108")||EQ("24FJ192GA110")||EQ("24FJ192GB106")||EQ("24FJ192GB108")||EQ("24FJ192GB110")){
-			Read24Fx(0x20C00,0,0x10,0x07F0,r?0x800:0);					//68KW
-		}
-		else if(EQ("24FJ256GA106")||EQ("24FJ256GA108")||EQ("24FJ256GA110")||EQ("24FJ256GB106")||EQ("24FJ256GB108")||EQ("24FJ256GB110")){
-			Read24Fx(0x2AC00,0,0x10,0x07F0,r?0x800:0);					//88KW
-		}
-		else if(!strncmp(dev,"33FJ06",6)){
-			Read24Fx(0x1000,0,0x40,0x07F0,r?0x800:0);				//2KW
-		}
-		else if(!strncmp(dev,"24HJ12",6)||!strncmp(dev,"33FJ12",6)){
-			Read24Fx(0x2000,0,0x40,0x07F0,r?0x800:0);				//4KW
-		}
-		else if(!strncmp(dev,"24HJ16",6)||!strncmp(dev,"33FJ16",6)){
-			Read24Fx(0x2C00,0,0x40,0x07F0,r?0x800:0);				//5.5KW
-		}
-		else if(!strncmp(dev,"24HJ32",6)||!strncmp(dev,"33FJ32",6)){
-			Read24Fx(0x5800,0,0x40,0x07F0,r?0x1000:0);				//11KW
-		}
-		else if(!strncmp(dev,"24HJ64",6)||!strncmp(dev,"33FJ64",6)){
-			Read24Fx(0xAC00,0,0x40,0x07F0,r?0x1000:0);				//22KW
-		}
-		else if(!strncmp(dev,"24HJ128",7)||!strncmp(dev,"33FJ128",7)){
-			Read24Fx(0x15800,0,0x40,0x07F0,r?0x1000:0);				//44KW
-		}
-		else if(!strncmp(dev,"24HJ256",7)||!strncmp(dev,"33FJ256",7)){
-			Read24Fx(0x2AC00,0,0x40,0x07F0,r?0x1000:0);				//88KW
-		}
-		else if(EQ("30F2010")){
-			Read24Fx(0x2000,ee?0x400:0,0x52,0x05BE,r?0x600:0);		//4KW, 1K, HV12
-		}
-		else if(EQ("30F2011")||EQ("30F2012")){
-			Read24Fx(0x2000,0,0x52,0x05BE,r?0x600:0);				//4KW, HV12
-		}
-		else if(!strncmp(dev,"30F301",6)){
-			Read24Fx(0x4000,ee?0x400:0,0x52,0x05BE,r?0x600:0);		//8KW, 1K, HV12
-		}
-		else if(!strncmp(dev,"30F401",6)){
-			Read24Fx(0x8000,ee?0x400:0,0x52,0x05BE,r?0x600:0);		//16KW, 1K, HV12
-		}
-		else if(!strncmp(dev,"30F501",6)){
-			Read24Fx(0xB000,ee?0x400:0,0x52,0x05BE,r?0x600:0);		//22KW, 1K, HV12
-		}
-		else if(EQ("30F6011")||EQ("30F6013")){
-			Read24Fx(0x16000,ee?0x800:0,0x52,0x05BE,r?0x600:0);		//44KW, 2K, HV12
-		}
-		else if(EQ("30F6010")||EQ("30F6012")||EQ("30F6014")||EQ("30F6015")){
-			Read24Fx(0x18000,ee?0x1000:0,0x52,0x05BE,r?0x600:0);	//49KW, 4K, HV12
-		}
-		else{
-			PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-		}
-	}
-//-------------ATMEL---------------------------------------------------------
-	else if(!strncmp(dev,"AT",2)){
-		if(EQ("AT90S1200")){
-			ReadAT(0x400,ee?0x40:0,0);							//1K, 64
-		}
-		else if(EQ("AT90S2313")){
-			ReadAT(0x800,ee?0x80:0,0);							//2K, 128
-		}
-		else if(EQ("ATtiny2313")){
-			ReadAT(0x800,ee?0x80:0,LOCK+FUSE+FUSE_H+FUSE_X+CAL+SLOW);//2K, 128
-		}
-		else if(EQ("AT90S8515")||EQ("AT90S8535")){
-			ReadAT(0x2000,ee?0x100:0,0);						//8K, 256
-		}
-		else if(EQ("ATmega8")||EQ("ATmega8A")||EQ("ATmega8515")||EQ("ATmega8535")){
-			ReadAT(0x2000,ee?0x200:0,LOCK+FUSE+FUSE_H+CAL);		//8K, 512
-		}
-		else if(EQ("ATmega16")||EQ("ATmega16A")){
-			ReadAT(0x4000,ee?0x200:0,LOCK+FUSE+FUSE_H+CAL);		//16K, 512
-		}
-		else if(EQ("ATmega32")||EQ("ATmega32A")){
-			ReadAT(0x8000,ee?0x400:0,LOCK+FUSE+FUSE_H+CAL);		//32K, 1K
-		}
-		else if(EQ("ATmega64")||EQ("ATmega64A")){
-			ReadAT(0x10000,ee?0x800:0,LOCK+FUSE+FUSE_H+FUSE_X+CAL);	//64K, 2K
-		}
-		else{
-			PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-		}
-	}
-//-------------I2C---------------------------------------------------------
-	else if(!strncmp(dev,"24",2)||!strncmp(dev,"25",2)||!strncmp(dev,"93",2)){
-		if(EQ("2400")){
-			ReadI2C(0x10,0);						//16, 1B addr.
-		}
-		else if(EQ("2401")){
-			ReadI2C(0x80,0);						//128, 1B addr.
-		}
-		else if(EQ("2402")){
-			ReadI2C(0x100,0);						//256, 1B addr.
-		}
-		else if(EQ("2404")){
-			ReadI2C(0x200,0);						//512, 1B addr.
-		}
-		else if(EQ("2408")){
-			ReadI2C(0x400,0);						//1K, 1B addr.
-		}
-		else if(EQ("2416")){
-			ReadI2C(0x800,0);						//2K, 1B addr.
-		}
-		else if(EQ("2432")){
-			ReadI2C(0x1000,1);						//4K, 2B addr.
-		}
-		else if(EQ("2464")){
-			ReadI2C(0x2000,1);						//8K, 2B addr.
-		}
-		else if(EQ("24128")){
-			ReadI2C(0x4000,1);						//16K, 2B addr.
-		}
-		else if(EQ("24256")){
-			ReadI2C(0x8000,1);						//32K, 2B addr.
-		}
-		else if(EQ("24512")){
-			ReadI2C(0x10000,1);					//64K, 2B addr.
-		}
-		else if(EQ("241024")){
-			ReadI2C(0x20000,0x201);				//128K, 2B addr.
-		}
-		else if(EQ("241025")){
-			ReadI2C(0x20000,0x841);				//128K, 2B addr.
-		}
-//-------------Microwire EEPROM---------------------------------------------------------
-		else if(EQ("93S46")||EQ("93x46")){
-			Read93x(0x80,6,0);						//128, 6b addr
-		}
-		else if(EQ("93x46A")){
-			Read93x(0x80,7,1);						//128, 6b addr x8
-		}
-		else if(EQ("93S56")||EQ("93x56")){
-			Read93x(0x100,8,0);						//256, 8b addr
-		}
-		else if(EQ("93x56A")){
-			Read93x(0x100,9,1);						//256, 8b addr x8
-		}
-		else if(EQ("93S66")||EQ("93x66")){
-			Read93x(0x200,8,0);						//512, 8b addr
-		}
-		else if(EQ("93x66A")){
-			Read93x(0x200,9,1);						//512, 8b addr x8
-		}
-		else if(EQ("93x76")){
-			Read93x(0x400,10,0);						//1k, 10b addr
-		}
-		else if(EQ("93x76A")){
-			Read93x(0x400,11,1);						//1k, 10b addr x8
-		}
-		else if(EQ("93x86")){
-			Read93x(0x800,10,0);						//2k, 10b addr
-		}
-		else if(EQ("93x86A")){
-			Read93x(0x800,11,1);						//2k, 10b addr x8
-		}
-//-------------SPI---------------------------------------------------------
-		else if(EQ("25010")){
-			Read25xx(0x80);							//128
-		}
-		else if(EQ("25020")){
-			Read25xx(0x100);						//256
-		}
-		else if(EQ("25040")){
-			Read25xx(0x200);						//512
-		}
-		else if(EQ("25080")){
-			Read25xx(0x400);						//1K
-		}
-		else if(EQ("25160")){
-			Read25xx(0x800);						//2K
-		}
-		else if(EQ("25320")){
-			Read25xx(0x1000);						//4K
-		}
-		else if(EQ("25640")){
-			Read25xx(0x2000);						//8K
-		}
-		else if(EQ("25128")){
-			Read25xx(0x4000);						//16K
-		}
-		else if(EQ("25256")){
-			Read25xx(0x8000);						//32K
-		}
-		else if(EQ("25512")){
-			Read25xx(0x10000);						//64K
-		}
-		else if(EQ("251024")){
-			Read25xx(0x20000);						//128K
-		}
-		else{
-			PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-		}
-	}
-//-------------Unsupported device---------------------------------------------------------
-	else{
-		PrintMessage(strings[S_nodev_r]); //"Dispositivo non supportato in lettura\r\n");
-	}
+	Read(dev,ee,r);	//choose the right function
 }
 
-#define CS 8
-#define HLD 16
-#define write()	Result=WriteFile(WriteHandle,bufferU,DIMBUF,&BytesWritten,NULL);
+//#define CS 8
+//#define HLD 16
+/*#define write()	Result=WriteFile(WriteHandle,bufferU,DIMBUF,&BytesWritten,NULL);
 #define read()	Result = ReadFile(ReadHandle,bufferI,DIMBUF,&NumberOfBytesRead,(LPOVERLAPPED) &HIDOverlapped);\
 				Result = WaitForSingleObject(hEventObject,10);\
 				ResetEvent(hEventObject);\
 				if(Result!=WAIT_OBJECT_0){\
 					PrintMessage(strings[S_comTimeout]);	/*"Timeout comunicazione\r\n"*/\
-				}
+//				}
 //					return;
 
 void COpenProgDlg::OnI2cspiR()		// I2C/SPI receive
 {
-	DWORD BytesWritten=0;
-	ULONG Result;
-	int j=1;
+	if(MyDeviceDetected==FALSE) return;
+	if (ReadHandle == INVALID_HANDLE_VALUE){
+		m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_InvHandle]);	//"Handle invalido\r\n"
+		return;
+	}
+	CancelIo(ReadHandle);
 	int nbyte=m_I2CSPIPage.GetDlgItemInt(IDC_NUMB);
 	if(nbyte<0) nbyte=0;
 	if(nbyte>60) nbyte=60;
@@ -2118,100 +717,17 @@ void COpenProgDlg::OnI2cspiR()		// I2C/SPI receive
 		if(sscanf(tok,"%x",&tmpbuf[i])) i++;
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
+	I2CReceive(mode,nbyte,tmpbuf);
+}
+
+void COpenProgDlg::OnI2cspiS() // I2C/SPI send
+{
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
 		m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_InvHandle]);	//"Handle invalido\r\n"
 		return;
 	}
 	CancelIo(ReadHandle);
-	if(registro){
-		OpenLogFile();	//"Log.txt"
-		str.Format("I2C-SPI receive\tmode=%d\n",mode);
-		WriteLog(str);
-	}
-	bufferU[0]=0;
-	bufferU[j++]=VREG_DIS;		//Disable HV reg
-	bufferU[j++]=EN_VPP_VCC;	//VDD
-	bufferU[j++]=0x1;
-	if(mode<2){					//I2C mode
-		bufferU[j++]=I2C_INIT;
-		bufferU[j++]=0;
-	}
-	else{						//SPI mode
-		bufferU[j++]=EXT_PORT;	//CS=1
-		bufferU[j++]=CS;
-		bufferU[j++]=0;
-		bufferU[j++]=EXT_PORT;	//CS=0
-		bufferU[j++]=0;
-		bufferU[j++]=0;
-		bufferU[j++]=SPI_INIT;
-		bufferU[j++]=mode-2;
-	}
-	bufferU[j++]=FLUSH;
-	for(;j<DIMBUF;j++) bufferU[j]=0x0;
-	write();
-	msDelay(1);
-	read();
-	if(registro)WriteLogIO();
-	j=1;
-	if(mode==0){					//I2C read
-		bufferU[j++]=I2C_READ;
-		bufferU[j++]=nbyte>(DIMBUF-4)?DIMBUF-4:nbyte;
-		bufferU[j++]=tmpbuf[0];		//Control byte
-		bufferU[j++]=tmpbuf[1];		//Address;
-	}
-	else if(mode==1){				//I2C read 16bit
-		bufferU[j++]=I2C_READ2;
-		bufferU[j++]=nbyte>(DIMBUF-4)?DIMBUF-4:nbyte;
-		bufferU[j++]=tmpbuf[0];		//Control byte
-		bufferU[j++]=tmpbuf[1];		//Address H;
-		bufferU[j++]=tmpbuf[2];		//Address L;
-	}
-	else if(mode>=2){					//SPI read
-		bufferU[j++]=SPI_READ;
-		bufferU[j++]=nbyte>(DIMBUF-5)?DIMBUF-5:nbyte;
-		bufferU[j++]=EXT_PORT;		//CS=1
-		bufferU[j++]=CS;
-		bufferU[j++]=0;
-	}
-	bufferU[j++]=FLUSH;
-	for(;j<DIMBUF;j++) bufferU[j]=0x0;
-	write();
-	msDelay(10);
-	read();
-	if(registro){
-		WriteLogIO();
-		CloseLogFile();
-	}
-	if(bufferI[1]==I2C_READ||bufferI[1]==I2C_READ2||bufferI[1]==SPI_READ){
-		if(bufferI[2]==0xFD){
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_I2CAckErr]); //"Errore di acknowledge I2C"
-		}
-		else if(bufferI[2]>0xFA){
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_InsErr]); //"Istruzione sconosciuta"
-		}
-		else{
-			str.Empty();
-			if(mode==0)	str.Format("> %02X %02X\r\n",bufferU[3],bufferU[4]);
-			if(mode==1)	str.Format("> %02X %02X %02X\r\n",bufferU[3],bufferU[4],bufferU[5]);
-			str+="< ";
-			for(UINT i=0;i<bufferI[2];i++){
-				t.Format("%02X ",(BYTE)bufferI[i+3]);
-				str+=t;
-				if(i&&i%16==15){
-					str+="\r\n";
-				}
-			}
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,str);
-		}
-	}
-
-}
-
-void COpenProgDlg::OnI2cspiS() // I2C/SPI send
-{
-	DWORD BytesWritten=0;
-	ULONG Result;
 	int j=1;
 	int nbyte=m_I2CSPIPage.GetDlgItemInt(IDC_NUMB);
 	if(nbyte<0) nbyte=0;
@@ -2238,96 +754,7 @@ void COpenProgDlg::OnI2cspiS() // I2C/SPI send
 		if(sscanf(tok,"%x",&tmpbuf[i])) i++;
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
-	if(MyDeviceDetected==FALSE) return;
-	if (ReadHandle == INVALID_HANDLE_VALUE){
-		m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_InvHandle]);	//"Handle invalido\r\n"
-		return;
-	}
-	CancelIo(ReadHandle);
-	if(registro){
-		OpenLogFile();	//"Log.txt"
-		str.Format("I2C-SPI send\tmode=%d\n",mode);
-		WriteLog(str);
-	}
-	bufferU[0]=0;
-	bufferU[j++]=VREG_DIS;		//Disable HV reg
-	bufferU[j++]=EN_VPP_VCC;	//VDD
-	bufferU[j++]=0x1;
-	if(mode<2){					//I2C mode
-		bufferU[j++]=I2C_INIT;
-		bufferU[j++]=0;
-	}
-	else{						//SPI mode
-		bufferU[j++]=EXT_PORT;	//CS=1
-		bufferU[j++]=CS;
-		bufferU[j++]=0;
-		bufferU[j++]=EXT_PORT;	//CS=0
-		bufferU[j++]=0;
-		bufferU[j++]=0;
-		bufferU[j++]=SPI_INIT;
-		bufferU[j++]=mode-2;
-	}
-	bufferU[j++]=FLUSH;
-	for(;j<DIMBUF;j++) bufferU[j]=0x0;
-	write();
-	msDelay(1);
-	read();
-	if(registro)WriteLogIO();
-	j=1;
-	if(mode==0){					//I2C write
-		bufferU[j++]=I2C_WRITE;
-		bufferU[j++]=nbyte>(DIMBUF-5)?DIMBUF-5:nbyte;
-		bufferU[j++]=tmpbuf[0];		//Control byte
-		bufferU[j++]=tmpbuf[1];		//Address
-		for(i=0;i<bufferU[2];i++) bufferU[j++]=tmpbuf[i+2];
-	}
-	else if(mode==1){				//I2C write 16bit
-		bufferU[j++]=I2C_WRITE;
-		bufferU[j++]=nbyte+1>(DIMBUF-5)?DIMBUF-5:nbyte+1;
-		bufferU[j++]=tmpbuf[0];		//Control byte
-		bufferU[j++]=tmpbuf[1];		//Address
-		bufferU[j++]=tmpbuf[2];		//Address L
-		for(i=0;i<bufferU[2]-1;i++) bufferU[j++]=tmpbuf[i+3];
-	}
-	if(mode==2){					//SPI write
-		bufferU[j++]=SPI_WRITE;
-		bufferU[j++]=nbyte>(DIMBUF-5)?DIMBUF-5:nbyte;
-		for(i=0;i<bufferU[2];i++) bufferU[j++]=tmpbuf[i];
-		bufferU[j++]=EXT_PORT;	//CS=1
-		bufferU[j++]=CS;
-		bufferU[j++]=0;
-	}
-	bufferU[j++]=FLUSH;
-	for(;j<DIMBUF;j++) bufferU[j]=0x0;
-	write();
-	msDelay(20);
-	read();
-	if(registro){
-		WriteLogIO();
-		CloseLogFile();
-	}
-	if(bufferI[1]==I2C_WRITE||bufferI[1]==SPI_WRITE){
-		if(bufferI[2]==0xFD){
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_I2CAckErr]); //"Errore di acknowledge I2C"
-		}
-		else if(bufferI[2]>0xFA){
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_InsErr]); //"Istruzione sconosciuta"
-		}
-		else{
-			str="> ";
-			int n=3;
-			if(mode<2) n=5;
-			for(i=3;i<bufferU[2]+n;i++){
-				t.Format("%02X ",(BYTE)bufferU[i]);
-				str+=t;
-				if(i&&i%16==15){
-					str+="\r\n";
-				}
-			}
-			m_I2CSPIPage.SetDlgItemText(IDC_STRU,str);
-		}
-	}
-	else m_I2CSPIPage.SetDlgItemText(IDC_STRU,strings[S_ComErr]);	//"Errore di comunicazione\r\n"
+	I2CSend(mode,nbyte,tmpbuf);
 }
 
 void COpenProgDlg::PrintMessage(LPCTSTR s)
@@ -2862,15 +1289,7 @@ void COpenProgDlg::OnWriteLangFile()
 	}
 }
 
-// including code for various devices
-// if anyone knows a better way to do it please tell me
 
-#include "progP12.cpp"
-#include "progP16.cpp"
-#include "progP18.cpp"
-#include "progP24.cpp"
-#include "progEEPROM.cpp"
-#include "progAVR.cpp"
-#include "fileIO.cpp"
+
 
 

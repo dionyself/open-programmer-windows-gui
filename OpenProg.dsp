@@ -97,12 +97,19 @@ SOURCE=.\DatiPage.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\deviceRW.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DispositivoPage.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\fileIO.cpp
-# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CSPI.cpp
 # End Source File
 # Begin Source File
 
@@ -127,32 +134,38 @@ SOURCE=.\OpzioniPage.cpp
 # Begin Source File
 
 SOURCE=.\progAVR.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\progEEPROM.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\progP12.cpp
-# PROP Exclude_From_Build 1
+
+!IF  "$(CFG)" == "OpenProg - Win32 Release"
+
+# ADD CPP /Ze
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "OpenProg - Win32 Debug"
+
+# ADD CPP /Ze /Yu
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\progP16.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\progP18.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\progP24.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 

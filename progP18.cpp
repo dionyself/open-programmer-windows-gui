@@ -1,5 +1,5 @@
 /*
- * progP18F.cpp - algorithms to program the PIC18 family of microcontrollers
+ * progP18F.c - algorithms to program the PIC18 family of microcontrollers
  * Copyright (C) 2009-2010 Alberto Maccioni
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,24 @@
  * or see <http://www.gnu.org/licenses/>
  */
 
-void COpenProgDlg::PIC18_ID(int id)
+//This cannot be executed conditionally on MSVC
+#include "stdafx.h"
+
+
+//configure for GUI or command-line
+#ifdef _MSC_VER 
+	#define _GUI
+	#include "msvc_common.h"
+#else 
+	#define _CMD
+	#include "common.h"
+#endif
+
+#ifdef _MSC_VER
+	void COpenProgDlg::PIC18_ID(int id)
+#else
+	void PIC18_ID(int id)
+#endif
 {
 	char s[64];
 	switch(id>>5){
@@ -413,14 +430,20 @@ void COpenProgDlg::PIC18_ID(int id)
 	PrintMessage(s);
 }
 
+#ifdef _MSC_VER
 void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
+#else
+void Read18Fx(int dim,int dim2,int options){
+#endif
 // read 16 bit PIC 18Fxxxx
 // dim=program size 	dim2=eeprom size
 // options:
 //   0 = vdd before vpp (12V)
 //   1 = vdd before vpp (9V)
 //   2 = low voltage entry with 32 bit key
+#ifdef _MSC_VER
 	CString str,aux;
+#endif
 	int k=0,k2=0,z=0,i,j;
 	int entry=options&0xF;
 	if(dim>0x1FFFFF||dim<0){
@@ -444,14 +467,19 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 		OpenLogFile();	//"log.txt"
 		fprintf(logfile,"Read18F(%d,%d,%d)    (0x%X,0x%X,0x%X)\n",dim,dim2,options,dim,dim2,options);
 	}
+	size=dim;
+	sizeEE=dim2;
+#ifdef _MSC_VER
 	memCODE.RemoveAll();
 	memCODE.SetSize(dim);		//CODE
 	memEE.RemoveAll();
 	memEE.SetSize(dim2);		//EEPROM
-	memID.RemoveAll();
-	memID.SetSize(8);			//ID+CONFIG
-	memCONFIG.RemoveAll();
-	memCONFIG.SetSize(14);		//CONFIG
+#else
+	memCODE=malloc(dim);		//CODE
+	memEE=malloc(dim2);			//EEPROM
+#endif
+	for(j=0;j<8;j++) memID[j]=0xFF;
+	for(j=0;j<14;j++) memCONFIG[j]=0xFF;
 	unsigned int start=GetTickCount();
 	bufferU[0]=0;
 	j=1;
@@ -531,6 +559,9 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 	}
 //****************** read code ********************
 	PrintMessage(strings[S_CodeReading1]);		//code read ...
+#ifdef _CMD
+	PrintMessage("   "); 
+#endif	
 	for(i=0,j=1;i<dim;i+=DIMBUF-4){
 		bufferU[j++]=TBLR_INC_N;
 		bufferU[j++]=i<dim-(DIMBUF-4)?DIMBUF-4:dim-i;
@@ -549,6 +580,9 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 			WriteLogIO();
 		}
 	}
+#ifdef _CMD
+	PrintMessage("\b\b\b");
+#endif
 	if(k!=dim){
 		PrintMessage("\r\n");
 		PrintMessage2(strings[S_ReadCodeErr2],dim,k);	//"Error reading code area, requested %d bytes, read %d\r\n"
@@ -604,6 +638,9 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 //****************** read eeprom ********************
 	if(dim2){
 		PrintMessage(strings[S_ReadEE]);		//read eeprom ...
+#ifdef _CMD
+		PrintMessage("   "); 
+#endif	
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x9E;				//EEPGD=0
 		bufferU[j++]=0xA6;
@@ -656,6 +693,9 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 				}
 			}
 		}
+#ifdef _CMD
+		PrintMessage("\b\b\b");
+#endif
 		if(k2!=dim2){
 			PrintMessage("\r\n");
 			PrintMessage2(strings[S_ReadEEErr],dim2,k2);	//"Error reading EEPROM area, requested %d bytes, read %d\r\n"
@@ -676,7 +716,9 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
+#ifdef _GUI
 	StatusBar.SetWindowText("");
+#endif
 //****************** visualize ********************
 	for(i=0;i<8;i+=2){
 		PrintMessage4(strings[S_ChipID2],i,memID[i],i+1,memID[i+1]);	//"ID%d: 0x%02X   ID%d: 0x%02X\r\n"
@@ -697,14 +739,21 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 			if(memCODE[j]<0xff) valid=1;
 		}
 		if(valid){
+#ifdef _GUI
 			sprintf(t,"%04X: %s\r\n",i,s);
 			aux+=t;
 			empty=0;
+#else
+			PrintMessage("%04X: %s\r\n",i,s);
+			empty=0;
+#endif
 		}
 		s[0]=0;
 	}
 	if(empty) PrintMessage(strings[S_Empty]);	//empty
+#ifdef _GUI
 	else PrintMessage(aux);
+#endif
 	if(dim2){
 		DisplayEE();	//visualize
 	}
@@ -712,7 +761,11 @@ void COpenProgDlg::Read18Fx(int dim,int dim2,int options){
 	if(saveLog) CloseLogFile();
 }
 
+#ifdef _MSC_VER
 void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int eraseW2=0x10000,int options=0)
+#else
+void Write18Fx(int dim,int dim2,int wbuf,int eraseW1,int eraseW2,int options)
+#endif
 // write 16 bit PIC 18Fxxxx
 // dim=program size 	dim2=eeprom size	wbuf=write buffer size {<=64}
 // eraseW1=erase word @3C0005	(not used if > 0x10000)
@@ -730,8 +783,10 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 //     1 = 550ms erase delay, 1.2ms code write time, no config or EEPROM
 //     2 = 550ms erase delay, 3.4ms code write time, no config or EEPROM
 {
+#ifdef _MSC_VER
 	CString str;
 	int size=memCODE.GetSize(),sizeEE=memEE.GetSize();
+#endif
 	int k=0,k2,z=0,i,j;
 	int err=0,devID=0;
 	int EEalgo=(options>>4)&0xF,entry=options&0xF,optWrite=(options>>8)&0xF;
@@ -764,7 +819,11 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 	if(dim%wbuf){			//grow to an integer number of rows
 		dim+=wbuf-dim%wbuf;
 		j=size;
+#ifdef _MSC_VER
 		if(j<dim)memCODE.SetSize(dim);
+#else
+		if(j<dim)size=dim;
+#endif
 		for(;j<dim;j++) memCODE[j]=0xFF;
 	}
 	if(dim2>sizeEE) dim2=sizeEE;
@@ -917,6 +976,9 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 	PrintMessage(strings[S_Compl]);	//"completed\r\n"
 //****************** write code ********************
 	PrintMessage(strings[S_StartCodeProg]);	//"code write ... "
+#ifdef _CMD
+	PrintMessage("   "); 
+#endif	
 	int ww;
 	double wdly=1.0;
 	if(optWrite==1) wdly=1.2;
@@ -1012,11 +1074,13 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 			WriteLogIO();
 		}
 	}
+#ifdef _CMD
+	PrintMessage("\b\b\b");
+#endif
 	PrintMessage(strings[S_Compl]);	//"completed\r\n"
 //****************** write ID ********************
-	if(memID.GetSize()&&optWrite==0){
+	if(optWrite==0){
 		PrintMessage(strings[S_IDW]);	//"Write ID ... "
-		for(i=memID.GetSize();i<8;i++) memID[i]=0xFF;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x8E;
 		bufferU[j++]=0xA6;
@@ -1061,6 +1125,9 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 //****************** write and verify EEPROM ********************
 	if(dim2&&optWrite==0){
 		PrintMessage(strings[S_EEAreaW]);	//"Write EEPROM ... "
+#ifdef _CMD
+		PrintMessage("   "); 
+#endif	
 		int errEE=0;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x9E;			//EEPGD=0
@@ -1145,11 +1212,17 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 				}
 			}
 		}
+#ifdef _CMD
+		PrintMessage("\b\b\b");
+#endif
 		PrintMessage1(strings[S_ComplErr],errEE);	//"completed: %d errors \r\n"
 		err+=errEE;
 	}
 //****************** verify code ********************
 	PrintMessage(strings[S_CodeV]);	//"Verify code ... "
+#ifdef _CMD
+	PrintMessage("   "); 
+#endif	
 	if(saveLog)fprintf(logfile,"VERIFY CODE\n");
 	bufferU[j++]=CORE_INS;
 	bufferU[j++]=0x8E;			//EEPGD=1
@@ -1232,6 +1305,9 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 		}
 		if(err>=max_err) break;
 	}
+#ifdef _CMD
+	PrintMessage("\b\b\b");
+#endif
 	if(i<dim){
 		PrintMessage2(strings[S_CodeVError2],dim,i);	//"Error verifying code area, requested %d bytes, read %d\r\n"
 	}
@@ -1240,7 +1316,7 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 		PrintMessage1(strings[S_MaxErr],err);	//"Exceeded maximum number of errors (%d), write interrupted\r\n"
 	}
 //****************** verify ID ********************
-	if(memID.GetSize()>=8&&err<max_err&&optWrite==0){
+	if(programID&&err<max_err&&optWrite==0){
 		PrintMessage(strings[S_IDV]);	//"Verify ID ... "
 		int errID=0;
 		bufferU[j++]=CORE_INS;
@@ -1276,9 +1352,8 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 		}
 	}
 //****************** write CONFIG ********************
-	if(memCONFIG.GetSize()&&err<max_err&&optWrite==0){
+	if(err<max_err&&optWrite==0){
 		PrintMessage(strings[S_ConfigW]);	//"Write CONFIG ..."
-		for(i=memCONFIG.GetSize();i<14;i++) memCONFIG[i]=0xFF;
 		bufferU[j++]=CORE_INS;
 		bufferU[j++]=0x8E;
 		bufferU[j++]=0xA6;
@@ -1384,7 +1459,9 @@ void COpenProgDlg::Write18Fx(int dim,int dim2,int wbuf=8,int eraseW1=0x10000,int
 	msDelay(1);
 	read();
 	unsigned int stop=GetTickCount();
+#ifdef _GUI
 	StatusBar.SetWindowText("");
+#endif
 	PrintMessage3(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog) CloseLogFile();
 }
