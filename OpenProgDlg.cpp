@@ -187,6 +187,9 @@ BOOL COpenProgDlg::OnInitDialog()
 	MinDly=1;
 	hvreg=0;
 	logfile=0;
+	size=sizeW=sizeEE=sizeCONFIG=0;
+	dati_hex=0;
+	memCODE=memEE=0;
 	s.Format("OpenProg v%s",VERSION);
 	this->SetWindowText(s);
 	s=GetCommandLine();
@@ -226,11 +229,14 @@ BOOL COpenProgDlg::OnInitDialog()
 			if(sscanf(line,"vid %s",temp)>0)vid=temp;
 			if(sscanf(line,"pid %s",temp)>0)pid=temp;
 			sscanf(line,"maxerr %d",&maxerr);
-			//sscanf(line,"usb_delay %d",&MinDly);
-			//sscanf(line,"delta_v %d",&delta_v);
 		}
 		f.Close();
 	}
+	dev_ini=dev;
+	vid_ini=vid;
+	pid_ini=pid;
+	lang_ini=lang;
+	max_err_ini=max_err;
 	for(i=0;i<argc;i++){
 		if(argv[i]=="-d"&&i+1<argc){
 			dev=argv[++i];
@@ -246,7 +252,8 @@ BOOL COpenProgDlg::OnInitDialog()
 			gui=1;
 		}
 	}
-	dati_hex.SetSize(0x2400);
+	sizeW=0x2400;
+	dati_hex=(WORD*)malloc(sizeW*sizeof(WORD));
 	for(i=0;i<0x2400;i++) dati_hex[i]=0x3fff;
 	StatusBar.Create(WS_CHILD|WS_VISIBLE,CRect(0,0,0,0),this,0);
 	ToolBar.Create(this);
@@ -457,38 +464,31 @@ void COpenProgDlg::ChangeLanguage()
 
 void COpenProgDlg::OnClose()
 {
-	CStdioFile f;
-	CString s,t;
-	s=argv[0];
-	s.Replace(".exe",".ini");
-	if (f.Open((LPCTSTR)s,CFile::modeCreate | CFile::modeWrite)){
-		CString dev;
-		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
-		s.Format("device %s\n",dev);
-		f.WriteString(s);
-		m_OpzioniPage.m_language.GetLBText(m_OpzioniPage.m_language.GetCurSel(),t);
-    	s.Format("language %s\n",t);
-		f.WriteString(s);
-		int vid=0,pid=0,maxerr=200;
-		CString a;
-		m_OpzioniPage.GetDlgItemText(IDC_VID,a);
-		sscanf(a,"0x%X",&vid);
-		m_OpzioniPage.GetDlgItemText(IDC_PID,a);
-		sscanf(a,"0x%X",&pid);
-		s.Format("vid 0x%x\n",vid);
-		f.WriteString(s);
-		s.Format("pid 0x%x\n",pid);
-		f.WriteString(s);
-		m_OpzioniPage.GetDlgItemText(IDC_ERRMAX,a);
-		sscanf(a,"%d",&maxerr);
-		s.Format("maxerr %d\n",maxerr);
-		f.WriteString(s);
-		s.Format("usb_delay %d\n",MinDly);
-		f.WriteString(s);
-		//int Dvreg=m_OpzioniPage.GetDlgItemInt(IDC_HVDV);
-		//s.Format("delta_v %d\n",Dvreg);
-		//f.WriteString(s);
-		f.Close();
+	FILE *f;
+	CString lang,a,s;
+	CString dev,vid,pid;
+	int maxerr=200,x;
+	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
+	m_OpzioniPage.m_language.GetLBText(m_OpzioniPage.m_language.GetCurSel(),lang);
+	m_OpzioniPage.GetDlgItemText(IDC_VID,a);
+	sscanf(a,"0x%X",&x);
+	vid.Format("0x%X",x);
+	m_OpzioniPage.GetDlgItemText(IDC_PID,a);
+	sscanf(a,"0x%X",&x);
+	pid.Format("0x%X",x);
+	m_OpzioniPage.GetDlgItemText(IDC_ERRMAX,a);
+	sscanf(a,"%d",&maxerr);
+// Save ini file only if parameters are changed
+	if(dev_ini!=dev||vid_ini!=vid||pid_ini!=pid||max_err_ini!=max_err||lang_ini!=lang){
+		s=argv[0];
+		s.Replace(".exe",".ini");
+		if(f=fopen(s,"w")){
+			fprintf(f,"device %s\n",dev);
+    		fprintf(f,"language %s\n",lang);
+			fprintf(f,"vid %s\n",vid);
+			fprintf(f,"pid %s\n",pid);
+			fprintf(f,"maxerr %d\n",maxerr);
+		}
 	}
 	CDialog::OnClose();
 }
@@ -551,7 +551,7 @@ void COpenProgDlg::OnFileOpen()
 		char dev[32];
 		CString aux,err,str;
 		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
-		char loadfile[256];
+		char loadfile[512];
 		strncpy(loadfile,dlg.GetFileName(),sizeof(loadfile));
 		Load(dev,loadfile);
 		if(!strncmp(dev,"AT",2)){	//load EEPROM from separate file for ATMEL chips
@@ -570,13 +570,12 @@ void COpenProgDlg::OnFileSave()
 {
 	CFileDialog dlg(FALSE,"hex",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
 	if (rfile!=""||dlg.DoModal()==IDOK){
-		int size=memCODE.GetSize();
-		int sizeEE=memEE.GetSize();
 		char dev[32];
 		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
-		char savefile[256];
+		char savefile[512];
 		strncpy(savefile,rfile!=""?rfile:dlg.GetPathName(),sizeof(savefile));
 		Save(dev,savefile);
+		PrintMessage1(strings[S_FileSaved],savefile);
 		if(!strncmp(dev,"AT",2)&&sizeEE){	//save EEPROM on separate file for ATMEL chips
 			CFileDialog dlgA(FALSE,"hex;eep",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."S_file]);
 			dlgA.m_ofn.lpstrTitle =strings[S_saveEEfile];		//"Save eeprom";
@@ -584,6 +583,7 @@ void COpenProgDlg::OnFileSave()
 				char savefileEE[256];
 				strncpy(savefileEE,dlgA.GetPathName(),sizeof(savefileEE));
 				SaveEE(dev,savefileEE);
+				PrintMessage1(strings[S_FileSaved],savefileEE);
 			}
 		}
 	}
@@ -768,7 +768,6 @@ void COpenProgDlg::PrintMessage(LPCTSTR s)
 
 void COpenProgDlg::DisplayEE(){
 	CString str,aux;
-	int sizeEE=memEE.GetSize();
 	char s[256],t[256],v[256];
 	int valid=0,empty=1;
 	int i,j;

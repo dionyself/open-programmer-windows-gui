@@ -6,6 +6,65 @@
 --------------------Configuration: OpenProg - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10D.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/OpenProg.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\deviceRW.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\fileIO.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\I2CSPI.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\OpenProg.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\OpenProgDlg.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progAVR.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progEEPROM.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP16.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP18.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP24.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10D.tmp" 
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10E.tmp" with contents
+[
+/nologo /MD /Ze /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP12.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10E.tmp" 
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10F.tmp" with contents
+[
+/nologo /subsystem:windows /incremental:no /pdb:"Release/OpenProg.pdb" /machine:I386 /out:"Release/OpenProg.exe" 
+".\Release\DatiPage.obj"
+".\Release\deviceRW.obj"
+".\Release\DispositivoPage.obj"
+".\Release\fileIO.obj"
+".\Release\I2CSPI.obj"
+".\Release\I2CSPIPage.obj"
+".\Release\OpenProg.obj"
+".\Release\OpenProgDlg.obj"
+".\Release\OpzioniPage.obj"
+".\Release\progAVR.obj"
+".\Release\progEEPROM.obj"
+".\Release\progP12.obj"
+".\Release\progP16.obj"
+".\Release\progP18.obj"
+".\Release\progP24.obj"
+".\Release\StdAfx.obj"
+".\Release\OpenProg.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP10F.tmp"
+<h3>Output Window</h3>
+Compiling...
+deviceRW.cpp
+fileIO.cpp
+I2CSPI.cpp
+OpenProg.cpp
+OpenProgDlg.cpp
+progAVR.cpp
+progEEPROM.cpp
+progP16.cpp
+progP18.cpp
+progP24.cpp
+Generating Code...
+Compiling...
+progP12.cpp
+Linking...
 
 
 
