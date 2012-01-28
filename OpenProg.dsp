@@ -174,8 +174,7 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\strings.c
-# PROP Exclude_From_Build 1
+SOURCE=.\strings.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -196,6 +195,10 @@ SOURCE=.\I2CSPIPage.h
 # Begin Source File
 
 SOURCE=.\instructions.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\msvc_common.h
 # End Source File
 # Begin Source File
 

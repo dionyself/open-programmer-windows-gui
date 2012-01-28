@@ -33,6 +33,7 @@
 #define IDC_STATIC2                     1022
 #define IDC_USBDMIN                     1022
 #define IDC_STATICvid                   1023
+#define IDC_STATIC3                     1023
 #define IDC_STATICpid                   1024
 #define IDC_STATICerr                   1025
 #define IDC_STATICdev                   1026
@@ -70,6 +71,7 @@
 #define IDC_ATCONF                      1057
 #define IDC_ICD_EN                      1058
 #define IDC_ICDADDR                     1059
+#define IDC_PICCONF                     1060
 #define IDC_WLANGFILE                   1061
 #define IDC_ICD_ADDR                    1062
 #define ID_LEGGI                        32773
@@ -92,7 +94,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        150
-#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_COMMAND_VALUE         32804
 #define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

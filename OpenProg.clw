@@ -12,21 +12,20 @@ Class1=COpenProgApp
 Class2=COpenProgDlg
 Class3=CAboutDlg
 
-ResourceCount=10
-Resource1=IDR_MENU1
+ResourceCount=9
+Resource1=IDD_OPZIONI
 Resource2=IDR_MAINFRAME
-Resource3=IDR_TOOLBAR1
-Resource4=IDD_I2C_SPI
+Resource3=IDD_DATI
+Resource4=IDD_OPENPROG_DIALOG
 Class4=CDatiPage
-Resource5=IDD_DATI
+Resource5=IDD_ABOUTBOX
 Class5=CDispositivoPage
-Resource6=IDD_OPENPROG_DIALOG
-Resource7=IDD_ABOUTBOX
+Resource6=IDR_MENU1
+Resource7=IDD_I2C_SPI
 Class6=COpzioniPage
 Class7=CI2CSPIPage
 Resource8=IDD_DISP
-Resource9=IDD_OPZIONI
-Resource10=IDR_TOOLBAR2
+Resource9=IDR_TOOLBAR1
 
 [CLS:COpenProgApp]
 Type=0
@@ -97,7 +96,7 @@ LastObject=CDatiPage
 [DLG:IDD_DISP]
 Type=1
 Class=CDispositivoPage
-ControlCount=22
+ControlCount=24
 Control1=IDC_DISPO,combobox,1344339971
 Control2=IDC_STATICdev,static,1342308352
 Control3=IDC_RISERVATA,button,1342242819
@@ -120,6 +119,8 @@ Control19=IDC_FUSEX_P,button,1342242819
 Control20=IDC_ICD_EN,button,1342242819
 Control21=IDC_ICDADDR,edit,1350631552
 Control22=IDC_ICD_ADDR,static,1342308352
+Control23=IDC_PICCONF,button,1342177287
+Control24=IDC_STATIC3,button,1342177287
 
 [CLS:CDispositivoPage]
 Type=0
@@ -196,11 +197,4 @@ BaseClass=CPropertyPage
 Filter=D
 LastObject=CI2CSPIPage
 VirtualFilter=idWC
-
-[TB:IDR_TOOLBAR2]
-Type=1
-Class=?
-Command1=ID_I2CSPI_R
-Command2=ID_I2CSPI_S
-CommandCount=2
 

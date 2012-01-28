@@ -26,6 +26,7 @@ public:
 	void OnFileOpen();
 	void OnWrite();
 	void AddDevices();
+	void strinit();
 	int Load(char*dev,char*loadfile);
 	void Save(char* dev,char* savefile);
 	void Write(char* dev,int ee);
@@ -113,10 +114,7 @@ public:
 	ULONG Result;
 	FILE* logfile;
 	CString langs[32];
-	WORD *dati_hex;
-//	CWordArray	dati_hex;
-//	CByteArray	memCODE;
-//	CByteArray	memEE;
+	WORD *memCODE_W;
 	unsigned char *memCODE,*memEE;
 	unsigned char memID[8];
 	unsigned char memCONFIG[48];

@@ -1,3 +1,7 @@
 
+*.gitignore
 *.obj
+*.bak
+*.pch
+*.zip
 Debug

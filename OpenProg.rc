@@ -102,46 +102,48 @@ BEGIN
                     ES_READONLY | WS_VSCROLL
 END
 
-IDD_DISP DIALOG DISCARDABLE  0, 0, 361, 146
+IDD_DISP DIALOG DISCARDABLE  0, 0, 361, 156
 STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Dispositivo__"
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_DISPO,55,14,97,160,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_DISPO,53,7,97,160,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "Dispositivo__",IDC_STATICdev,9,16,43,8
+    LTEXT           "Dispositivo__",IDC_STATICdev,7,9,43,8
     CONTROL         "Leggi area riservata__",IDC_RISERVATA,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,50,86,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,49,86,10
     CONTROL         "Da file__",IDC_OSC_LOAD,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,20,125,44,10
-    CONTROL         "OSCCAL__",IDC_OSC_OSCCAL,"Button",BS_AUTORADIOBUTTON,20,
-                    103,52,10
+                    WS_GROUP,23,123,44,10
+    CONTROL         "OSCCAL__",IDC_OSC_OSCCAL,"Button",BS_AUTORADIOBUTTON,23,
+                    101,52,10
     CONTROL         "Backup OSCCAL__",IDC_OSC_BK,"Button",BS_AUTORADIOBUTTON,
-                    20,114,79,10
-    GROUPBOX        "Scrivi OSCCAL__",IDC_STATIC2,7,93,93,46
+                    23,112,79,10
+    GROUPBOX        "Scrivi OSCCAL__",IDC_STATIC2,10,91,93,46
     CONTROL         "Programma ID e BKosccal__",IDC_IDPROG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,63,107,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,62,107,10
     CONTROL         "Leggi e programma EEPROM__",IDC_EEPROM,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,37,117,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,35,117,10
     CONTROL         "Programma CALIB1 e 2__",IDC_CALIB_LOAD,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,76,97,10
-    EDITTEXT        IDC_LOCK,173,110,19,14,ES_AUTOHSCROLL
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,75,97,10
+    EDITTEXT        IDC_LOCK,236,98,19,14,ES_AUTOHSCROLL
     CONTROL         "_Lock",IDC_LOCK_P,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    198,112,78,10
-    GROUPBOX        "_Atmel",IDC_ATCONF,163,37,128,95
-    EDITTEXT        IDC_FUSE,173,50,19,14,ES_AUTOHSCROLL
+                    261,100,78,10
+    GROUPBOX        "_Atmel",IDC_ATCONF,226,25,128,95
+    EDITTEXT        IDC_FUSE,236,38,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse low",IDC_FUSE_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,198,52,79,10
-    EDITTEXT        IDC_FUSEH,173,70,19,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,261,40,79,10
+    EDITTEXT        IDC_FUSEH,236,58,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse high",IDC_FUSEH_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,198,72,81,10
-    EDITTEXT        IDC_FUSEX,173,90,19,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,261,60,81,10
+    EDITTEXT        IDC_FUSEX,236,78,19,14,ES_AUTOHSCROLL
     CONTROL         "_Extended Fuse",IDC_FUSEX_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,198,92,79,10
+                    WS_TABSTOP,261,80,79,10
     CONTROL         "_Abilita ICD",IDC_ICD_EN,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,170,18,67,10
-    EDITTEXT        IDC_ICDADDR,247,16,28,14,ES_AUTOHSCROLL
-    LTEXT           "_indirizzo routine ICD",IDC_ICD_ADDR,277,19,67,8
+                    WS_TABSTOP,115,104,67,10
+    EDITTEXT        IDC_ICDADDR,183,119,28,14,ES_AUTOHSCROLL
+    LTEXT           "_indirizzo routine ICD",IDC_ICD_ADDR,114,120,67,8
+    GROUPBOX        "_PIC",IDC_PICCONF,7,25,212,115
+    GROUPBOX        "ICD",IDC_STATIC3,107,91,109,46
 END
 
 IDD_OPZIONI DIALOG DISCARDABLE  0, 0, 335, 151
@@ -284,7 +286,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 354
         TOPMARGIN, 7
-        BOTTOMMARGIN, 139
+        BOTTOMMARGIN, 148
     END
 
     IDD_OPZIONI, DIALOG
@@ -351,12 +353,6 @@ BEGIN
     BUTTON      ID_SCRIVI
 END
 
-IDR_TOOLBAR2 TOOLBAR DISCARDABLE  10, 10
-BEGIN
-    BUTTON      ID_I2CSPI_R
-    BUTTON      ID_I2CSPI_S
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -364,7 +360,6 @@ END
 //
 
 IDR_TOOLBAR1            BITMAP  DISCARDABLE     "res\\toolbar1.bmp"
-IDR_TOOLBAR2            BITMAP  DISCARDABLE     "res\\toolbar2.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -29,6 +29,11 @@
 #else 
 	#define _CMD
 	#include "common.h"
+	#include "progP12.h"
+	#include "progP16.h"
+	#include "progP18.h"
+	#include "progP24.h"
+	#include "progAVR.h"
 #endif
 
 #ifdef _MSC_VER
@@ -55,255 +60,292 @@ void COpenProgDlg::Save(char* dev,char* savefile)
 void Save(char* dev,char* savefile)
 #endif
 {
-		FILE* f=fopen(savefile,"w");
-		if(!f) return;
-		char str[512],str1[512]="";
-		int i,sum=0,count=0,ext=0,s,base;
+	FILE* f=fopen(savefile,"w");
+	if(!f) return;
+	char str[512],str1[512]="";
+	int i,sum=0,count=0,ext=0,s,base;
 //**************** 10-16F *******************************************
-		if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
-			int x=0xfff,addr;
-			if(!strncmp(dev,"16",2)||!strncmp(dev,"12F6",4)) x=0x3fff;
-			fprintf(f,":020000040000FA\n");			//extended address=0
-			for(i=0;i<sizeW;i++) dati_hex[i]&=x;
-			for(i=0;i<sizeW&&dati_hex[i]>=x;i++); //remove leading 0xFFF
-			for(;i<sizeW;i++){
-				sum+=(dati_hex[i]>>8)+dati_hex[i]&0xff;
-				sprintf(str,"%02X%02X",dati_hex[i]&0xff,dati_hex[i]>>8);
+	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
+		int x=0xfff,addr;
+		if(!strncmp(dev,"16",2)||!strncmp(dev,"12F6",4)) x=0x3fff;
+		fprintf(f,":020000040000FA\n");			//extended address=0
+		for(i=0;i<sizeW;i++) memCODE_W[i]&=x;
+		for(i=0;i<sizeW&&memCODE_W[i]>=x;i++); //remove leading 0xFFF
+		for(;i<sizeW;i++){
+			sum+=(memCODE_W[i]>>8)+(memCODE_W[i]&0xff);
+			sprintf(str,"%02X%02X",memCODE_W[i]&0xff,memCODE_W[i]>>8);
+			strcat(str1,str);
+			count++;
+			if(count==8||i==sizeW-1){
+				base=i-count+1;
+				for(s=i;s>=base&&memCODE_W[s]>=x;s--){	//remove trailing 0xFFF
+					sum-=(memCODE_W[s]>>8)+(memCODE_W[s]&0xff);
+					str1[strlen(str1)-4]=0;
+				}
+				count-=i-s;
+				addr=(s-count+1)*2;
+				sum+=count*2+(addr&0xff)+(addr>>8);
+				if(base>>15>ext){
+					ext=base>>15;
+					fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
+				}
+				if(count) fprintf(f,":%02X%04X00%s%02X\n",count*2,addr&0xFFFF,str1,(-sum)&0xff);
+				str1[0]=0;
+				count=sum=0;
+			}
+		}
+		if(sizeEE){		//this is only for 16F1xxx
+			if(ext!=0x01) fprintf(f,":020000040001F9\n");
+			for(i=0,count=sum=0;i<sizeEE;i++){
+				sum+=memEE[i];
+				sprintf(str,"%02X00",memEE[i]&0xff);
 				strcat(str1,str);
 				count++;
-				if(count==8||i==sizeW-1){
-					base=i-count+1;
-					for(s=i;s>=base&&dati_hex[s]>=x;s--){	//remove trailing 0xFFF
-						sum-=(dati_hex[s]>>8)+dati_hex[s]&0xff;
+				if(count==8||i==sizeEE-1){
+					for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
+						sum-=memEE[s]&0xff;
 						str1[strlen(str1)-4]=0;
 					}
 					count-=i-s;
-					addr=(s-count+1)*2;
+					addr=(s-count+1)*2+0xE000;
 					sum+=count*2+(addr&0xff)+(addr>>8);
-					if(base>>15>ext){
-						ext=base>>15;
-						fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
+					if(count){
+						fprintf(f,":%02X%04X00%s%02X\n",count*2,addr,str1,(-sum)&0xff);
 					}
-					if(count) fprintf(f,":%02X%04X00%s%02X\n",count*2,addr&0xFFFF,str1,(-sum)&0xff);
 					str1[0]=0;
 					count=sum=0;
 				}
 			}
-			if(sizeEE){		//this is only for 16F1xxx
-				if(ext!=0x01) fprintf(f,":020000040001F9\n");
-				for(i=0,count=sum=0;i<sizeEE;i++){
-					sum+=memEE[i];
-					sprintf(str,"%02X00",memEE[i]&0xff);
-					strcat(str1,str);
-					count++;
-					if(count==8||i==sizeEE-1){
-						for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
-							sum-=memEE[s]&0xff;
-							str1[strlen(str1)-4]=0;
-						}
-						count-=i-s;
-						addr=(s-count+1)*2+0xE000;
-						sum+=count*2+(addr&0xff)+(addr>>8);
-						if(count){
-							fprintf(f,":%02X%04X00%s%02X\n",count*2,addr,str1,(-sum)&0xff);
-						}
-						str1[0]=0;
-						count=sum=0;
-					}
-				}
-			}
-			fprintf(f,":00000001FF\n");
 		}
+		fprintf(f,":00000001FF\n");
+	}
 //**************** 18F *******************************************
-		else if(!strncmp(dev,"18F",3)){
-			fprintf(f,":020000040000FA\n");			//extended address=0
-			for(i=0;i<size&&memCODE[i]==0xff;i++); //remove leading 0xFF
-			for(;i<size;i++){
-				sum+=memCODE[i];
-				sprintf(str,"%02X",memCODE[i]);
-				strcat(str1,str);
-				count++;
-				if(count==16||i==size-1){
-					base=i-count+1;
-					for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
-						sum-=memCODE[s];
-						str1[strlen(str1)-2]=0;
-					}
-					count-=i-s;
-					sum+=count+(base&0xff)+((base>>8)&0xff);
-					if(base>>16>ext){
-						ext=base>>16;
-						fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-					}
-					if(count){
-						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-					}
-					str1[0]=0;
-					count=sum=0;
+	else if(!strncmp(dev,"18F",3)){
+		fprintf(f,":020000040000FA\n");			//extended address=0
+		for(i=0;i<size&&memCODE[i]==0xff;i++); //remove leading 0xFF
+		for(;i<size;i++){
+			sum+=memCODE[i];
+			sprintf(str,"%02X",memCODE[i]);
+			strcat(str1,str);
+			count++;
+			if(count==16||i==size-1){
+				base=i-count+1;
+				for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
+					sum-=memCODE[s];
+					str1[strlen(str1)-2]=0;
 				}
-			}
-			for(i=0,count=sum=0;i<8;i++){
-				sum+=memID[i];
-				sprintf(str,"%02X",memID[i]&0xff);
-				strcat(str1,str);
-				count++;
-				if(count==8){
-					fprintf(f,":020000040020DA\n");
-					base=i-count+1;
-					for(s=i;s>i-count&&memID[s]>=0xff;s--){	//remove trailing 0xFF
-						sum-=memID[s]&0xff;
-						str1[strlen(str1)-2]=0;
-					}
-					count-=i-s;
-					sum+=count+(base&0xff)+((base>>8)&0xff);
-					if(count){
-						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-					}
-					str1[0]=0;
-					count=sum=0;
+				count-=i-s;
+				sum+=count+(base&0xff)+((base>>8)&0xff);
+				if(base>>16>ext){
+					ext=base>>16;
+					fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
 				}
-			}
-			for(i=0,count=sum=0;i<14;i++){
-				sum+=memCONFIG[i];
-				sprintf(str,"%02X",memCONFIG[i]&0xff);
-				strcat(str1,str);
-				count++;
-				if(count==14){
-				fprintf(f,":020000040030CA\n");
-					base=i-count+1;
-					for(s=i;s>i-count&&memCONFIG[s]>=0xff;s--){	//remove trailing 0xFF
-						sum-=memCONFIG[s]&0xff;
-						str1[strlen(str1)-2]=0;
-					}
-					count-=i-s;
-					sum+=count+(base&0xff)+((base>>8)&0xff);
-					if(count){
-						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-					}
-					str1[0]=0;
-					count=sum=0;
+				if(count){
+					fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
 				}
+				str1[0]=0;
+				count=sum=0;
 			}
-			if(sizeEE){
-				fprintf(f,":0200000400F00A\n");
-				for(i=0,count=sum=0;i<sizeEE;i++){
-					sum+=memEE[i];
-					sprintf(str,"%02X",memEE[i]&0xff);
-					strcat(str1,str);
-					count++;
-					if(count==16||i==sizeEE-1){
-						base=i-count+1;
-						for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
-							sum-=memEE[s]&0xff;
-							str1[strlen(str1)-2]=0;
-						}
-						count-=i-s;
-						sum+=count+(base&0xff)+((base>>8)&0xff);
-						if(count){
-							fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-						}
-						str1[0]=0;
-						count=sum=0;
-					}
-				}
-			}
-			fprintf(f,":00000001FF\n");
 		}
+		for(i=0,count=sum=0;i<8;i++){
+			sum+=memID[i];
+			sprintf(str,"%02X",memID[i]&0xff);
+			strcat(str1,str);
+			count++;
+			if(count==8){
+				fprintf(f,":020000040020DA\n");
+				base=i-count+1;
+				for(s=i;s>i-count&&memID[s]>=0xff;s--){	//remove trailing 0xFF
+					sum-=memID[s]&0xff;
+					str1[strlen(str1)-2]=0;
+				}
+				count-=i-s;
+				sum+=count+(base&0xff)+((base>>8)&0xff);
+				if(count){
+					fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+				}
+				str1[0]=0;
+				count=sum=0;
+			}
+		}
+		for(i=0,count=sum=0;i<14;i++){
+			sum+=memCONFIG[i];
+			sprintf(str,"%02X",memCONFIG[i]&0xff);
+			strcat(str1,str);
+			count++;
+			if(count==14){
+			fprintf(f,":020000040030CA\n");
+				base=i-count+1;
+				for(s=i;s>i-count&&memCONFIG[s]>=0xff;s--){	//remove trailing 0xFF
+					sum-=memCONFIG[s]&0xff;
+					str1[strlen(str1)-2]=0;
+				}
+				count-=i-s;
+				sum+=count+(base&0xff)+((base>>8)&0xff);
+				if(count){
+					fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+				}
+				str1[0]=0;
+				count=sum=0;
+			}
+		}
+		if(sizeEE){
+			fprintf(f,":0200000400F00A\n");
+			for(i=0,count=sum=0;i<sizeEE;i++){
+				sum+=memEE[i];
+				sprintf(str,"%02X",memEE[i]&0xff);
+				strcat(str1,str);
+				count++;
+				if(count==16||i==sizeEE-1){
+					base=i-count+1;
+					for(s=i;s>i-count&&memEE[s]>=0xff;s--){	//remove trailing 0xFF
+						sum-=memEE[s]&0xff;
+						str1[strlen(str1)-2]=0;
+					}
+					count-=i-s;
+					sum+=count+(base&0xff)+((base>>8)&0xff);
+					if(count){
+						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+					}
+					str1[0]=0;
+					count=sum=0;
+				}
+			}
+		}
+		fprintf(f,":00000001FF\n");
+	}
 //**************** 24F *******************************************
-		else if((!strncmp(dev,"24F",3)||!strncmp(dev,"24H",3)||!strncmp(dev,"30F",3)||!strncmp(dev,"33F",3))){
+	else if((!strncmp(dev,"24F",3)||!strncmp(dev,"24H",3)||!strncmp(dev,"30F",3)||!strncmp(dev,"33F",3))){
+		int valid;
+		fprintf(f,":020000040000FA\n");			//extended address=0
+		int sum=0,count=0,s,word;
+		word=memCODE[0]+(memCODE[1]<<8)+(memCODE[2]<<16)+(memCODE[3]<<24);
+		for(i=0;i<size&&word==0xffffffff;i+=4) //remove leading 0xFFFFFFFF
+			word=memCODE[i]+(memCODE[i+1]<<8)+(memCODE[i+2]<<16)+(memCODE[i+3]<<24);
+		for(;i<size;i++){
+			sum+=memCODE[i];
+			sprintf(str,"%02X",memCODE[i]);
+			strcat(str1,str);
+			count++;
+			if(count==16||i==size-1){
+				base=i-count+1;
+				for(s=base,valid=0;s<=i&&!valid;s+=4){	//remove empty lines
+					if(memCODE[s]<0xFF||memCODE[s+1]<0xFF||+memCODE[s+2]<0xFF) valid=1;
+				}
+				sum+=count+(base&0xff)+((base>>8)&0xff);
+				if(base>>16>ext){
+					ext=base>>16;
+					fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
+				}
+				if(count&&valid){
+					fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+				}
+				str1[0]=0;
+				count=sum=0;
+			}
+		}
+		if(sizeCONFIG){
+			fprintf(f,":0200000401F009\n");
+			for(i=0,count=sum=0;i<sizeCONFIG&&i<48;i++){
+				sum+=memCONFIG[i];
+				sprintf(str,"%02X",memCONFIG[i]);
+				strcat(str1,str);
+				count++;
+				if(count==4||i==sizeCONFIG-1){
+					base=i-count+1;
+					sum+=count+(base&0xff)+((base>>8)&0xff);
+					if(count){
+						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+					}
+					str1[0]=0;
+					count=sum=0;
+				}
+			}
+		}
+		if(sizeEE){
+			fprintf(f,":0200000400FFFB\n");
+			str1[0]=0;
+			for(i=0,count=sum=0;i<sizeEE;i+=2){		//append 0000 every 2 bytes
+				sum+=memEE[i]+memEE[i+1];
+				sprintf(str,"%02X%02X0000",memEE[i]&0xff,memEE[i+1]&0xff);
+				strcat(str1,str);
+				count+=4;
+				if(count==16||i==sizeEE-2){
+					base=2*i-count+4;
+					for(s=base/2,valid=0;s<=i&&!valid;s+=2){	//remove empty lines
+						if(memEE[s]<0xFF||memEE[s+1]<0xFF) valid=1;
+					}
+					sum+=0xE0+count+(base&0xff)+(base>>8);
+					if(count&&valid){
+						fprintf(f,":%02X%04X00%s%02X\n",count,base+0xE000,str1,(-sum)&0xff);
+					}
+					str1[0]=0;
+					count=sum=0;
+				}
+			}
+		}
+		fprintf(f,":00000001FF\n");
+	}
+//**************** ATxxxx *******************************************
+	else if(!strncmp(dev,"AT",2)){
+		fprintf(f,":020000040000FA\n");			//extended address=0
+		for(i=0;i<size&&memCODE[i]==0xff;i++); //remove leading 0xFF
+		for(;i<size;i++){
+			sum+=memCODE[i];
+			sprintf(str,"%02X",memCODE[i]);
+			strcat(str1,str);
+			count++;
+			if(count==16||i==size-1){
+				base=i-count+1;
+				for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
+					sum-=memCODE[s];
+					str1[strlen(str1)-2]=0;
+				}
+				count-=i-s;
+				sum+=count+(base&0xff)+((base>>8)&0xff);
+				if(base>>16>ext){
+					ext=base>>16;
+					fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
+				}
+				if(count){
+					fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
+				}
+				str1[0]=0;
+				count=sum=0;
+			}
+		}
+		fprintf(f,":00000001FF\n");
+	}
+//**************** 24xxx / 93xxx / 25xxx *******************************************
+	else if(!strncmp(dev,"24",2)||!strncmp(dev,"93",2)||!strncmp(dev,"25",2)){
+		if(strstr(savefile,".bin")||strstr(savefile,".BIN")){
+			#ifdef _MSC_VER
+			//brain-damaged op. systems need this to avoid messing with some bytes
+			f=freopen(savefile,"wb",f); 
+			if(!f) return;
+			#endif
+			fwrite(memEE,1,sizeEE,f);
+		}
+		else{			//HEX
 			int valid;
 			fprintf(f,":020000040000FA\n");			//extended address=0
-			int sum=0,count=0,s,word;
-			word=memCODE[0]+(memCODE[1]<<8)+(memCODE[2]<<16)+(memCODE[3]<<24);
-			for(i=0;i<size&&word==0xffffffff;i+=4) //remove leading 0xFFFFFFFF
-				word=memCODE[i]+(memCODE[i+1]<<8)+(memCODE[i+2]<<16)+(memCODE[i+3]<<24);
-			for(;i<size;i++){
-				sum+=memCODE[i];
-				sprintf(str,"%02X",memCODE[i]);
+			for(i=0;i<sizeEE;i++){
+				sum+=memEE[i];
+				sprintf(str,"%02X",memEE[i]);
 				strcat(str1,str);
 				count++;
-				if(count==16||i==size-1){
-					base=i-count+1;
-					for(s=base,valid=0;s<=i&&!valid;s+=4){	//remove empty lines
-						if(memCODE[s]<0xFF||memCODE[s+1]<0xFF||+memCODE[s+2]<0xFF) valid=1;
-					}
-					sum+=count+(base&0xff)+((base>>8)&0xff);
-					if(base>>16>ext){
-						ext=base>>16;
-						fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-					}
-					if(count&&valid){
-						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-					}
-					str1[0]=0;
-					count=sum=0;
-				}
-			}
-			if(sizeCONFIG){
-				fprintf(f,":0200000401F009\n");
-				for(i=0,count=sum=0;i<sizeCONFIG&&i<48;i++){
-					sum+=memCONFIG[i];
-					sprintf(str,"%02X",memCONFIG[i]);
-					strcat(str1,str);
-					count++;
-					if(count==4||i==sizeCONFIG-1){
+				if(count==16||i==sizeEE-1){
+					for(s=valid=0;str1[s]&&!valid;s++) if(str1[s]!='F') valid=1;
+					if(valid){
 						base=i-count+1;
 						sum+=count+(base&0xff)+((base>>8)&0xff);
+						if(base>>16>ext){
+							ext=base>>16;
+							fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
+						}
 						if(count){
 							fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
 						}
-						str1[0]=0;
-						count=sum=0;
-					}
-				}
-			}
-			if(sizeEE){
-				fprintf(f,":0200000400FFFB\n");
-				str1[0]=0;
-				for(i=0,count=sum=0;i<sizeEE;i+=2){		//append 0000 every 2 bytes
-					sum+=memEE[i]+memEE[i+1];
-					sprintf(str,"%02X%02X0000",memEE[i]&0xff,memEE[i+1]&0xff);
-					strcat(str1,str);
-					count+=4;
-					if(count==16||i==sizeEE-2){
-						base=2*i-count+4;
-						for(s=base/2,valid=0;s<=i&&!valid;s+=2){	//remove empty lines
-							if(memEE[s]<0xFF||memEE[s+1]<0xFF) valid=1;
-						}
-						sum+=0xE0+count+(base&0xff)+(base>>8);
-						if(count&&valid){
-							fprintf(f,":%02X%04X00%s%02X\n",count,base+0xE000,str1,(-sum)&0xff);
-						}
-						str1[0]=0;
-						count=sum=0;
-					}
-				}
-			}
-			fprintf(f,":00000001FF\n");
-		}
-//**************** ATxxxx *******************************************
-		else if(!strncmp(dev,"AT",2)){
-			fprintf(f,":020000040000FA\n");			//extended address=0
-			for(i=0;i<size&&memCODE[i]==0xff;i++); //remove leading 0xFF
-			for(;i<size;i++){
-				sum+=memCODE[i];
-				sprintf(str,"%02X",memCODE[i]);
-				strcat(str1,str);
-				count++;
-				if(count==16||i==size-1){
-					base=i-count+1;
-					for(s=i;s>=base&&memCODE[s]==0xff;s--){	//remove trailing 0xFF
-						sum-=memCODE[s];
-						str1[strlen(str1)-2]=0;
-					}
-					count-=i-s;
-					sum+=count+(base&0xff)+((base>>8)&0xff);
-					if(base>>16>ext){
-						ext=base>>16;
-						fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-					}
-					if(count){
-						fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
 					}
 					str1[0]=0;
 					count=sum=0;
@@ -311,41 +353,9 @@ void Save(char* dev,char* savefile)
 			}
 			fprintf(f,":00000001FF\n");
 		}
-//**************** 24xxx / 93xxx / 25xxx *******************************************
-		else if(!strncmp(dev,"24",2)||!strncmp(dev,"93",2)||!strncmp(dev,"25",2)){
-			if(strstr(savefile,".bin")||strstr(savefile,".BIN")){
-				fwrite(memEE,1,sizeEE,f);
-			}
-			else{			//HEX
-				int valid;
-				fprintf(f,":020000040000FA\n");			//extended address=0
-				for(i=0;i<sizeEE;i++){
-					sum+=memEE[i];
-					sprintf(str,"%02X",memEE[i]);
-					strcat(str1,str);
-					count++;
-					if(count==16||i==sizeEE-1){
-						for(s=valid=0;str1[s]&&!valid;s++) if(str1[s]!='F') valid=1;
-						if(valid){
-							base=i-count+1;
-							sum+=count+(base&0xff)+((base>>8)&0xff);
-							if(base>>16>ext){
-								ext=base>>16;
-								fprintf(f,":02000004%04X%02X\n",ext,(-6-ext)&0xff);
-							}
-							if(count){
-								fprintf(f,":%02X%04X00%s%02X\n",count,base&0xFFFF,str1,(-sum)&0xff);
-							}
-						}
-						str1[0]=0;
-						count=sum=0;
-					}
-				}
-				fprintf(f,":00000001FF\n");
-			}
-		}
-		if(f) fclose(f);
 	}
+	if(f) fclose(f);
+}
 
 #ifdef _MSC_VER
 void COpenProgDlg::SaveEE(char* dev,char* savefile){
@@ -356,11 +366,11 @@ void SaveEE(char* dev,char* savefile){
 	if(!f) return;
 //**************** ATMEL *******************************************
 	if(!strncmp(dev,"AT",2)){
-	char str[512],str1[512]="";
-	int i,ext=0,base;
-	fprintf(f,":020000040000FA\n");			//extended address=0
-	int sum=0,count=0,s;
-	for(i=0,count=sum=0;i<sizeEE;i++){
+		char str[512],str1[512]="";
+		int i,base;
+		fprintf(f,":020000040000FA\n");			//extended address=0
+		int sum=0,count=0,s;
+		for(i=0,count=sum=0;i<sizeEE;i++){
 			sum+=memEE[i];
 			sprintf(str,"%02X",memEE[i]&0xff);
 			strcat(str1,str);
@@ -391,13 +401,14 @@ int COpenProgDlg::Load(char*dev,char*loadfile){
 int Load(char*dev,char*loadfile){
 #endif
 	int i,input_address=0,ext_addr=0,sum,valid,empty;
-	char s[256]="",t[256]="",v[256]="",line[256];
+	char s[256]="",line[256];
 	FILE* f=fopen(loadfile,"r");
 	if(!f) return -1;
 	PrintMessage1("%s :\r\n\r\n",loadfile);
 //**************** 10-16F *******************************************
 	if(!strncmp(dev,"10",2)||!strncmp(dev,"12",2)||!strncmp(dev,"16",2)){
 		unsigned char buffer[0x20000],bufferEE[0x1000];
+		int sizeM=0;
 		memset(buffer,0xFF,sizeof(buffer));
 		memset(bufferEE,0xFF,sizeof(bufferEE));
 		sizeEE=0;
@@ -418,13 +429,15 @@ int Load(char*dev,char*loadfile){
 						switch(htoi(line+7,2)){
 							case 0:		//Data record
 								if(ext_addr<=0x01&&input_address<0xE000){		//Code
-									sizeW=(ext_addr<<16)+input_address+hex_count;
+									sizeM=(ext_addr<<16)+input_address+hex_count;
+									if(sizeM>sizeW) sizeW=sizeM;
 									for(i=0;i<hex_count;i++){
 										buffer[(ext_addr<<16)+input_address+i]=htoi(line+9+i*2,2);
 									}
 								}
 								else if(ext_addr==0x1&&input_address>=0xE000&&input_address<0xF000){	//EEPROM
-									sizeEE=(input_address-0xE000+hex_count)/2;
+									sizeM=(input_address-0xE000+hex_count)/2;
+									if(sizeM>sizeEE) sizeEE=sizeM;
 									for(i=0;i<hex_count;i+=2){
 										bufferEE[(input_address-0xE000)/2+i/2]=htoi(line+9+i*2,2);
 									}
@@ -441,10 +454,10 @@ int Load(char*dev,char*loadfile){
 			}
 		}
 		sizeW/=2;
-		if(dati_hex) free(dati_hex);
-		dati_hex=(WORD*)malloc(sizeof(WORD)*sizeW);
+		if(memCODE_W) free(memCODE_W);
+		memCODE_W=(WORD*)malloc(sizeof(WORD)*sizeW);
 		for(i=0;i<sizeW;i++){		//Swap bytes
-			dati_hex[i]=(buffer[i*2+1]<<8)+buffer[i*2];
+			memCODE_W[i]=(buffer[i*2+1]<<8)+buffer[i*2];
 		}
 		if(memEE) free(memEE);
 		if(sizeEE){
@@ -467,7 +480,7 @@ int Load(char*dev,char*loadfile){
 //**************** 18F *******************************************
 	else if(!strncmp(dev,"18F",3)){
 		unsigned char buffer[0x30000],bufferEE[0x1000];
-		int end_address=0;
+		int sizeM;
 		memset(buffer,0xFF,sizeof(buffer));
 		memset(bufferEE,0xFF,sizeof(bufferEE));
 		memset(memID,0xFF,sizeof(memID));
@@ -490,7 +503,8 @@ int Load(char*dev,char*loadfile){
 						switch(htoi(line+7,2)){
 							case 0:		//Data record
 								if(ext_addr<0x20){		//Code
-									size=(ext_addr<<16)+input_address+hex_count;
+									sizeM=(ext_addr<<16)+input_address+hex_count;
+									if(sizeM>size) size=sizeM;
 									for(i=0;i<hex_count;i++){
 										buffer[(ext_addr<<16)+input_address+i]=htoi(line+9+i*2,2);
 									}
@@ -509,7 +523,9 @@ int Load(char*dev,char*loadfile){
 									for(i=0;i<hex_count;i++){
 										bufferEE[input_address+i]=htoi(line+9+i*2,2);
 									}
-									sizeEE=input_address+hex_count;
+									sizeM=input_address+hex_count;
+									if(sizeM>sizeEE) sizeEE=sizeM;
+									
 								}
 								break;
 							case 4:		//extended linear address record
@@ -543,7 +559,7 @@ int Load(char*dev,char*loadfile){
 //**************** 24F *******************************************
 	else if(!strncmp(dev,"24F",3)||!strncmp(dev,"24H",3)||!strncmp(dev,"30F",3)||!strncmp(dev,"33F",3)){
 		unsigned char *buffer,bufferEE[0x2000];
-		int end_address=0,d;
+		int d;
 		buffer=(unsigned char*)malloc(0x100000);
 		memset(buffer,0xFF,0x100000);
 		memset(bufferEE,0xFF,sizeof(bufferEE));
@@ -670,6 +686,11 @@ int Load(char*dev,char*loadfile){
 //**************** 24xxx / 93xxx / 25xxx **************************************
 	else if(!strncmp(dev,"24",2)||!strncmp(dev,"93",2)||!strncmp(dev,"25",2)){
 		if(strstr(loadfile,".bin")||strstr(loadfile,".BIN")){
+			#ifdef _MSC_VER
+			//brain-damaged op. systems need this to avoid messing with some bytes
+			f=freopen(loadfile,"rb",f); 
+			if(!f) return -1;
+			#endif
 			fseek(f, 0L, SEEK_END);
 			sizeEE=ftell(f);
 			fseek(f, 0L, SEEK_SET);
@@ -722,6 +743,9 @@ int Load(char*dev,char*loadfile){
 			free(bufferEE);
 		}
 		DisplayEE();	//visualize
+		int sum=0;
+		for(i=0;i<sizeEE;i++) sum+=memEE[i];
+		PrintMessage1("Checksum: 0x%X\r\n",sum&0xFFFF);
 		PrintMessage("\r\n");
 	}
 	fclose(f);
@@ -793,7 +817,11 @@ void OpenLogFile()
 {
 	logfile=fopen(strings[S_LogFile],"w");
 	if(!logfile) return;
+#ifdef _MSC_VER	
 	fprintf(logfile,"OpenProg version %s\n",VERSION);
+#else
+	fprintf(logfile,"OPGUI version %s\n",VERSION);
+#endif
 	fprintf(logfile,"Firmware version %d.%d.%d\n",FWVersion>>16,(FWVersion>>8)&0xFF,FWVersion&0xFF);
 	struct tm * timeinfo;
 	time_t rawtime;

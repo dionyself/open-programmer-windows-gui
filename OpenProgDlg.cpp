@@ -188,7 +188,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	hvreg=0;
 	logfile=0;
 	size=sizeW=sizeEE=sizeCONFIG=0;
-	dati_hex=0;
+	memCODE_W=0;
 	memCODE=memEE=0;
 	s.Format("OpenProg v%s",VERSION);
 	this->SetWindowText(s);
@@ -253,8 +253,8 @@ BOOL COpenProgDlg::OnInitDialog()
 		}
 	}
 	sizeW=0x2400;
-	dati_hex=(WORD*)malloc(sizeW*sizeof(WORD));
-	for(i=0;i<0x2400;i++) dati_hex[i]=0x3fff;
+	memCODE_W=(WORD*)malloc(sizeW*sizeof(WORD));
+	for(i=0;i<0x2400;i++) memCODE_W[i]=0x3fff;
 	StatusBar.Create(WS_CHILD|WS_VISIBLE,CRect(0,0,0,0),this,0);
 	ToolBar.Create(this);
 	ToolBar.LoadToolBar(IDR_TOOLBAR1);
@@ -348,7 +348,10 @@ void COpenProgDlg::ChangeLanguage()
 {
 	CString lang;
 	m_OpzioniPage.m_language.GetLBText(m_OpzioniPage.m_language.GetCurSel(),lang);
-	#include "strings.c"
+	extern char* strings_it[];
+	extern char* strings_en[];
+	extern char* STR_ID[];
+	strinit();
 	strings_ID=new char*[DIM];
 	CString ss;
 	for(int i=0;i<DIM;i++){
@@ -440,6 +443,7 @@ void COpenProgDlg::ChangeLanguage()
 	m_DispoPage.SetDlgItemText(IDC_OSC_LOAD,strings[I_OSCF]);
 	m_DispoPage.SetDlgItemText(IDC_STATICdev,strings[I_Dev]);
 	m_DispoPage.SetDlgItemText(IDC_ATCONF,strings[I_AT_CONFIG]);
+	m_DispoPage.SetDlgItemText(IDC_PICCONF,strings[I_PIC_CONFIG]);
 	m_DispoPage.SetDlgItemText(IDC_FUSE_P,strings[I_AT_FUSE]);
 	m_DispoPage.SetDlgItemText(IDC_FUSEH_P,strings[I_AT_FUSEH]);
 	m_DispoPage.SetDlgItemText(IDC_FUSEX_P,strings[I_AT_FUSEX]);
@@ -673,16 +677,6 @@ void COpenProgDlg::OnRead()
 	Read(dev,ee,r);	//choose the right function
 }
 
-//#define CS 8
-//#define HLD 16
-/*#define write()	Result=WriteFile(WriteHandle,bufferU,DIMBUF,&BytesWritten,NULL);
-#define read()	Result = ReadFile(ReadHandle,bufferI,DIMBUF,&NumberOfBytesRead,(LPOVERLAPPED) &HIDOverlapped);\
-				Result = WaitForSingleObject(hEventObject,10);\
-				ResetEvent(hEventObject);\
-				if(Result!=WAIT_OBJECT_0){\
-					PrintMessage(strings[S_comTimeout]);	/*"Timeout comunicazione\r\n"*/\
-//				}
-//					return;
 
 void COpenProgDlg::OnI2cspiR()		// I2C/SPI receive
 {
