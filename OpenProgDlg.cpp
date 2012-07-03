@@ -768,7 +768,8 @@ void COpenProgDlg::DisplayEE(){
 	s[0]=0;
 	v[0]=0;
 	PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
-	for(i=0;i<sizeEE;i+=COL){
+	i=0;
+	for(;i<sizeEE;i+=COL){
 		valid=0;
 		for(j=i;j<i+COL&&j<sizeEE;j++){
 			sprintf(t,"%02X ",memEE[j]);
@@ -779,14 +780,17 @@ void COpenProgDlg::DisplayEE(){
 		}
 		if(valid){
 			sprintf(t,"%04X: %s %s\r\n",i,s,v);
-			aux+=t;
+			if(aux.GetLength()<90000) aux+=t;
 			empty=0;
 		}
 		s[0]=0;
 		v[0]=0;
 	}
 	if(empty) PrintMessage(strings[S_Empty]);	//empty
-	else PrintMessage(aux);
+	else{ 
+		PrintMessage(aux);
+		if(aux.GetLength()>=90000)	PrintMessage("(...)\r\n");
+	}
 }
 
 int COpenProgDlg::StartHVReg(double V)

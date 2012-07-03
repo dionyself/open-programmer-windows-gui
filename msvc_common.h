@@ -10,7 +10,7 @@
 #include "strings.h"
 #include "instructions.h"
 
-#define VERSION "0.7.10"
+#define VERSION "0.8.0"
 #define G (12.0/34*1024/5)		//=72,2823529412
 #define DIMBUF	65
 #define COL		16

@@ -45,6 +45,8 @@ public:
 	void ReadAT(int dim, int dim2,int options);
 	void Read93x(int dim, int na,int options);
 	void Read25xx(int dim);
+	void ReadOneWireMem(int dim,int options);
+	void Read11xx(int dim);
 	void Write12F5xx(int dim,int OscAddr);
 	void Write12C5xx(int dim);
 	void Write12F6xx(int dim,int dim2);
@@ -68,6 +70,8 @@ public:
 	void Write93Sx(int dim, int na,int page);
 	void Write93Cx(int dim,int na, int options);
 	void Write25xx(int dim,int page);
+	void WriteOneWireMem(int dim,int options);
+	void Write11xx(int dim,int page);
 	void DisplayCODE16F(int size);
 	void DisplayEE16F(int size);
 	void DisplayCODE18F(int dim);
@@ -76,11 +80,11 @@ public:
 	void DisplayCODEAVR(int dim);
 	void OpenLogFile();
 	void CloseLogFile();
-//	void WriteLog(CString str);
 	void WriteLogIO();
 	void PIC16_ID(int id);
 	void PIC18_ID(int id);
 	void PIC24_ID(int id);
+	void OW_ID(int id);
 	void AtmelID(BYTE id[3]);
 	void CheckData(int a,int b, int addr,int *err);
 	void DisplayEE();
@@ -88,6 +92,7 @@ public:
 	void LoadEE(char* dev,char* savefile);
 	void I2CReceive(int mode,int N,BYTE *buffer);
 	void I2CSend(int mode,int N,BYTE *buffer);
+	void ReadDS1820();
 	unsigned int htoi(const char *hex, int length);
 	CToolBar			ToolBar;
 	CStatusBarCtrl		StatusBar;

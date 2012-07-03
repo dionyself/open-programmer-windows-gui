@@ -244,10 +244,6 @@ SOURCE=.\res\OpenProg.rc2
 
 SOURCE=.\res\toolbar1.bmp
 # End Source File
-# Begin Source File
-
-SOURCE=.\res\toolbar2.bmp
-# End Source File
 # End Group
 # Begin Source File
 
