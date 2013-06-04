@@ -74,6 +74,8 @@
 #define IDC_PICCONF                     1060
 #define IDC_WLANGFILE                   1061
 #define IDC_ICD_ADDR                    1062
+#define IDC_CHECK1                      1063
+#define IDC_NOLV                        1063
 #define ID_LEGGI                        32773
 #define ID_FILE_APRI                    32775
 #define ID_FILE_SALVA                   32776
@@ -95,7 +97,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        150
 #define _APS_NEXT_COMMAND_VALUE         32804
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1064
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

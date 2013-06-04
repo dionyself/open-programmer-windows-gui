@@ -1,4 +1,5 @@
 //MSVC common declarations
+#define _APPNAME "OpenProg"
 
 #include "DatiPage.h"
 #include "DispositivoPage.h"
@@ -10,7 +11,7 @@
 #include "strings.h"
 #include "instructions.h"
 
-#define VERSION "0.8.0"
+#define VERSION "0.8.1"
 #define G (12.0/34*1024/5)		//=72,2823529412
 #define DIMBUF	65
 #define COL		16
@@ -24,7 +25,7 @@
 #define PrintMessage2(s,p1,p2) {str.Format(s,p1,p2); PrintMessage(str);}
 #define PrintMessage3(s,p1,p2,p3) {str.Format(s,p1,p2,p3); PrintMessage(str);}
 #define PrintMessage4(s,p1,p2,p3,p4) {str.Format(s,p1,p2,p3,p4); PrintMessage(str);}
-#define PrintStatus(s,p1,p2) {str.Format(s,p1,p2); StatusBar.SetWindowText(str);}
+#define PrintStatus(s,p1,p2) {str.Format(s,p1,p2); StatusBar.SetWindowText(str);DoEvents();}
 #define	PrintStatusSetup() //only needed for console version
 #define	PrintStatusEnd() //only needed for console version
 #define	PrintStatusClear() StatusBar.SetWindowText("");
@@ -35,7 +36,3 @@
 				if(Result!=WAIT_OBJECT_0){\
 					PrintMessage(strings[S_comTimeout]);	/*"communication timeout\r\n"*/\
 				}
-
-//extern char* strings_it[];
-//extern char* strings_en[];
-//extern char* STR_ID[];

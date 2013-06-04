@@ -18,6 +18,7 @@ class COpenProgDlg : public CDialog
 {
 // Construction
 public:
+	void DoEvents();
 	void msDelay(double delay);
 	void ChangeLanguage();
 	void OnRead();
@@ -90,8 +91,8 @@ public:
 	void DisplayEE();
 	void SaveEE(char* dev,char* savefile);
 	void LoadEE(char* dev,char* savefile);
-	void I2CReceive(int mode,int N,BYTE *buffer);
-	void I2CSend(int mode,int N,BYTE *buffer);
+	void I2CReceive(int mode,int speed,int N,BYTE *buffer);
+	void I2CSend(int mode,int speed,int N,BYTE *buffer);
 	void ReadDS1820();
 	unsigned int htoi(const char *hex, int length);
 	CToolBar			ToolBar;
@@ -109,11 +110,11 @@ public:
 	unsigned char		bufferU[128];
 	char **strings;
 	char **strings_ID;
-	int MinDly,maxerr;
+	int MinDly,maxerr,skipV33check;
 	double hvreg;
 	int saveLog,max_err,load_calibword,programID,load_osccal,ICDenable,ICDaddr;
 	int use_osccal,use_BKosccal;
-	int size,sizeW,sizeEE,sizeCONFIG;
+	int size,sizeW,sizeEE,sizeCONFIG,sizeUSERID;
 	int AVRlock,AVRfuse,AVRfuse_h,AVRfuse_x;
 	DWORD BytesWritten;
 	ULONG Result;
@@ -123,6 +124,7 @@ public:
 	unsigned char *memCODE,*memEE;
 	unsigned char memID[8];
 	unsigned char memCONFIG[48];
+	unsigned char memUSERID[8];
 	CString dev_ini,vid_ini,pid_ini,lang_ini;
 	int max_err_ini;
 	CString messaggi,dati;//,lang;
@@ -142,6 +144,8 @@ public:
 	HANDLE WriteHandle;
 	CString rfile;
 	CString wfile;
+	int progress;
+	char LogFileName[512];
 	COpenProgDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data

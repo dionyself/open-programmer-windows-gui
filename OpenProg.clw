@@ -13,15 +13,15 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=9
-Resource1=IDD_DATI
+Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
-Resource3=IDR_MENU1
-Resource4=IDD_DISP
+Resource3=IDD_OPENPROG_DIALOG
+Resource4=IDR_MENU1
 Class4=CDatiPage
-Resource5=IDD_OPENPROG_DIALOG
+Resource5=IDD_DATI
 Class5=CDispositivoPage
-Resource6=IDD_ABOUTBOX
-Resource7=IDD_OPZIONI
+Resource6=IDD_OPZIONI
+Resource7=IDD_DISP
 Class6=COpzioniPage
 Class7=CI2CSPIPage
 Resource8=IDD_I2C_SPI
@@ -41,7 +41,7 @@ ImplementationFile=OpenProgDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=ID_OPZIONI_PROGRAMMATORE_CONNETTI
+LastObject=ID_WRITE_LANG_FILE
 
 [CLS:CAboutDlg]
 Type=0
@@ -143,7 +143,7 @@ CommandCount=4
 [DLG:IDD_OPZIONI]
 Type=1
 Class=COpzioniPage
-ControlCount=14
+ControlCount=13
 Control1=IDC_VID,edit,1350631552
 Control2=IDC_STATICvid,static,1342308352
 Control3=IDC_PID,edit,1350631552
@@ -152,12 +152,11 @@ Control5=IDC_CONNETTI,button,1342242816
 Control6=IDC_REGISTRO,button,1342242819
 Control7=IDC_STATICerr,static,1342308354
 Control8=IDC_ERRMAX,edit,1350631552
-Control9=IDC_STATIC_USBD,static,1342308354
-Control10=IDC_USBDMIN,edit,1350631552
-Control11=IDC_STATIC_L,static,1342308354
-Control12=IDC_LANGUAGE,combobox,1344340226
-Control13=IDC_TESTHW,button,1342242816
-Control14=IDC_WLANGFILE,button,1342242816
+Control9=IDC_STATIC_L,static,1342308354
+Control10=IDC_LANGUAGE,combobox,1344340226
+Control11=IDC_TESTHW,button,1342242816
+Control12=IDC_WLANGFILE,button,1342242816
+Control13=IDC_NOLV,button,1342242819
 
 [CLS:COpzioniPage]
 Type=0
@@ -165,7 +164,7 @@ HeaderFile=OpzioniPage.h
 ImplementationFile=OpzioniPage.cpp
 BaseClass=CPropertyPage
 Filter=D
-LastObject=COpzioniPage
+LastObject=IDC_WLANGFILE
 VirtualFilter=idWC
 
 [DLG:IDD_I2C_SPI]

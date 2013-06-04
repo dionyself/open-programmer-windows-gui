@@ -187,9 +187,11 @@ BOOL COpenProgDlg::OnInitDialog()
 	MinDly=1;
 	hvreg=0;
 	logfile=0;
-	size=sizeW=sizeEE=sizeCONFIG=0;
+	size=sizeW=sizeEE=sizeCONFIG=sizeUSERID=0;
 	memCODE_W=0;
 	memCODE=memEE=0;
+	progress=0;
+	skipV33check=0;
 	s.Format("OpenProg v%s",VERSION);
 	this->SetWindowText(s);
 	s=GetCommandLine();
@@ -452,9 +454,9 @@ void COpenProgDlg::ChangeLanguage()
 	m_DispoPage.SetDlgItemText(IDC_ICD_ADDR,strings[I_ICD_ADDRESS]);
 	m_OpzioniPage.SetDlgItemText(IDC_CONNETTI,strings[I_CONN]);
 	m_OpzioniPage.SetDlgItemText(IDC_REGISTRO,strings[I_LOG]);
+	m_OpzioniPage.SetDlgItemText(IDC_NOLV,strings[I_CK_V33]);
 	m_OpzioniPage.SetDlgItemText(IDC_STATICerr,strings[I_MAXERR]);
 	m_OpzioniPage.SetDlgItemText(IDC_STATIC_L,strings[I_LANG]);
-	m_OpzioniPage.SetDlgItemText(IDC_STATIC_USBD,strings[I_USBD]);
 	m_OpzioniPage.SetDlgItemText(IDC_TESTHW,strings[I_TestHWB]);
 	m_OpzioniPage.SetDlgItemText(IDC_WLANGFILE,strings[I_W_LANGFILE]);
 	m_I2CSPIPage.SetDlgItemText(IDC_MODE,strings[I_I2CMode]);
@@ -463,6 +465,7 @@ void COpenProgDlg::ChangeLanguage()
 	m_I2CSPIPage.SetDlgItemText(IDC_SEND,strings[I_I2CSend]);
 	m_I2CSPIPage.SetDlgItemText(IDC_msgSTRI,strings[I_I2CDATAOUT]);
 	m_I2CSPIPage.SetDlgItemText(IDC_msgSTRU,strings[I_I2CDATATR]);
+	strncpy(LogFileName,strings[S_LogFile],sizeof(LogFileName));
 }
 
 
@@ -550,6 +553,8 @@ HCURSOR COpenProgDlg::OnQueryDragIcon()
 
 void COpenProgDlg::OnFileOpen()
 {
+	if(progress) return;
+	progress=1;
 	CFileDialog dlg(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
 	if (wfile!=""||dlg.DoModal()==IDOK){
 		char dev[32];
@@ -568,10 +573,13 @@ void COpenProgDlg::OnFileOpen()
 			}
 		}
 	}
+	progress=0;
 }
 
 void COpenProgDlg::OnFileSave()
 {
+	if(progress) return;
+	progress=1;
 	CFileDialog dlg(FALSE,"hex",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,strings[S_file2]);	//"File Hex8 (*.hex)|*.hex|File binari (*.bin)|*.bin|Tutti i file (*.*)|*.*||"
 	if (rfile!=""||dlg.DoModal()==IDOK){
 		char dev[32];
@@ -591,12 +599,15 @@ void COpenProgDlg::OnFileSave()
 			}
 		}
 	}
+	progress=0;
 }
 
 void COpenProgDlg::OnWrite()
 {
 	char dev[64];
 	int ee;
+	if(progress) return;
+	progress=1;
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
 		PrintMessage(strings[S_InvHandle]);	//"invalid handle \r\n"
@@ -605,6 +616,8 @@ void COpenProgDlg::OnWrite()
 	m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 	CButton* b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
+	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_NOLV);
+	skipV33check=b->GetCheck();
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
@@ -654,12 +667,15 @@ void COpenProgDlg::OnWrite()
 		if(i!=1||AVRlock<0||AVRlock>0xFF) AVRlock=0x100;
 	}
 	Write(dev,ee);	//choose the right function
+	progress=0;
 }
 
 void COpenProgDlg::OnRead()
 {
 	char dev[64];
 	int r,ee;
+	if(progress) return;
+	progress=1;
 	if(MyDeviceDetected==FALSE) return;
 	if (ReadHandle == INVALID_HANDLE_VALUE){
 		PrintMessage(strings[S_InvHandle]);	//"invalid handle \r\n"
@@ -671,10 +687,13 @@ void COpenProgDlg::OnRead()
 	if(r) r=0xffff;
 	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_REGISTRO);
 	saveLog=b->GetCheck();
+	b=(CButton*)m_OpzioniPage.GetDlgItem(IDC_NOLV);
+	skipV33check=b->GetCheck();
 	b=(CButton*)m_DispoPage.GetDlgItem(IDC_EEPROM);
 	ee=b->GetCheck();
 	if(ee) ee=0xffff;
 	Read(dev,ee,r);	//choose the right function
+	progress=0;
 }
 
 
@@ -711,7 +730,7 @@ void COpenProgDlg::OnI2cspiR()		// I2C/SPI receive
 		if(sscanf(tok,"%x",&tmpbuf[i])) i++;
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
-	I2CReceive(mode,nbyte,tmpbuf);
+	I2CReceive(mode,0,nbyte,tmpbuf);
 }
 
 void COpenProgDlg::OnI2cspiS() // I2C/SPI send
@@ -748,7 +767,7 @@ void COpenProgDlg::OnI2cspiS() // I2C/SPI send
 		if(sscanf(tok,"%x",&tmpbuf[i])) i++;
 	}
 	for(;i<128;i++) tmpbuf[i]=0;
-	I2CSend(mode,nbyte,tmpbuf);
+	I2CSend(mode,0,nbyte,tmpbuf);
 }
 
 void COpenProgDlg::PrintMessage(LPCTSTR s)
@@ -758,18 +777,20 @@ void COpenProgDlg::PrintMessage(LPCTSTR s)
 	CEdit* e=(CEdit*)m_DatiPage.GetDlgItem(IDC_DATI);
 	e->SetWindowText(dati);
 	e->LineScroll(5000);
+	DoEvents();
 }
 
 void COpenProgDlg::DisplayEE(){
 	CString str,aux;
 	char s[256],t[256],v[256];
 	int valid=0,empty=1;
-	int i,j;
+	int i,j,max;
 	s[0]=0;
 	v[0]=0;
 	PrintMessage(strings[S_EEMem]);	//"\r\nmemoria EEPROM:\r\n"
 	i=0;
-	for(;i<sizeEE;i+=COL){
+	max=sizeEE>7000?7000:sizeEE;
+	for(i=0;i<max;i+=COL){
 		valid=0;
 		for(j=i;j<i+COL&&j<sizeEE;j++){
 			sprintf(t,"%02X ",memEE[j]);
@@ -787,9 +808,9 @@ void COpenProgDlg::DisplayEE(){
 		v[0]=0;
 	}
 	if(empty) PrintMessage(strings[S_Empty]);	//empty
-	else{ 
+	else{
 		PrintMessage(aux);
-		if(aux.GetLength()>=90000)	PrintMessage("(...)\r\n");
+		if(sizeEE>max) PrintMessage("(...)\r\n");
 	}
 }
 
@@ -905,6 +926,7 @@ int COpenProgDlg::CheckV33Regulator()
 	DWORD BytesWritten=0;
 	ULONG Result;
 	int i,j=1;
+	if(skipV33check) return 1;
 	bufferU[j++]=WRITE_RAM;
 	bufferU[j++]=0x0F;
 	bufferU[j++]=0x93;
@@ -1287,6 +1309,12 @@ void COpenProgDlg::OnWriteLangFile()
 }
 
 
-
-
-
+void COpenProgDlg::DoEvents()
+{
+	MSG msg;  
+    while ( ::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE ) )
+    {  
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+    }
+}

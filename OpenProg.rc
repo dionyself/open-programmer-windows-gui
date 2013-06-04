@@ -122,27 +122,27 @@ BEGIN
     CONTROL         "Programma ID e BKosccal__",IDC_IDPROG,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,11,62,107,10
     CONTROL         "Leggi e programma EEPROM__",IDC_EEPROM,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,11,35,117,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,25,117,10
     CONTROL         "Programma CALIB1 e 2__",IDC_CALIB_LOAD,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,11,75,97,10
-    EDITTEXT        IDC_LOCK,236,98,19,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOCK,236,111,19,14,ES_AUTOHSCROLL
     CONTROL         "_Lock",IDC_LOCK_P,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    261,100,78,10
-    GROUPBOX        "_Atmel",IDC_ATCONF,227,25,128,95
-    EDITTEXT        IDC_FUSE,236,38,19,14,ES_AUTOHSCROLL
+                    261,113,78,10
+    GROUPBOX        "_Atmel",IDC_ATCONF,227,38,128,95
+    EDITTEXT        IDC_FUSE,236,51,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse low",IDC_FUSE_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,261,40,79,10
-    EDITTEXT        IDC_FUSEH,236,58,19,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,261,53,79,10
+    EDITTEXT        IDC_FUSEH,236,71,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse high",IDC_FUSEH_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,261,60,81,10
-    EDITTEXT        IDC_FUSEX,236,78,19,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,261,73,81,10
+    EDITTEXT        IDC_FUSEX,236,91,19,14,ES_AUTOHSCROLL
     CONTROL         "_Extended Fuse",IDC_FUSEX_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,261,80,79,10
+                    WS_TABSTOP,261,93,79,10
     CONTROL         "_Abilita ICD",IDC_ICD_EN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,115,104,67,10
     EDITTEXT        IDC_ICDADDR,183,119,28,14,ES_AUTOHSCROLL
     LTEXT           "_indirizzo routine ICD",IDC_ICD_ADDR,114,120,67,8
-    GROUPBOX        "_PIC",IDC_PICCONF,7,25,212,115
+    GROUPBOX        "_PIC",IDC_PICCONF,7,39,212,102
     GROUPBOX        "ICD",IDC_STATIC3,107,91,109,46
 END
 
@@ -157,16 +157,16 @@ BEGIN
     LTEXT           "Pid",IDC_STATICpid,76,10,11,8
     PUSHBUTTON      "Riconnetti__",IDC_CONNETTI,151,7,50,14
     CONTROL         "Registra eventi su file__",IDC_REGISTRO,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,26,32,91,10
-    RTEXT           "Max errori in scrittura__",IDC_STATICerr,25,54,76,13
-    EDITTEXT        IDC_ERRMAX,106,53,32,14,ES_AUTOHSCROLL
-    RTEXT           "Rit USB__",IDC_STATIC_USBD,20,86,82,12
-    EDITTEXT        IDC_USBDMIN,106,85,32,14,ES_AUTOHSCROLL
-    RTEXT           "Language__",IDC_STATIC_L,163,55,50,8
-    COMBOBOX        IDC_LANGUAGE,216,52,49,66,CBS_DROPDOWN | CBS_SORT | 
+                    BS_AUTOCHECKBOX | WS_TABSTOP,8,32,91,10
+    RTEXT           "Max errori in scrittura__",IDC_STATICerr,7,54,76,13
+    EDITTEXT        IDC_ERRMAX,88,53,32,14,ES_AUTOHSCROLL
+    RTEXT           "Language__",IDC_STATIC_L,7,79,50,8
+    COMBOBOX        IDC_LANGUAGE,61,77,49,66,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Test hardware___",IDC_TESTHW,215,7,56,14
-    PUSHBUTTON      "__Scrivi Lang file",IDC_WLANGFILE,205,85,75,14
+    PUSHBUTTON      "__Scrivi Lang file",IDC_WLANGFILE,135,76,75,14
+    CONTROL         "Non richiedere LV__",IDC_NOLV,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,138,32,110,10
 END
 
 IDD_I2C_SPI DIALOG DISCARDABLE  0, 0, 346, 140
