@@ -6,30 +6,13 @@
 --------------------Configuration: OpenProg - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating command line "rc.exe /l 0x410 /fo"Release/OpenProg.res" /d "NDEBUG" /d "_AFXDLL" "C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\OpenProg.rc"" 
-Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAD.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP36.tmp" with contents
 [
 /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/OpenProg.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\deviceRW.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\fileIO.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\I2CSPI.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\OpenProg.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\OpenProgDlg.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progAVR.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progEEPROM.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP16.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP18.cpp"
 "C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP24.cpp"
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\strings.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAD.tmp" 
-Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAE.tmp" with contents
-[
-/nologo /MD /Ze /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP12.cpp"
-]
-Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAE.tmp" 
-Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAF.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP36.tmp" 
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP37.tmp" with contents
 [
 /nologo /subsystem:windows /incremental:no /pdb:"Release/OpenProg.pdb" /machine:I386 /out:"Release/OpenProg.exe" 
 ".\Release\DatiPage.obj"
@@ -51,24 +34,10 @@ Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAF.tmp" with conte
 ".\Release\strings.obj"
 ".\Release\OpenProg.res"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPAF.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP37.tmp"
 <h3>Output Window</h3>
-Compiling resources...
 Compiling...
-deviceRW.cpp
-fileIO.cpp
-I2CSPI.cpp
-OpenProg.cpp
-OpenProgDlg.cpp
-progAVR.cpp
-progEEPROM.cpp
-progP16.cpp
-progP18.cpp
 progP24.cpp
-strings.cpp
-Generating Code...
-Compiling...
-progP12.cpp
 Linking...
 
 

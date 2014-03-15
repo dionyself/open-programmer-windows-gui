@@ -5,6 +5,13 @@ These sources are given free of charge under the GNU General Public License vers
 
 Changelog (to use new features the corresponding firmware is required):
 
+V 0.9.0 march 2014:		Write16F72x requires only config-word 1;
+						added HV serial programming for ATtiny11-12-13-24-25-44-45-84-85;
+						added 24FJ64GA3xx-GCxx,24FJ128GA3xx-GB2xx-GCxx-DAxx,24FJ256DAxx,24EPx,33EPx;
+						added 95xx SPI EEPROM,25X05 FLASH;
+						added 12F1571-72,16F527,16F753,16F1454-55-59;
+						some code rework & minor improvements
+
 V 0.8.1 june 2013:		various user interface improvements; skip LV check;
 						fixed EEPROM write when code protection is active (16F83-84,12F629,
 						12F675,16F627-28,16F630,16F676,16F870-1-2,16F873-74,16F876-77);

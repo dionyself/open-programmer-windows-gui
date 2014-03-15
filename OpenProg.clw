@@ -13,18 +13,18 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=9
-Resource1=IDD_ABOUTBOX
+Resource1=IDD_DATI
 Resource2=IDR_MAINFRAME
-Resource3=IDD_OPENPROG_DIALOG
-Resource4=IDR_MENU1
+Resource3=IDD_DISP
+Resource4=IDD_OPENPROG_DIALOG
 Class4=CDatiPage
-Resource5=IDD_DATI
+Resource5=IDD_OPZIONI
 Class5=CDispositivoPage
-Resource6=IDD_OPZIONI
-Resource7=IDD_DISP
+Resource6=IDR_MENU1
+Resource7=IDD_I2C_SPI
 Class6=COpzioniPage
 Class7=CI2CSPIPage
-Resource8=IDD_I2C_SPI
+Resource8=IDD_ABOUTBOX
 Resource9=IDR_TOOLBAR1
 
 [CLS:COpenProgApp]
@@ -41,7 +41,7 @@ ImplementationFile=OpenProgDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=ID_WRITE_LANG_FILE
+LastObject=ID_CAMBIA_LINGUA
 
 [CLS:CAboutDlg]
 Type=0

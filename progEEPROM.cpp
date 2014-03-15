@@ -2185,3 +2185,4 @@ void Write11xx(int dim,int page)
 	PrintMessage3(strings[S_EndErr],(stop-start)/1000.0,err,err!=1?strings[S_ErrPlur]:strings[S_ErrSing]);	//"\r\nEnd (%.2f s) %d %s\r\n\r\n"
 	if(saveLog) CloseLogFile();
 }
+

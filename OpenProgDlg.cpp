@@ -294,7 +294,6 @@ BOOL COpenProgDlg::OnInitDialog()
 	}
 	if(m_OpzioniPage.m_language.SelectString(-1,lang)==CB_ERR)
 		m_OpzioniPage.m_language.SelectString(-1,"English");
-
 	ChangeLanguage();
 	m_OpzioniPage.SetDlgItemText(IDC_VID,vid);
 	m_OpzioniPage.SetDlgItemText(IDC_PID,pid);
@@ -399,7 +398,7 @@ void COpenProgDlg::ChangeLanguage()
 					line.Replace("\\r","\r");
 					line.Replace("\\t","\t");
 					for(int j=0;j<DIM;j++){
-						if(id==STR_ID[j]){
+						if(STR_ID[j] && id==STR_ID[j]){
 							strings[j]=new char[line.GetLength()+1];
 							strcpy(strings[j],line);
 							j=DIM;
@@ -561,7 +560,7 @@ void COpenProgDlg::OnFileOpen()
 		CString aux,err,str;
 		m_DispoPage.m_dispo.GetLBText(m_DispoPage.m_dispo.GetCurSel(),dev);
 		char loadfile[512];
-		strncpy(loadfile,dlg.GetFileName(),sizeof(loadfile));
+		strncpy(loadfile,wfile!=""?wfile:dlg.GetFileName(),sizeof(loadfile));
 		Load(dev,loadfile);
 		if(!strncmp(dev,"AT",2)){	//load EEPROM from separate file for ATMEL chips
 			CFileDialog dlgA(TRUE,"hex",NULL,OFN_HIDEREADONLY,strings[S_fileEEP]);	//"File Hex8 (*.hex;.eep ..."
