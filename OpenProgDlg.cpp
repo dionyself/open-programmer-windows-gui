@@ -138,13 +138,14 @@ BEGIN_MESSAGE_MAP(COpenProgDlg, CDialog)
 	ON_COMMAND(ID_I2CSPI_R, OnI2cspiR)
 	ON_COMMAND(ID_I2CSPI_S, OnI2cspiS)
 	ON_COMMAND(ID_TEST_HW, OnTestHw)
+	ON_COMMAND(ID_WRITE_LANG_FILE, OnWriteLangFile)
 	ON_COMMAND(ID_LEGGI, OnRead)
 	ON_COMMAND(ID_OPZIONI_PROGRAMMATORE_CONNETTI, OnConnect)
 	ON_COMMAND(ID_FILE_SALVA, OnFileSave)
 	ON_COMMAND(ID_FILE_APRI, OnFileOpen)
 	ON_COMMAND(ID_SCRIVI, OnWrite)
 	ON_COMMAND(ID_CAMBIA_LINGUA, ChangeLanguage)
-	ON_COMMAND(ID_WRITE_LANG_FILE, OnWriteLangFile)
+	ON_COMMAND(ID_FUSE3k, OnFUSE3k)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -192,6 +193,7 @@ BOOL COpenProgDlg::OnInitDialog()
 	memCODE=memEE=0;
 	progress=0;
 	skipV33check=0;
+	RWstop=0;
 	s.Format("OpenProg v%s",VERSION);
 	this->SetWindowText(s);
 	s=GetCommandLine();
@@ -448,6 +450,7 @@ void COpenProgDlg::ChangeLanguage()
 	m_DispoPage.SetDlgItemText(IDC_FUSE_P,strings[I_AT_FUSE]);
 	m_DispoPage.SetDlgItemText(IDC_FUSEH_P,strings[I_AT_FUSEH]);
 	m_DispoPage.SetDlgItemText(IDC_FUSEX_P,strings[I_AT_FUSEX]);
+	m_DispoPage.SetDlgItemText(IDC_FUSE3K_B,strings[I_AT_FUSELF]);
 	m_DispoPage.SetDlgItemText(IDC_LOCK_P,strings[I_AT_LOCK]);
 	m_DispoPage.SetDlgItemText(IDC_ICD_EN,strings[I_ICD_ENABLE]);
 	m_DispoPage.SetDlgItemText(IDC_ICD_ADDR,strings[I_ICD_ADDRESS]);
@@ -1317,3 +1320,45 @@ void COpenProgDlg::DoEvents()
             ::DispatchMessage(&msg);
     }
 }
+
+void COpenProgDlg::OnFUSE3k() 
+{
+	int i;
+	CButton* b=(CButton*)m_DispoPage.GetDlgItem(IDC_FUSE_P);
+	if(b->GetCheck()){
+		m_DispoPage.GetDlgItemText(IDC_FUSE,str);
+		i=sscanf(str,"%x",&AVRfuse);
+		if(i!=1||AVRfuse<0||AVRfuse>0xFF) AVRfuse=0x100;
+		else WriteATfuseSlow(AVRfuse);
+
+	}
+}
+
+///
+///Write data packet, wait for X milliseconds, read response
+void COpenProgDlg::PacketIO(double delay){
+	#define TIMEOUT 50
+	if(saveLog) fprintf(logfile,"PacketIO(%.2f)\n",delay);
+	__int64 start,stop,freq;
+	QueryPerformanceCounter((LARGE_INTEGER *)&start);
+	QueryPerformanceFrequency((LARGE_INTEGER *)&freq);
+	delay-=TIMEOUT-10;	//shorter delays are covered by 50ms timeout
+	if(delay<0) delay=0;
+	//write
+	Result = WriteFile(WriteHandle,bufferU,DIMBUF,&BytesWritten,NULL);
+	//delay(delay)
+	Sleep((long)ceil(delay)>MinDly?(long)ceil(delay):MinDly);
+	//read
+	Result = ReadFile(ReadHandle,bufferI,DIMBUF,&NumberOfBytesRead,(LPOVERLAPPED) &HIDOverlapped);
+	Result = WaitForSingleObject(hEventObject,50);
+	if(saveLog) WriteLogIO();
+	ResetEvent(hEventObject);
+	if(Result!=WAIT_OBJECT_0){
+		PrintMessage(strings[S_comTimeout]);	/*"comm timeout\r\n"*/
+		if(saveLog) fprintf(logfile,strings[S_comTimeout]);
+	}
+	QueryPerformanceCounter((LARGE_INTEGER *)&stop);
+	if(saveLog) fprintf(logfile,"T=%.2f ms\n",(stop-start)*1000.0/freq);
+}
+
+

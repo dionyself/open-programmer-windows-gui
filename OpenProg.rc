@@ -125,25 +125,26 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,11,25,117,10
     CONTROL         "Programma CALIB1 e 2__",IDC_CALIB_LOAD,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,11,75,97,10
-    EDITTEXT        IDC_LOCK,236,111,19,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOCK,236,102,19,14,ES_AUTOHSCROLL
     CONTROL         "_Lock",IDC_LOCK_P,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    261,113,78,10
-    GROUPBOX        "_Atmel",IDC_ATCONF,227,38,128,95
+                    261,104,78,10
+    GROUPBOX        "_Atmel",IDC_ATCONF,227,39,128,102
     EDITTEXT        IDC_FUSE,236,51,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse low",IDC_FUSE_P,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,261,53,79,10
-    EDITTEXT        IDC_FUSEH,236,71,19,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FUSEH,236,68,19,14,ES_AUTOHSCROLL
     CONTROL         "_Fuse high",IDC_FUSEH_P,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,261,73,81,10
-    EDITTEXT        IDC_FUSEX,236,91,19,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FUSEX,236,85,19,14,ES_AUTOHSCROLL
     CONTROL         "_Extended Fuse",IDC_FUSEX_P,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,261,93,79,10
+                    WS_TABSTOP,261,90,79,10
     CONTROL         "_Abilita ICD",IDC_ICD_EN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,115,104,67,10
     EDITTEXT        IDC_ICDADDR,183,119,28,14,ES_AUTOHSCROLL
     LTEXT           "_indirizzo routine ICD",IDC_ICD_ADDR,114,120,67,8
     GROUPBOX        "_PIC",IDC_PICCONF,7,39,212,102
     GROUPBOX        "ICD",IDC_STATIC3,107,91,109,46
+    PUSHBUTTON      "__scrivi fuse @ 3k",IDC_FUSE3K_B,236,120,102,14
 END
 
 IDD_OPZIONI DIALOG DISCARDABLE  0, 0, 307, 122
@@ -331,6 +332,7 @@ BEGIN
             MENUITEM "lingua",                      ID_CAMBIA_LINGUA
             MENUITEM "Test Hardware",               ID_TEST_HW
             MENUITEM "Write Language File",         ID_WRITE_LANG_FILE
+            MENUITEM "Fuse 3k",                     ID_FUSE3k
         END
     END
     POPUP "&?"

@@ -13,18 +13,18 @@ Class2=COpenProgDlg
 Class3=CAboutDlg
 
 ResourceCount=9
-Resource1=IDD_DATI
+Resource1=IDD_ABOUTBOX
 Resource2=IDR_MAINFRAME
 Resource3=IDD_DISP
 Resource4=IDD_OPENPROG_DIALOG
 Class4=CDatiPage
-Resource5=IDD_OPZIONI
+Resource5=IDR_MENU1
 Class5=CDispositivoPage
-Resource6=IDR_MENU1
-Resource7=IDD_I2C_SPI
+Resource6=IDD_OPZIONI
+Resource7=IDD_DATI
 Class6=COpzioniPage
 Class7=CI2CSPIPage
-Resource8=IDD_ABOUTBOX
+Resource8=IDD_I2C_SPI
 Resource9=IDR_TOOLBAR1
 
 [CLS:COpenProgApp]
@@ -41,7 +41,7 @@ ImplementationFile=OpenProgDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=ID_CAMBIA_LINGUA
+LastObject=ID_FUSE3k
 
 [CLS:CAboutDlg]
 Type=0
@@ -75,8 +75,9 @@ Command4=ID_OPZIONI_PROGRAMMATORE_CONNETTI
 Command5=ID_CAMBIA_LINGUA
 Command6=ID_TEST_HW
 Command7=ID_WRITE_LANG_FILE
-Command8=ID__INFORMAZIONI
-CommandCount=8
+Command8=ID_FUSE3k
+Command9=ID__INFORMAZIONI
+CommandCount=9
 
 [DLG:IDD_DATI]
 Type=1
@@ -96,7 +97,7 @@ LastObject=CDatiPage
 [DLG:IDD_DISP]
 Type=1
 Class=CDispositivoPage
-ControlCount=24
+ControlCount=25
 Control1=IDC_DISPO,combobox,1344339971
 Control2=IDC_STATICdev,static,1342308352
 Control3=IDC_RISERVATA,button,1342242819
@@ -121,6 +122,7 @@ Control21=IDC_ICDADDR,edit,1350631552
 Control22=IDC_ICD_ADDR,static,1342308352
 Control23=IDC_PICCONF,button,1342177287
 Control24=IDC_STATIC3,button,1342177287
+Control25=IDC_FUSE3K_B,button,1342242816
 
 [CLS:CDispositivoPage]
 Type=0
@@ -128,7 +130,7 @@ HeaderFile=DispositivoPage.h
 ImplementationFile=DispositivoPage.cpp
 BaseClass=CPropertyPage
 Filter=T
-LastObject=CDispositivoPage
+LastObject=IDC_AVRFUSE3K
 VirtualFilter=idWC
 
 [TB:IDR_TOOLBAR1]
@@ -164,7 +166,7 @@ HeaderFile=OpzioniPage.h
 ImplementationFile=OpzioniPage.cpp
 BaseClass=CPropertyPage
 Filter=D
-LastObject=IDC_WLANGFILE
+LastObject=COpzioniPage
 VirtualFilter=idWC
 
 [DLG:IDD_I2C_SPI]

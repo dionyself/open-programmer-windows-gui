@@ -6,13 +6,13 @@
 --------------------Configuration: OpenProg - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP36.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPCAF.tmp" with contents
 [
 /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/OpenProg.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
-"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\progP24.cpp"
+"C:\Documents and Settings\Alberto\Documenti\Progetti Elettronica\Programmatore USB\OpenProg\deviceRW.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP36.tmp" 
-Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP37.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPCAF.tmp" 
+Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPCB0.tmp" with contents
 [
 /nologo /subsystem:windows /incremental:no /pdb:"Release/OpenProg.pdb" /machine:I386 /out:"Release/OpenProg.exe" 
 ".\Release\DatiPage.obj"
@@ -34,10 +34,10 @@ Creating temporary file "C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP37.tmp" with conte
 ".\Release\strings.obj"
 ".\Release\OpenProg.res"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSP37.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Alberto\IMPOST~1\Temp\RSPCB0.tmp"
 <h3>Output Window</h3>
 Compiling...
-progP24.cpp
+deviceRW.cpp
 Linking...
 
 

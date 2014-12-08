@@ -37,9 +37,15 @@ void CDispositivoPage::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CDispositivoPage, CPropertyPage)
 	//{{AFX_MSG_MAP(CDispositivoPage)
-		// NOTE: the ClassWizard will add message map macros here
+	ON_BN_CLICKED(IDC_FUSE3K_B, OnFuse3kB)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CDispositivoPage message handlers
+
+
+void CDispositivoPage::OnFuse3kB() 
+{
+	SendMessage(WM_COMMAND, ID_FUSE3k, 0L);		
+}

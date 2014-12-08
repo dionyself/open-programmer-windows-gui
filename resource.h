@@ -74,8 +74,8 @@
 #define IDC_PICCONF                     1060
 #define IDC_WLANGFILE                   1061
 #define IDC_ICD_ADDR                    1062
-#define IDC_CHECK1                      1063
 #define IDC_NOLV                        1063
+#define IDC_FUSE3K_B                    1064
 #define ID_LEGGI                        32773
 #define ID_FILE_APRI                    32775
 #define ID_FILE_SALVA                   32776
@@ -86,6 +86,7 @@
 #define ID_OPZIONI_PROGRAMMATORE_CONNETTI 32784
 #define ID_FILE_ESCI                    32787
 #define ID_CAMBIA_LINGUA                32790
+#define ID_FUSE3k                       32791
 #define ID_I2CSPI_R                     32792
 #define ID_I2CSPI_S                     32797
 #define ID_TEST_HW                      32800
@@ -97,7 +98,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        150
 #define _APS_NEXT_COMMAND_VALUE         32804
-#define _APS_NEXT_CONTROL_VALUE         1064
-#define _APS_NEXT_SYMED_VALUE           101
+#define _APS_NEXT_CONTROL_VALUE         1065
+#define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

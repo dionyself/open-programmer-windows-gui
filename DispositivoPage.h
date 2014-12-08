@@ -37,7 +37,8 @@ public:
 protected:
 	// Generated message map functions
 	//{{AFX_MSG(CDispositivoPage)
-		// NOTE: the ClassWizard will add member functions here
+	afx_msg void OnAvrfuse3k();
+	afx_msg void OnFuse3kB();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

@@ -28,7 +28,7 @@ public:
 	void OnWrite();
 	void AddDevices();
 	void strinit();
-	int Load(char*dev,char*loadfile);
+	int  Load(char*dev,char*loadfile);
 	void Save(char* dev,char* savefile);
 	void Write(char* dev,int ee);
 	void Read(char* dev,int ee,int r);
@@ -69,12 +69,12 @@ public:
 	void Write24Fx(int dim,int dim2,int options,int appIDaddr,int rowSize, double wait);
 	void Write24Ex(int dim,int dim2,int options,int appIDaddr,int rowSize, double wait);
 	void WriteI2C(int dim,int addr,int page);
-	void WriteAT(int dim, int dim2);
+	void WriteAT(int dim, int dim2, int dummy1, int dummy2);
 	void WriteATmega(int dim, int dim2,int page,int options);
 	void WriteAT_HV(int dim, int dim2, int page, int options);
 	void Write93Sx(int dim, int na,int page);
 	void Write93Cx(int dim,int na, int options);
-	void Write25xx(int dim,int page);
+	void Write25xx(int dim,int options);
 	void WriteOneWireMem(int dim,int options);
 	void Write11xx(int dim,int page);
 	void DisplayCODE16F(int size);
@@ -98,6 +98,10 @@ public:
 	void I2CReceive(int mode,int speed,int N,BYTE *buffer);
 	void I2CSend(int mode,int speed,int N,BYTE *buffer);
 	void ReadDS1820();
+	void PacketIO(double delay);
+	int  SWSPI(int data, int speed);
+	void WriteATfuseSlow(int fuse);
+	int  GetDevType(const char* dev);
 	unsigned int htoi(const char *hex, int length);
 	CToolBar			ToolBar;
 	CStatusBarCtrl		StatusBar;
@@ -150,6 +154,7 @@ public:
 	CString wfile;
 	int progress;
 	char LogFileName[512];
+	int RWstop;
 	COpenProgDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
@@ -178,6 +183,7 @@ protected:
 	afx_msg void OnI2cspiS();
 	afx_msg void OnTestHw();
 	afx_msg void OnWriteLangFile();
+	afx_msg void OnFUSE3k();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
